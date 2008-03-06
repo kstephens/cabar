@@ -134,6 +134,13 @@ END
       end
     end
 
+    cmd :config, <<"END" do
+config 
+Shows current configuration.
+END
+      puts "#{context.config_raw.to_yaml}"
+    end
+
 
     cmd :list, <<"END" do
 list [ <cmd-opts> ] [ <component> ]

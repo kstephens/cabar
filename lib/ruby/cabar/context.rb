@@ -43,8 +43,10 @@ module Cabar
       @required_components = Cabar::Version::Set.new
       @top_level_components = [ ] # ordered Cabar::Version::Set.new
       @unresolved_components = { } # name
+
       self.component_search_path = ENV['CABAR_PATH'] || '.'
       self.config_file_path = ENV['CABAR_CONFIG'] || '~/.cabar.yml'
+
       super
     end
 
@@ -71,6 +73,8 @@ module Cabar
       x
     end
 
+
+    # Returns the configuration Hash loaded from config_file_path.
     def config
       @config ||=
       begin
@@ -87,7 +91,7 @@ module Cabar
           
         cfg ||= {
           'cabar' => {
-            'version' => true,
+            'version' => Cabar.version,
             'configuration' => {
             },
           },
@@ -96,6 +100,7 @@ module Cabar
         unless Hash === cfg
           raise("configuration is not a Hash")
         end
+        @config_raw = cfg
         unless cfg = cfg['cabar']
           raise("configuration is not a Cabar configuration file")
         end
@@ -106,11 +111,20 @@ module Cabar
           raise("configuration is not a Cabar configuration file")
         end
 
-        cfg[:config_file_path] = config_file_path
-
+        cfg['config_file_path'] = config_file_path
+        cfg['component_search_path'] = component_search_path
+ 
         cfg
       end
     end
+
+    # Returns the raw configuration hash.
+    # See Cabar::Main.
+    def config_raw
+      config
+      @config_raw
+    end
+
 
     def _read_config_file file
       File.open(file) do | fh |
@@ -141,6 +155,7 @@ module Cabar
       
       x
     end
+
 
     # Returns a list of all component directories.
     def component_directories
@@ -194,7 +209,7 @@ module Cabar
         # This will also load any plugins.
         read_components
 
-        # Now they can be parse since all the plugins have been loaded.
+        # Now they can be parsed since all the plugins have been loaded.
         @available_components.each do | c |
           c.parse_configuration!
         end
@@ -208,7 +223,6 @@ module Cabar
       a << c
       c
     end
-
 
     # Returns the selected components.
     def selected_components
