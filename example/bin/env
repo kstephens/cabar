@@ -1,13 +1,14 @@
 #!/bin/bash
 
-d="`dirname $0`"
-base="$d/.."
+d="$(dirname "$0")"
+d="$(cd "$d" && /bin/pwd)"
+base="$(cd "$d/.." && /bin/pwd)"
 
 export CABAR_PATH="${base}/dev:${base}/prod:${base}/plat"
 export CABAR_CONFIG="${base}/cabar_conf.yml"
 
-d="`cd $d && /bin/pwd`"
+cabar_bin="$(cd "$d/../../bin" && /bin/pwd)"
 
-PATH="$d:$d/../../bin:$PATH"
+PATH="$d:$cabar_bin:$PATH"
 
 exec "$@"
