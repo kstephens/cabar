@@ -1,9 +1,10 @@
 cabar:
   version: v1.0
   configuration:
-    p4:
-      P4
-      depot_root: //depot/cnu/cabar
+# FIXME: support for p4.
+#    p4:
+#      P4
+#      depot_root: //depot/cnu/cabar
     select:
       component:
         ruby:

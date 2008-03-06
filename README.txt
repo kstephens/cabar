@@ -1,8 +1,22 @@
-Agenda:
+INTRODUCTION:
 
-* Software Components
-* Cabar Demo
-* CNUAPP Components for 2008
+See lib/perl/cabar.rb for more info.
+
+TO DO:
+
+* Make Cabar::Component not a subclass of Cabar::Facet
+* Add support to make Facet auto-discoverable by following facet conventions, such as:
+** :key => :bin, :path => 'bin', :_discover => lambda { | f |
+* File.directory(f.abs_path) } 
+
+* Add support for component repositories inside components, need
+a Facet that appends additional search directories to Cabar::Context.
+ 
+* Add support to default component name and version from component
+directory names, such as:
+** "foo/1.2/" => { :name => 'foo', :version => '1.2' }
+** "foo-1.2/" => { :name => 'foo', :version => '1.2' }
+** "foo/" => { :name => 'foo', :version => '0.1' }
 
 Cabar Demo
 
