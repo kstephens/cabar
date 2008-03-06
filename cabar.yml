@@ -1,0 +1,19 @@
+cabar:
+  version: '1.0'
+
+  component:
+    name: cabar
+    version: v1.0
+    description: 'Cabar - Component Backplane Manager'
+
+  provides:
+    bin: true
+    lib/ruby: true
+    component: 
+      path: 'comp'
+    actions:
+      test: "rake test"
+
+  requires:
+    component:
+      ruby: true 

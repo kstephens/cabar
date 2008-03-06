@@ -1,0 +1,13 @@
+#!/bin/bash
+
+d="`dirname $0`"
+base="$d/.."
+
+export CABAR_PATH="${base}/dev:${base}/prod:${base}/plat"
+export CABAR_CONFIG="${base}/cabar_conf.yml"
+
+d="`cd $d && /bin/pwd`"
+
+PATH="$d:$d/../../bin:$PATH"
+
+exec "$@"

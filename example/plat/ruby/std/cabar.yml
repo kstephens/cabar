@@ -1,0 +1,21 @@
+<%
+  # Calls ruby to get information about itself.
+  # Plugin info about ruby into a "ruby" component via eRB below.
+  ruby_info = eval `ruby -e 'x = { :version => RUBY_VERSION, :patchlevel => (RUBY_PATCHLEVEL rescue 0), :load_path => $: }; puts x.inspect;'`.chomp
+  ruby_info[:prog] = `which ruby`.chomp
+  ruby_info[:bin] = File.dirname(ruby_info[:prog])
+  # pp ruby_info
+ %>
+cabar:
+  version: '1.0'
+  component:
+    name: ruby
+    version: <%= "v#{ruby_info[:version]}.#{ruby_info[:patchlevel]}" %>
+    base_directory: <%= File.dirname(ruby_info[:bin]).inspect %>
+    description: "This is ruby as found at <%= ruby_info[:prog] %>"
+  provides:
+    bin:
+      abs_path: [ <%= ruby_info[:bin].inspect %> ]
+    lib/ruby:
+      abs_path: <%= ruby_info[:load_path].inspect %>
+

@@ -1,0 +1,11 @@
+cabar:
+  version: '1.0'
+
+  component:
+    name: ruby
+    version: '1.9'
+
+  provides:
+    bin: true
+    lib/ruby: true
+

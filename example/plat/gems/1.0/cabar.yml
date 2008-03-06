@@ -1,0 +1,18 @@
+cabar:
+  version: '1.0'
+
+  component:
+    name: gems
+    version: '1.0'
+
+  plugin: cabar.rb
+
+  provides:
+    lib/ruby:
+      path: [ lib ]
+    gems: true
+
+  requires:
+    component:
+      ruby: true
+

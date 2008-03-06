@@ -1,0 +1,19 @@
+cabar:
+  version: v1.0
+
+  component:
+    name: c3
+    version: '2.1'
+
+  provides:
+    bin: true
+    lib: true
+    include: true
+    cnu_config_path: true
+
+  requires:
+    component:
+      cnu_config: true
+      ruby: true
+
+

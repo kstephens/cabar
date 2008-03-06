@@ -1,0 +1,7 @@
+cabar:
+  version: v1.0
+  component:
+    name: c2
+    version: '1.1'
+  provides:
+    lib/ruby: true

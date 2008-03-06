@@ -1,0 +1,31 @@
+cabar:
+  version: '1.0'
+
+  component:
+    name: c1
+    version: v1.0
+    description: 'c1 - requires on c2/1.2'
+
+  provides:
+    bin: true # => PATH
+    lib/ruby: true # => RUBYLIB
+    actions:
+      foo: "echo foo #{name} #{version}"
+      bar: "echo bar"
+      test: "rake test"
+      checkout_post: "echo Jer is cool"
+      true_ok: "/bin/true"
+      false_not_ok: "/bin/false"
+      false_ok: "-/bin/false"
+
+  requires:
+    component:
+      ruby: true
+      c2:
+      #  version: v1.2
+        configuration:
+          foo: bar
+      c3: 
+        version: ">=1.1"
+
+

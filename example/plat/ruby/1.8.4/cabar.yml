@@ -1,0 +1,26 @@
+cabar:
+  version: '1.0'
+
+  component:
+    name: ruby
+    version: '1.8.4'
+    enabled: true
+
+#    plugin: cabar.rb
+
+  provides:
+    bin:
+      abs_path: [ /usr/bin ]
+
+    # via ruby -e 'puts $:.inspect'
+    lib/ruby:
+      abs_path: 
+      - "/usr/local/lib/site_ruby/1.8"
+      - "/usr/local/lib/site_ruby/1.8/i486-linux"
+      - "/usr/local/lib/site_ruby/1.8/i386-linux"
+      - "/usr/local/lib/site_ruby"
+      - "/usr/lib/ruby/1.8"
+      - "/usr/lib/ruby/1.8/i486-linux"
+      - "/usr/lib/ruby/1.8/i386-linux"
+      - "."
+

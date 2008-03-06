@@ -1,0 +1,13 @@
+cabar:
+  version: v1.0
+  component:
+    name: cnu_config
+    version: '1.0'
+  plugin: cabar.rb
+  provides:
+    lib/ruby:
+      path: [ lib ]
+  requires:
+    component:
+      ruby: true
+

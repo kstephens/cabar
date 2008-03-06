@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "c2_prog version 1.1: $*"
+
