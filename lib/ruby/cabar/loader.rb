@@ -147,7 +147,26 @@ private
       unless comps = conf['component']
         raise Error, "does not have a component definition"
       end
+      unless Hash === comps
+        comps = { }
+      end
       
+      # Infer component name/version from directory name,
+      if ! comps['name'] || comps['version']
+        case directory
+          # name/version
+        when /\/([a-z_][^\/]*)[\/-]([0-9]+(\.[0-9])*)$/i
+          comps['name'] ||= $1
+          comps['version'] ||= $2
+          # name
+        when /\/([a-z_][^\/]*)$/i
+          comps['name'] ||= $1
+          comps['version'] ||= '0.1'
+        else
+          raise Error, "Cannot infer component name/version from directory"
+        end
+      end
+
       if comps.size >= 2 && comps['name'] && comps['version']
         name = comps['name']
         comps.delete 'name'

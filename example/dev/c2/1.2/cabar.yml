@@ -1,8 +1,8 @@
 cabar:
   version: v1.0
-  component:
-    name: c2
-    version: '1.2'
+  component: true
+#    name: c2
+#    version: '1.2'
   provides:
     bin: true
     lib/ruby: true

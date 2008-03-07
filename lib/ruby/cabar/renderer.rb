@@ -177,6 +177,7 @@ module Cabar
     class DotGraph < self
       attr_accessor :show_dependencies
       attr_accessor :show_facets
+      attr_accessor :show_facet_links
 
       def initialize *args
         @show_dependencies = false
@@ -241,7 +242,7 @@ module Cabar
 
       def render_Facet f
         # $stderr.puts "render_Facet #{f.class}"
-        return unless show_facets
+        return unless show_facet_links
         return if Cabar::RequiredComponent === f
         puts "  #{dot_name f} [ shape=hexagon, label=#{dot_label f} ];"
       end
@@ -255,7 +256,7 @@ module Cabar
 
       def render_facet_link c, f
         return if Cabar::RequiredComponent === f
-        return unless show_facets
+        return unless show_facet_links
         puts "  #{dot_name c} -> #{dot_name f} [ style=dotted, arrowhead=none ];"
       end
 
@@ -277,7 +278,11 @@ module Cabar
           case x
           when Cabar::Component
             dir = x.directory.sub(/^#{@current_directory}/, '')
-            "#{x.name} #{x.version}\n#{dir}".inspect
+            str = "#{x.name} #{x.version}\\n#{dir}"
+            if show_facets
+              str << "\\n" + x.provides.map{|f| f.key}.sort.map{|f| "* #{f}"}.join("\\l") + "\\l"
+            end
+            '"' + str + '"'
           when Cabar::RequiredComponent
             x._proto ? "#{x.version}".inspect : x.key.to_s.inspect
           when Cabar::Facet

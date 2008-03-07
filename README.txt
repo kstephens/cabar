@@ -15,12 +15,6 @@ TO DO:
 
 * Add support to automatically require top_level components.
 
-* Add support to default component name and version from component
-directory names, such as:
-** "foo/1.2/" => { :name => 'foo', :version => '1.2' }
-** "foo-1.2/" => { :name => 'foo', :version => '1.2' }
-** "foo/" => { :name => 'foo', :version => '0.1' }
-
 Cabar Demo
 
 * Show bin/env.

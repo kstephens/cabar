@@ -280,7 +280,7 @@ module Cabar
     #
     # Notify the resolved component of a dependency.
     #
-    # Notify the resolved component of additional configuration.
+    # Append additional configuration to the component.
     def resolved_component! c
       @resolved_component = c
       c.add_dependent! self.owner
