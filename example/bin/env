@@ -1,15 +1,34 @@
 #!/bin/bash
 
+_vars=''
+_export() {
+_n="$1"; shift
+eval export "$_n='$*'"
+_vars="$_vars $_n"
+}
 
 d="$(dirname "$0")"
 d="$(cd "$d" && /bin/pwd)"
 base="$(cd "$d/.." && /bin/pwd)"
 
-export CABAR_PATH="${base}/dev:${base}/prod:${base}/plat:${base}/../.."
-export CABAR_CONFIG="${base}/cabar_conf.yml"
+_export CABAR_PATH "${base}/dev:${base}/prod:${base}/plat:${base}/../.."
+_export CABAR_CONFIG "${base}/cabar_conf.yml"
 
 cabar_bin="$(cd "$d/../../bin" && /bin/pwd)"
 
-PATH="$d:$cabar_bin:$PATH"
+_export PATH "$d:$cabar_bin:$PATH"
 
-exec "$@"
+case "$1"
+in
+  --env)
+    for _n in $_vars
+    do
+      eval _v='"$'$_n'"'
+      echo "$_n='$_v'; export $_n;"
+    done
+  ;;
+  *)
+    exec "$@"
+  ;;
+esac
+
