@@ -13,6 +13,7 @@ base="$(cd "$d/.." && /bin/pwd)"
 
 _export CABAR_PATH "${base}/dev:${base}/prod:${base}/plat:${base}/../.."
 _export CABAR_CONFIG "${base}/cabar_conf.yml"
+_export CABAR_TOP_LEVEL 'c1'
 
 cabar_bin="$(cd "$d/../../bin" && /bin/pwd)"
 

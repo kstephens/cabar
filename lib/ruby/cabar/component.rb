@@ -42,6 +42,19 @@ module Cabar
     # The temporary configuration Hash.
     attr_accessor :_config
     
+
+    def self.current
+      @@current
+    end
+
+    def as_current 
+      current_save = @@current
+      @@current = self
+      yield
+    ensure
+      @@current = current_save
+    end
+
     
     def initialize *args
       super

@@ -226,7 +226,7 @@ END
 
       if File.readable?(cmd) && 
           File.executable?(cmd) && 
-          /#!.*ruby/ === File.open(cmd) { |fh| fh.readline }
+          /^\s*#!.*ruby/ === File.open(cmd) { |fh| fh.readline + fh.readline }
         # $stderr.puts "Running ruby in-place #{cmd.inspect} #{args.inspect}"
 
         ARGV.clear
@@ -326,12 +326,8 @@ END
     
     # Selects the root component.
     def select_root args
-      root_component = nil
-
-      if args.first == '-'
-        # Require the root component.
-        root_component = context.require_component search_opts(args)
-      end
+      # Require the root component.
+      root_component = context.require_component search_opts(args, ENV['CABAR_TOP_LEVEL'])
 
       # Resolve configuration.
       context.resolve_components!
@@ -345,7 +341,7 @@ END
 
 
     # Get a Constraint object for the cmd_arguments and options.
-    def search_opts args
+    def search_opts args, default = nil
       name = nil
       if args.first == '-'
         args.shift
@@ -354,8 +350,11 @@ END
       end
       version = cmd_opts[:version]
 
+
       search_opts = { }
       search_opts[:name] = name if name
+      search_opts[:name] ||= default if default
+
       search_opts[:version] = version if version
 
       search_opts = Cabar::Constraint.create(search_opts)

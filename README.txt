@@ -72,3 +72,7 @@ bin/env cbr run - c1 c2_prog
 * Show cabar as component
 
 CABAR_PATH=.. bin/cbr run - cabar cbr list 
+
+* Show cbr-run on a #! line.
+
+bin/env cbr-run-test
