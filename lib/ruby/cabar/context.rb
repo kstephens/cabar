@@ -1,17 +1,15 @@
 require 'cabar/base'
 
+require 'cabar/configuration'
 require 'cabar/component'
 require 'cabar/facet'
 require 'cabar/renderer'
 require 'cabar/constraint'
-require 'yaml'
-require 'erb'
 
 
 module Cabar
   class Context < Base
     attr_accessor :component_search_path
-    attr_accessor :config_file_path
 
     # Set of all components availiable.
     attr_reader :available_components
@@ -45,7 +43,6 @@ module Cabar
       @unresolved_components = { } # name
 
       self.component_search_path = ENV['CABAR_PATH'] || '.'
-      self.config_file_path = ENV['CABAR_CONFIG'] || '~/.cabar.yml'
 
       super
     end
@@ -56,95 +53,37 @@ module Cabar
         directory
     end
 
-    def config_file_path= x 
-      case y = x
-      when Array
-      when String
-        y = x.split(path_sep)
-      else
-        raise("YUCK")
-      end
+    ###########################################################
+    # Configuration
+    #
 
-      @config_file_path = y.map { | p | File.expand_path(p) }.uniq_return!
-
-      # Flush caches:
-      @config = nil
-      
-      x
+    def configuration
+      @configuration ||= Cabar::Configuration.new(:context => self)
     end
 
-
-    # Returns the configuration Hash loaded from config_file_path.
     def config
-      @config ||=
-      begin
-        cfg = nil
-
-        config_file_path.
-          reverse.
-          select { | f | File.exists? f }.
-          each do | f |
-            y = _read_config_file f
-            cfg ||= { }
-            cfg.merge!(y)
-          end
-          
-        cfg ||= {
-          'cabar' => {
-            'version' => Cabar.version,
-            'configuration' => {
-            },
-          },
-        }
-
-        unless Hash === cfg
-          raise("configuration is not a Hash")
-        end
-        @config_raw = cfg
-        unless cfg = cfg['cabar']
-          raise("configuration is not a Cabar configuration file")
-        end
-        unless cfg['version']
-          raise("configuration does not have a version")
-        end
-        unless cfg = cfg['configuration']
-          raise("configuration is not a Cabar configuration file")
-        end
-
-        cfg['config_file_path'] = config_file_path
-        cfg['component_search_path'] = component_search_path
- 
-        cfg
-      end
+      configuration.config
     end
 
-    # Returns the raw configuration hash.
-    # See Cabar::Main.
     def config_raw
-      config
-      @config_raw
+      configuration.config_raw
     end
 
-
-    def _read_config_file file
-      File.open(file) do | fh |
-        template = ERB.new fh.read
-        fh = template.result binding
-        YAML::load fh
-      end
-    rescue Exception => err
-      raise("Problem reading config file #{file.inspect}: #{err.inspect}")
+    def apply_configuration!
+      configuration.apply_configuration! self
     end
+
 
     ###########################################################
+
 
     def component_search_path= x 
       case y = x
       when Array
       when String
-        y = x.split(path_sep)
+        y = x.split(Cabar.path_sep)
       else
-        raise("YUCK")
+        raise ArgumentError, "expected Array or String"
       end
 
       @component_search_path = y.map { | p | File.expand_path(p) }.uniq_return!
@@ -183,7 +122,7 @@ module Cabar
 
     # Helper method to create a Component.
     def create_component(opts)
-      c = Facet.create :component, opts
+      c = Component.new opts
       c.context = self
       c
     end
@@ -230,67 +169,10 @@ module Cabar
       begin
         @selected_components = Cabar::Component::Set.new available_components.dup
         
-        _do_configuration
+        apply_configuration!
 
         @selected_components
       end
-    end
-
-    def _do_configuration
-      by = "config@#{config[:config_file_path].inspect}"
-      
-      cfg = config
-      cfg &&= cfg['select']
-      cfg &&= cfg['component']
-      cfg ||= EMPTY_HASH
-      
-      # Apply configuration to components.
-      cfg.each do | name, opts |
-        opts = _normalize_config_opts opts
-        opts[:name] = name unless name.nil?
-        opts[:_by] = by
-        
-        select_component opts
-      end
-
-      cfg = config
-      cfg &&= cfg['require']
-      cfg &&= cfg['component']
-      cfg ||= EMPTY_HASH
-      
-      # Apply configuration to components.
-      cfg.each do | name, opts |
-        opts = _normalize_config_opts opts
-        opts[:name] = name unless name.nil?
-        opts[:_by] = by
-        
-        require_component opts
-      end
-
-      # Do plugin configurations.
-      # plugin.each do | plugin |
-      #  plugin.apply_context_configuration self
-      # end
-    end
-
-    def _normalize_config_opts opts
-      opts = opts.inject({ }) do | h, kv |
-        k, v = *kv
-        h[k.to_sym] = v
-        h
-      end
-      case opts
-      when nil, false
-        opts = { :enabled => false }
-      when true
-        opts = { }
-      when String, Float, Integer
-        opts = { :version => opts }
-      end
-      
-      opts[:version] = Cabar::Version::Requirement.create_cabar(opts[:version]) if opts[:version]
-      
-      opts
     end
 
     # Selects a specific matching component.
@@ -316,6 +198,7 @@ module Cabar
     # Requires a specific component and/or version.
     # Adds to top_level_components list.
     def require_component opts, &blk
+      return nil unless opts
       c = _require_component opts, &blk
       add_top_level_component! c
       c
@@ -326,7 +209,7 @@ module Cabar
       r = resolve_component opts, :all, &blk
       case r.size
       when 0
-        raise("Cannot find required component #{opts.inspect}")
+        raise Error, "Cannot find required component #{opts.inspect}"
       else
         # Select latest version.
         c = r.first
@@ -420,7 +303,7 @@ END
         end
       end
       $stderr.puts msg
-      raise("UnresolvedComponent")
+      raise Error, "UnresolvedComponent"
     end
 
     # Validates all components.
@@ -434,10 +317,6 @@ END
       self
     end
 
-    # FIXME
-    def path_sep
-      ':'
-    end
 
     # Returns a list of call facets collected from
     # all required components.
@@ -477,7 +356,7 @@ END
         if (v = ENV[fp.var])
           f = coll[ft]
           facet = Facet.create(ft, 
-                               :path => v.split(path_sep), 
+                               :path => v.split(Cabar.path_sep), 
                                :owner => self)
           
           if f 
@@ -500,7 +379,7 @@ END
           f = coll[ft]
 
           facet = Facet.create(ft, 
-                               :path => v.split(path_sep), 
+                               :path => v.split(Cabar.path_sep), 
                                :owner => self)
           
           facet.compose_facet! f if f
@@ -532,12 +411,8 @@ private
         File.join(directory, "cabar.yml")
 
       begin
-        conf = _read_config_file conf_file
-        
-        # Basic component configuration file.
-        (Hash === conf) || raise("#{conf_file} not a Cabar component file")
-        conf = conf['cabar'] || raise("#{conf_file} not a Cabar component file")
-        conf['version'] || raise("#{conf_file} does not have a Cabar version")
+        conf = configuration.read_config_file conf_file
+        conf = conf['cabar']
 
         # Handle plugins.
         if plugin = conf['plugin']
@@ -550,7 +425,9 @@ private
         end
 
         # Handle components.
-        comps = conf['component'] || raise("does not have a component definition")
+        unless comps = conf['component']
+          raise Error, "does not have a component definition"
+        end
 
         if comps.size >= 2 && comps['name'] && comps['version']
           name = comps['name']
@@ -572,10 +449,10 @@ private
           comp = create_component opts
 
           unless valid_string? comp.name
-            raise "component in #{directory.inspect} has no name" 
+            raise Error, "component in #{directory.inspect} has no name" 
           end
           unless Version === comp.version
-            raise "component #{name.inspect} has no version #{comp.version.inspect}"
+            raise Error, "component #{name.inspect} has no version #{comp.version.inspect}"
           end
 
           # Save config hash for later.
@@ -588,7 +465,7 @@ private
         end
 
       rescue Exception => err
-        raise "in #{conf_file}:\n  in #{self.inspect}:\n  #{err}\n  #{err.backtrace.join("\n  ")}"
+        raise Error, "in #{conf_file.inspect}:\n  in #{self.class}:\n  #{err.inspect}\n  #{err.backtrace.join("\n  ")}"
       
       end
 

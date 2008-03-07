@@ -3,11 +3,12 @@ require 'cabar/facet'
 require 'cabar/version'
 require 'cabar/version/requirement'
 
+
 module Cabar
   # Represents a Component that can be composed into a system
   # using Facets to describe how to compose it.
   #
-  class Component < Facet
+  class Component < Base
     #attr_accessor :name
     attr_accessor_type :version, Cabar::Version
     #attr_accessor :directory
@@ -15,6 +16,9 @@ module Cabar
     
     # Associations.
     
+    # The Context object.
+    attr_accessor :context
+
     # A list of all Facets in the Component.
     attr_reader :facets
     
@@ -66,9 +70,16 @@ module Cabar
       @base_directory ||= directory
     end
     
-    # Components are not composible Facets.
-    def compose_facet! facet
-      self
+    # Returns true if the Component is top-level.
+    def top_level?
+      o = _options
+      o[:top_level]
+    end
+
+    # Returns true if the Component is enabled.
+    def enabled?
+      o = _options
+      o[:enabled].nil? || o[:enabled]
     end
     
     def append_configuration! conf
@@ -142,21 +153,18 @@ module Cabar
     end
     
     def select_component!
-      super
       facets.each do | f |
         f.select_component!
       end
     end
     
     def resolve_component!
-      super
       facets.each do | f |
         f.resolve_component!
       end
     end
     
     def require_component!
-      super
       facets.each do | f |
         f.require_component!
       end
@@ -201,7 +209,6 @@ module Cabar
     end
     
   end # class
-  Component.new(:key => :component).register_prototype!
   
   
   # Represents a component required by another component.

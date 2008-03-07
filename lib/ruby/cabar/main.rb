@@ -1,5 +1,6 @@
 require 'cabar/base'
 
+require 'cabar/error'
 require 'cabar/context'
 require 'cabar/renderer'
 
@@ -68,6 +69,9 @@ module Cabar
     def run
       begin
         self.exit_code = 0
+        unless self.class.cmd_names.include?(cmd)
+          raise Cabar::Error, "invalid command: #{cmd.inspect}"
+        end
         send "cmd_#{cmd}"
       rescue Exception => err
         $stderr.puts "#{File.basename($0)}: #{err}\n  #{err.backtrace.join("\n  ")}"
@@ -104,6 +108,11 @@ module Cabar
 
     # Define a command.
     def self.cmd name, doc = nil, &blk
+      if Enumerable === name
+        name.each { | x | cmd x, doc, &blk }
+        return
+      end
+
       name = name.to_sym
       self.cmd_names << name
       self.cmd_help[name] = doc if doc

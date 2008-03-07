@@ -9,6 +9,12 @@ module Cabar
     Version.create '1.0'
   end
 
+  # Returns the path separator for this platform.
+  # FIXME
+  def self.path_sep
+    ':'
+  end
+
 
   # Common base class for Cabar classes.
   # Handles common stuff, should probably

@@ -30,6 +30,7 @@ require 'cabar/array'
 require 'cabar/hash'
 
 require 'cabar/base'
+require 'cabar/error'
 require 'cabar/version'
 require 'cabar/version/requirement'
 require 'cabar/version/set'
