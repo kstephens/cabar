@@ -3,19 +3,20 @@ require 'cabar/base'
 
 module Cabar
   class Renderer < Base
-    attr_accessor :path_sep
     attr_accessor :env_var_prefix
     attr_accessor :verbose
     attr_accessor :output
     
-    # FIXME: window hosts might need different path sep.
     def initialize *args
       @output = $stdout
       super
-      @path_sep ||= ':'
       @env_var_prefix ||= ''
     end
     
+    def path_sep
+      Cabar.path_sep
+    end
+
     def puts *args
       @output.puts *args
     end
@@ -134,6 +135,14 @@ module Cabar
 
 
     class Yaml < self
+      attr_accessor :verbose
+
+      def initialize *args
+        @verbose = false
+        super
+      end
+
+
       # Only render the header once.
       def render_header
         return if @render_header
@@ -146,8 +155,18 @@ module Cabar
         render_header
         puts "  component: "
         comps.
-          sort { | a, b | a.name <=> b.name }.
-          each do | c |
+        sort { | a, b | 
+          (x = a.name <=> b.name) != 0 ? x :
+          (x = b.version <=> a.version) != 0 ? x :
+          0
+        }.
+        each do | c |
+          render_component c
+        end
+      end
+      
+      def render_component c
+        if @verbose 
           puts "  - name: #{c.name.inspect}"
           puts "    version: #{c.version.to_s.inspect}"
           puts "    description: #{(c.description rescue '').inspect}"
@@ -157,9 +176,11 @@ module Cabar
           puts "    requires: [ #{c.requires.map{|x| "#{x.name}/#{x.version}".inspect}.sort.join(', ')} ]"
           puts "    configuration: #{c.configuration.inspect}"
           render_facets c.facets, '  ' if _options[:show_facet]
+        else
+          puts "  - #{[ c.name, c.version.to_s, c.directory].inspect}"
         end
       end
-      
+
       def render_facets facets, x = ''
         render_header
 
