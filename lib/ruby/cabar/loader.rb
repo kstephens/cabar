@@ -151,8 +151,8 @@ private
         comps = { }
       end
       
-      # Infer component name/version from directory name,
-      if ! comps['name'] || comps['version']
+      # Infer component name/version from directory name.
+      unless comps['name'] && comps['version']
         case directory
           # name/version
         when /\/([a-z_][^\/]*)[\/-]([0-9]+(\.[0-9])*)$/i
