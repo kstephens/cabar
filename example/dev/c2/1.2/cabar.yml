@@ -1,8 +1,7 @@
 cabar:
   version: v1.0
+  # Note: component name/version is inferred from directory name.
   component: true
-#    name: c2
-#    version: '1.2'
   provides:
     bin: true
     lib/ruby: true
