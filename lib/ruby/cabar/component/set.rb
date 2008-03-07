@@ -26,6 +26,10 @@ module Cabar
         s.to_a
       end
       
+      def join *args
+        to_a.join *args
+      end
+
       def set_by_name
         @set_by_name ||=
         begin

@@ -233,7 +233,8 @@ END
         load cmd
         exit 0
       else
-        Kernel::exec [ cmd ] + args
+        args.unshift cmd
+        Kernel::exec *args
       end
     end
 

@@ -59,6 +59,10 @@ module Cabar
         _sort!
       end
       
+      def join *args
+        to_a.join *args
+      end
+
       def include? x
         ! ! @a.find do | x2 | 
           x != x2.object_id &&

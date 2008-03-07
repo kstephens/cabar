@@ -3,3 +3,6 @@ cabar:
   # Note: component name/version is inferred from directory name.
   component: true
   # Note: bin and lib/ruby facets are inferred from directory names.
+  requires:
+    component: 
+      ruby: true
