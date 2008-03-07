@@ -6,8 +6,10 @@ puts "c2_prog version #{C2.version}: #{ARGV.join(' ')}"
 
 cc = Cabar::Context.current
 
-puts "required_components = #{cc.required_components.join(', ')}"
-puts "selected_components = #{cc.selected_components.join(', ')}"
+puts "\ntop_level_components = #{cc.top_level_components.join(', ')}"
+puts "\nrequired_components = #{cc.required_components.join(', ')}"
+puts "\nselected_components = #{cc.selected_components.join(', ')}"
+puts "\navailable_components = #{cc.available_components.join(', ')}"
 
 exit 5
 
