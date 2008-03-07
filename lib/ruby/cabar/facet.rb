@@ -24,6 +24,10 @@ module Cabar
     # The prototype used to create this object.
     attr_accessor :_proto
 
+    # True if the facet is inferrable.
+    attr_accessor :_inferrable
+    alias :inferrable? :_inferrable
+
     # The owner of the facet, usu. the Component.
     attr_accessor :owner
     alias :component :owner
@@ -32,6 +36,11 @@ module Cabar
     attr_accessor :context
     # The configuration hash.
     attr_accessor :configuration
+
+    def initialize *args
+      @_inferrable = false
+      super
+    end
 
     @@key_to_proto = { }
 
@@ -56,6 +65,21 @@ module Cabar
         # $stderr.puts "register_prototype(#{facet_proto.inspect}) as #{key.inspect}"
         @@key_to_proto[key] ||= facet_proto
       end
+    end
+
+    # Returns true if the Facet is actually inferred.
+    def infer?
+      #result = 
+      inferrable? && inferred?
+      # $stderr.puts "#{key} inferrable? => #{inferrable?.inspect}"
+      # $stderr.puts "#{key} inferred? => #{inferred?.inspect}"
+      # $stderr.puts "#{component.inspect} #{key} infer? result => #{result.inspect}" if result
+      # result
+    end
+
+    # Returns true if Facet is inferred by some component attribute.
+    def inferred?
+      false
     end
 
     def register_prototype!

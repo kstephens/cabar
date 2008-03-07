@@ -10,9 +10,6 @@ TO DO:
 
 * Change Facet.context to Facet._context
 
-* Add support to make Facet auto-discoverable by following facet conventions, such as:
-** :key => :bin, :path => 'bin', :_discover => lambda { | f | File.directory?(f.abs_path) } 
-
 * Add support to automatically require top_level components.
 
 Cabar Demo

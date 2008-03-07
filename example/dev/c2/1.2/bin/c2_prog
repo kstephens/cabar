@@ -1,3 +1,10 @@
-#!/bin/sh
+#!/usr/bin/env ruby
 
-echo "c2_prod version 1.2: $*"
+require 'c2'
+
+puts "c2_prog version #{C2.version}: #{ARGV.join(' ')}"
+
+puts Cabar::Context.current.required_components.to_a.join(", ")
+
+exit 5
+

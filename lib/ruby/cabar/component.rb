@@ -48,6 +48,8 @@ module Cabar
       
       # See component_associations.
       @facets = [ ]
+      @facet_by_key = { }
+
       @provides = [ ]
       @requires = [ ]
       @environment = [ ]
@@ -152,6 +154,15 @@ module Cabar
           opts = { :var => k, :value => v }
           f = create_facet :env_var, opts
         end
+
+        # Infer other facets.
+        Facet.prototypes.each do | f |
+          next if self.has_facet? f
+          next unless f.inferrable?
+          # $stderr.puts "- #{self.inspect}: inferring facet #{f.key.inspect}"
+          f = create_facet f, EMPTY_HASH, :infer => true
+        end
+
       rescue Exception => err
         raise("in #{self.inspect}: #{err}\n  #{err.backtrace.join("\n  ")}")
       end
@@ -182,12 +193,18 @@ module Cabar
     
     # friend
     
+    def has_facet? f
+      f = f.key if Facet === f
+      @facet_by_key.key? f
+    end
+
     def attach_facet! f
       return f unless f
       
       # Keep all facets
       unless @facets.include? f
         @facets << f
+        @facet_by_key[f.key] = f
       end
       
       # Attach to all component attachment points.
@@ -209,7 +226,14 @@ module Cabar
       
       f.owner = self
       f.context = self.context
-      f.attach_component! self
+
+      # Attach inferrable Facets only if inferred.
+      attach = true
+      if opts[:infer] && ! f.infer? 
+        attach = false
+      end
+
+      f.attach_component! self if attach 
 
       f
     end

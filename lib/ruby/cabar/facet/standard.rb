@@ -77,7 +77,8 @@ module Cabar
       end
     end # class
 
-    ActionGroup.new(:key => :actions).register_prototype!
+    ActionGroup.new(:key => :actions).
+      register_prototype!
  
 
     # This represents a list of environment variables.
@@ -102,7 +103,9 @@ module Cabar
         end
       end
     end # class
-    EnvVarGroup.new(:key => :env).register_prototype!
+
+    EnvVarGroup.new(:key => :env).
+      register_prototype!
 
 
     def is_env_var?
@@ -138,10 +141,6 @@ module Cabar
 
       def render r
         r.setenv(var, value)
-        case var
-        when 'RUBYLIB'
-          $: = value.split(':') # FIXME: ':'
-        end
       end
 
       def to_a
@@ -167,6 +166,13 @@ module Cabar
 
       def default_path
         [ (std_path || key).to_s ]
+      end
+
+      def inferred?
+        # result = 
+          abs_path.all? { | x | File.exist? x }
+        # $stderr.puts "inferred? #{abs_path.inspect} => #{result}"
+        # result
       end
 
       def path
@@ -215,7 +221,11 @@ module Cabar
         c.context.loader.add_component_search_path! abs_path
       end
     end # class
-    Components.new(:key => :components, :path => [ 'comp' ]).register_prototype!
+
+    Components.new(:key => :components, 
+                   :path => [ 'comp' ],
+                   :_inferrable => true
+                   ).register_prototype!
     
 
     class EnvVarPath < Path
@@ -251,11 +261,30 @@ module Cabar
     end
 
 
-    register_prototype EnvVarPath.new(:key => :bin,       :var => :PATH)
-    register_prototype EnvVarPath.new(:key => :lib,       :var => :LD_LIBRARY_PATH)
-    register_prototype EnvVarPath.new(:key => :include,   :var => :INCLUDE_PATH)
-    register_prototype EnvVarPath.new(:key => 'lib/ruby', :var => :RUBYLIB)
-    register_prototype EnvVarPath.new(:key => 'lib/perl', :var => :PERL5LIB)
+    EnvVarPath.new(:key => :bin,
+                   :var => :PATH, 
+                   :_inferrable => true).
+      register_prototype!
+
+    EnvVarPath.new(:key => :lib,       
+                   :var => :LD_LIBRARY_PATH).
+      register_prototype!
+
+    EnvVarPath.new(:key => :include,
+                   :var => :INCLUDE_PATH,
+                   :_inferrable => false).
+      register_prototype!
+
+    EnvVarPath.new(:key => 'lib/ruby', 
+                   :var => :RUBYLIB,
+                   :_inferrable => true).
+      register_prototype!
+
+    EnvVarPath.new(:key => 'lib/perl', 
+                   :var => :PERL5LIB,
+                   :_inferrable => true).
+      register_prototype!
+
 
   end # class
 

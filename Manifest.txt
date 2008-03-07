@@ -5,6 +5,7 @@ Releases.txt
 bin/cbr
 bin/cbr.rb
 cabar.yml
+comp/perl/std/cabar.yml
 comp/ruby/std/cabar.yml
 example/bin/env
 example/cabar_conf.yml
@@ -15,6 +16,7 @@ example/dev/c2/1.1/bin/c2_prog
 example/dev/c2/1.1/cabar.yml
 example/dev/c2/1.2/bin/c2_prog
 example/dev/c2/1.2/cabar.yml
+example/dev/c2/1.2/lib/ruby/c2.rb
 example/graph.svg
 example/plat/gems/1.0/cabar.rb
 example/plat/gems/1.0/cabar.yml

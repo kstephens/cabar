@@ -73,8 +73,10 @@ module Cabar
           raise Cabar::Error, "invalid command: #{cmd.inspect}"
         end
         send "cmd_#{cmd}"
+      rescue SystemExit => err
+        raise err
       rescue Exception => err
-        $stderr.puts "#{File.basename($0)}: #{err}\n  #{err.backtrace.join("\n  ")}"
+        $stderr.puts "#{File.basename($0)}: #{err.inspect}\n  #{err.backtrace.join("\n  ")}"
         self.exit_code = 10
       end
 
@@ -202,9 +204,38 @@ END
 
       context.render r
 
-      Kernel::exec *cmd_args
+      exec_program *cmd_args
     end
     alias :cmd_exec :cmd_run
+
+    def exec_program cmd, *args
+      # $stderr.puts "exec_program #{cmd.inspect} #{args.inspect}"
+
+      unless /\// === cmd 
+        ENV['PATH'].split(Cabar.path_sep).each do | x |
+          x = File.expand_path(File.join(x, cmd))
+          if File.executable?(x)
+            cmd = x
+            break
+          end
+        end
+      end
+
+      if File.readable?(cmd) && 
+          File.executable?(cmd) && 
+          /#!.*ruby/ === File.open(cmd) { |fh| fh.readline }
+        # $stderr.puts "Running ruby in-place #{cmd.inspect} #{args.inspect}"
+
+        ARGV.clear
+        ARGV << args
+        $0 = cmd
+
+        load cmd
+        exit 0
+      else
+        Kernel::exec [ cmd ] + args
+      end
+    end
 
 
     cmd :facet, <<"END" do

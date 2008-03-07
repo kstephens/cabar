@@ -98,6 +98,12 @@ module Cabar
           ENV[save_name] = v
         end
         ENV[name] = val
+
+        if name == 'RUBYLIB'
+          $:.clear
+          $:.push *val.split(Cabar.path_sep)
+          # $stderr.puts "Changed $: => #{$:.inspect}"
+        end
       end
     end # class
 
