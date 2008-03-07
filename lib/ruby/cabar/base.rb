@@ -22,6 +22,14 @@ module Cabar
   class Base
     attr_reader :_options
 
+    @@factory = { }
+    def self.factory= x
+      @@factory[self] = x
+    end
+    def self.factory
+      @@factory[self] ||= self
+    end
+
     def self.attr_accessor_type name, type, constructor = :create_cabar
       self.class_eval <<"END", __FILE__, __LINE__
         def #{name}

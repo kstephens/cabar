@@ -4,21 +4,13 @@ require 'cabar/configuration'
 require 'cabar/component'
 
 
-class ::Array
-  def each! 
-    until empty?
-      yield shift
-    end
-  end
-end
-
-
 module Cabar
   class Loader < Base
     attr_accessor :context
-    attr_accessor :component_search_path
 
+    attr_reader :component_search_path
     attr_reader :component_directories
+
     attr_reader :available_components
 
     def initialize opts = EMPTY_HASH
@@ -30,28 +22,28 @@ module Cabar
     end
 
     def add_component_search_path! path
+      if Array === path
+        path.each { | x | add_component_search_path! x }
+        return self
+      end
       path = File.expand_path(path)
-      return if @component_search_path.include? path
-      return if @component_search_path_pending.include? path
+      return self if @component_search_path.include? path
+      return self if @component_search_path_pending.include? path
       @component_search_path_pending << path
+      self
     end
 
     def add_component_directory! path
       path = File.expand_path(path)
-      return if @component_directories.include? path
-      return if @component_directories_pending.include? path
+      return self if @component_directories.include? path
+      return self if @component_directories_pending.include? path
       @component_directories_pending << path
+      self
     end
 
     def load_components!
-      # Prime the component search path queue.
-      x = @context.configuration.component_search_path
-      x.each do | x |
-        add_component_search_path! x
-      end
-     
       # While there are still component paths to search.
-      @component_search_path_pending.each! do | path |
+      @component_search_path_pending.cabar_each! do | path |
         @component_search_path << path
         
         search_for_component_directories(path).each do | dir |
@@ -59,7 +51,7 @@ module Cabar
         end
 
         # While there are still components to load.
-        @component_directories_pending.each! do | dir |
+        @component_directories_pending.cabar_each! do | dir |
           @component_directories << dir
           
           comp = parse_component dir
@@ -120,8 +112,8 @@ module Cabar
 
     # Helper method to create a Component.
     def create_component(opts)
-      c = Component.new opts
-      c.context = self
+      c = Component.factory.new opts
+      c.context = @context
       c
     end
 

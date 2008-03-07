@@ -76,7 +76,10 @@ module Cabar
 
     # Returns the loader.
     def loader
-      @loader ||= Cabar::Loader.new(:context => self)
+      @loader ||= 
+        Cabar::Loader.factory.new(:context => self).
+        # Prime the component search path queue.
+        add_component_search_path!(configuration.component_search_path)
     end
 
     #

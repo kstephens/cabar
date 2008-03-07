@@ -8,5 +8,11 @@ class ::Array
     flatten!
     self
   end
+
+  def cabar_each! 
+    until empty?
+      yield shift
+    end
+  end
 end
 
