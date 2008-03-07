@@ -132,16 +132,19 @@ help [ <command> ]
 Shows help on a command.
 END
       if cmd_args.empty?
-        puts "Commands:"
+        puts "cabar:"
+        puts "  version: #{Cabar.version}"
+        puts "  commands:"
         self.class.cmd_names.each do | cmd |
           help = self.class.cmd_help[cmd]
-          puts "  #{cmd} - #{help.split("\n")[1]}"
+          cmd = "#{cmd}:"
+          puts "    #{'%-8s' % cmd} #{help.split("\n")[1].inspect}"
         end
       else
         cmd = cmd_args.first.to_sym
         msg = self.class.cmd_help[cmd]
         raise ArgumentError, "unknown command #{cmd.inspect}" unless msg
-        puts "#{msg}"
+        puts "#{File.basename($0)} #{msg}"
       end
     end
 
@@ -154,7 +157,7 @@ END
 
 
     cmd :list, <<"END" do
-list [ <cmd-opts> ] [ <component> ]
+list [ --verbose ] [ <component> ]
 Lists all available components.
 END
       yaml_renderer.
