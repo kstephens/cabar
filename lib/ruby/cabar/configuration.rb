@@ -94,7 +94,7 @@ module Cabar
         raise ArgumentError, "expected Array or String"
       end
 
-      @component_search_path = y.map { | p | File.expand_path(p) }.uniq_return!
+      @component_search_path = y.map { | p | File.expand_path(p) }.cabar_uniq_return!
 
       x
     end
@@ -108,7 +108,7 @@ module Cabar
         raise ArgumentError, "Expected Array or String"
       end
       
-      @config_file_path = y.map { | p | File.expand_path(p) }.uniq_return!
+      @config_file_path = y.map { | p | File.expand_path(p) }.cabar_uniq_return!
       
       # Flush caches:
       @config = nil
@@ -127,7 +127,7 @@ module Cabar
               y = read_config_file file
               validate_config_hash y
               cfg ||= { }
-              cfg.merge!(y)
+              cfg.cabar_merge!(y)
             rescue Exception => err
               pp err.backtrace
               raise Error, "Problem reading config file #{file.inspect}: #{err.inspect}"

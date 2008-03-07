@@ -77,12 +77,12 @@ module Cabar
       # Find all */*/cabar.yml or */cabar.yml files.
       x = path.map do | p |
         [ "#{p}/*/*/cabar.yml", "#{p}/*/cabar.yml" ]
-      end.flatten_return!
+      end.cabar_flatten_return!
       
       # Glob matching.
       x.map! do | f |
         Dir[f]
-      end.flatten_return!
+      end.cabar_flatten_return!
       
       # Take the directories.
       x.map! do | f |
@@ -90,7 +90,7 @@ module Cabar
       end
       
       # Unique.
-      x.uniq_return!
+      x.cabar_uniq_return!
     end
 
 
@@ -177,7 +177,7 @@ private
         # Overlay configuration.
         comp_config = @context.config['configure'] || EMPTY_HASH
         comp_config = comp_config[name] || EMPTY_HASH
-        opts.merge! comp_config
+        opts.cabar_merge! comp_config
         
         opts[:name] = name
         opts[:directory] = directory

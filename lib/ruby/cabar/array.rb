@@ -1,10 +1,10 @@
 class ::Array 
-  def uniq_return!
+  def cabar_uniq_return!
     uniq!
     self
   end
 
-  def flatten_return!
+  def cabar_flatten_return!
     flatten!
     self
   end

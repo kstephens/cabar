@@ -1,16 +1,16 @@
 class ::Hash
-  def merge! h, path = [ ]
+  def cabar_merge! h, path = [ ]
     case h
     when Hash
       h.each do | k, v |
         self[k] = v
         case v
         when Hash
-          self[k].merge! v, path + [ k ]
+          self[k].cabar_merge! v, path + [ k ]
         end
       end
     else
-      raise("Expected Hash at #{path.join('.')}")
+      raise ArgumentError, "Expected Hash at #{path.join('.')}"
     end
     self
   end

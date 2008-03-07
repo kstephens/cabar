@@ -26,7 +26,7 @@ module Cabar
       end
 
       def compose_facet! f
-        actions.merge! f.actions
+        actions.cabar_merge! f.actions
       end
 
       def can_do_action? action
