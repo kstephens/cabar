@@ -11,6 +11,9 @@ module Cabar
   class Configuration < Base
     class Error < Cabar::Error; end
 
+    # Path to search for component directories.
+    attr_accessor :component_search_path
+
     # Path to search for configuration files.
     attr_accessor :config_file_path
 
@@ -19,7 +22,8 @@ module Cabar
 
     def initialize opts = EMPTY_HASH
       super
-      self.config_file_path = ENV['CABAR_CONFIG'] || '~/.cabar.yml'
+      self.config_file_path      = ENV['CABAR_CONFIG'] || '~/.cabar.yml'
+      self.component_search_path = ENV['CABAR_PATH']   || '.'
     end
     
     # Applies this configuration to the Context.
@@ -81,6 +85,19 @@ module Cabar
       opts
     end
 
+    def component_search_path= x 
+      case y = x
+      when Array
+      when String
+        y = x.split(Cabar.path_sep)
+      else
+        raise ArgumentError, "expected Array or String"
+      end
+
+      @component_search_path = y.map { | p | File.expand_path(p) }.uniq_return!
+
+      x
+    end
 
     def config_file_path= x 
       case y = x
@@ -133,7 +150,7 @@ module Cabar
 
           x = cfg['cabar']['configuration']      
           x['config_file_path'] = config_file_path
-          x['component_search_path'] = context.component_search_path
+          x['component_search_path'] = component_search_path
           
           x
         end

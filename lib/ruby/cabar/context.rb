@@ -1,6 +1,7 @@
 require 'cabar/base'
 
 require 'cabar/configuration'
+require 'cabar/loader'
 require 'cabar/component'
 require 'cabar/facet'
 require 'cabar/renderer'
@@ -9,8 +10,6 @@ require 'cabar/constraint'
 
 module Cabar
   class Context < Base
-    attr_accessor :component_search_path
-
     # Set of all components availiable.
     attr_reader :available_components
 
@@ -42,8 +41,6 @@ module Cabar
       @top_level_components = [ ] # ordered Cabar::Version::Set.new
       @unresolved_components = { } # name
 
-      self.component_search_path = ENV['CABAR_PATH'] || '.'
-
       super
     end
 
@@ -73,67 +70,13 @@ module Cabar
       configuration.apply_configuration! self
     end
 
-
-    ###########################################################
-
-
-    def component_search_path= x 
-      case y = x
-      when Array
-      when String
-        y = x.split(Cabar.path_sep)
-      else
-        raise ArgumentError, "expected Array or String"
-      end
-
-      @component_search_path = y.map { | p | File.expand_path(p) }.uniq_return!
-
-      # Flush caches:
-      @component_directories = nil
-      @available_components = nil
-      
-      x
-    end
-
-
-    # Returns a list of all component directories.
-    def component_directories
-      @component_directories ||=
-      begin
-        # Find all */*/cabar.yml or */cabar.yml files.
-        x = component_search_path.map do | p |
-          [ "#{p}/*/*/cabar.yml", "#{p}/*/cabar.yml" ]
-        end.flatten_return!
-        
-        # Glob matching.
-        x.map! do | f |
-          Dir[f]
-        end.flatten_return!
-
-        # Take the directories.
-        x.map! do | f |
-          File.dirname(f)
-        end
-
-        # Unique.
-        x.uniq_return!
-      end
-    end
-
-    # Helper method to create a Component.
-    def create_component(opts)
-      c = Component.new opts
-      c.context = self
-      c
-    end
-
     ##################################################################
+    # Loading 
+    #
 
-    # Read all component directories configuration files. 
-    def read_components
-      component_directories.each do | dir |
-        parse_configuration(dir, nil, @available_components)
-      end
+    # Returns the loader.
+    def loader
+      @loader ||= Cabar::Loader.new(:context => self)
     end
 
     #
@@ -141,26 +84,7 @@ module Cabar
     # found through the component_directories search path.
     #
     def available_components
-      unless @available_components
-        @available_components = Cabar::Version::Set.new
-
-        # Read components.
-        # This will also load any plugins.
-        read_components
-
-        # Now they can be parsed since all the plugins have been loaded.
-        @available_components.each do | c |
-          c.parse_configuration!
-        end
-      end
-
-      @available_components
-    end
-
-    # Called when a component has been added.
-    def add_available_component! c, a = @avaliable_components
-      a << c
-      c
+      loader.available_components
     end
 
     # Returns the selected components.
@@ -318,6 +242,10 @@ END
     end
 
 
+    ###########################################################
+    # Facet Management.
+    #
+
     # Returns a list of call facets collected from
     # all required components.
     def facets 
@@ -397,82 +325,6 @@ END
       r
     end
 
-private
-
-    def valid_string? str
-      String === str && ! str.empty?
-    end
-
-    def parse_configuration(directory, conf_file = nil, comps_loaded = nil) 
-      comps_loaded ||=
-        [ ]
-
-      conf_file ||= 
-        File.join(directory, "cabar.yml")
-
-      begin
-        conf = configuration.read_config_file conf_file
-        conf = conf['cabar']
-
-        # Handle plugins.
-        if plugin = conf['plugin']
-          plugin = [ plugin ] unless Array === plugin
-          plugin.each do | file |
-            file = File.expand_path(file, directory) 
-            # $stderr.puts "#{$0}: using plugin #{plugin}"
-            require file
-          end
-        end
-
-        # Handle components.
-        unless comps = conf['component']
-          raise Error, "does not have a component definition"
-        end
-
-        if comps.size >= 2 && comps['name'] && comps['version']
-          name = comps['name']
-          comps.delete 'name'
-          comps = { name => comps }
-        end
-
-        comps.each do | name, opts |
-          # Overlay configuration.
-          comp_config = config['configure'] || EMPTY_HASH
-          comp_config = comp_config[name] || EMPTY_HASH
-          opts.merge! comp_config
-
-          opts[:name] = name
-          opts[:directory] = directory
-          opts[:context] = self
-          opts[:_config_file] = conf_file
-
-          comp = create_component opts
-
-          unless valid_string? comp.name
-            raise Error, "component in #{directory.inspect} has no name" 
-          end
-          unless Version === comp.version
-            raise Error, "component #{name.inspect} has no version #{comp.version.inspect}"
-          end
-
-          # Save config hash for later.
-          comp._config = conf
-
-          # Register component, if it's enabled.
-          if comp.enabled?
-            add_available_component! comp, comps_loaded
-          end
-        end
-
-      rescue Exception => err
-        raise Error, "in #{conf_file.inspect}:\n  in #{self.class}:\n  #{err.inspect}\n  #{err.backtrace.join("\n  ")}"
-      
-      end
-
-
-      comps_loaded
-    end
-    
   end # class
 
 

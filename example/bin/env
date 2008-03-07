@@ -1,10 +1,11 @@
 #!/bin/bash
 
+
 d="$(dirname "$0")"
 d="$(cd "$d" && /bin/pwd)"
 base="$(cd "$d/.." && /bin/pwd)"
 
-export CABAR_PATH="${base}/dev:${base}/prod:${base}/plat"
+export CABAR_PATH="${base}/dev:${base}/prod:${base}/plat:${base}/../.."
 export CABAR_CONFIG="${base}/cabar_conf.yml"
 
 cabar_bin="$(cd "$d/../../bin" && /bin/pwd)"
