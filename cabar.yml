@@ -9,9 +9,9 @@ cabar:
   provides:
     bin: true
     lib/ruby: true
-# FIXME: Support subcomponent repositories.
-#    component: 
-#      path: 'comp'
+# Support subcomponent repositories.
+    components: 
+      path: 'comp'
     actions:
       test: "rake test"
 

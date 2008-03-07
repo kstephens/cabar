@@ -10,7 +10,7 @@ module Cabar
 
     attr_reader :component_search_path
     attr_reader :component_directories
-
+  
     attr_reader :available_components
 
     def initialize opts = EMPTY_HASH
@@ -18,6 +18,7 @@ module Cabar
       @component_search_path_pending = [ ]
       @component_directories = [ ]
       @component_directories_pending = [ ]
+      @component_parse_pending = [ ]
       super
     end
 
@@ -44,6 +45,7 @@ module Cabar
     def load_components!
       # While there are still component paths to search.
       @component_search_path_pending.cabar_each! do | path |
+        # $stderr.puts "search path #{path.inspect}"
         @component_search_path << path
         
         search_for_component_directories(path).each do | dir |
@@ -53,16 +55,21 @@ module Cabar
         # While there are still components to load.
         @component_directories_pending.cabar_each! do | dir |
           @component_directories << dir
+          # $stderr.puts "  component dir #{dir.inspect}"
           
           comp = parse_component dir
         end
+
       end
-      
+
       # Now that all components (and any plugins have been loaded),
       # the components can be fully configured.
-      @available_components.each do | c |
+      @component_parse_pending.cabar_each! do | c |
         c.parse_configuration!
+        # $stderr.puts "component #{c.inspect}"
       end
+      
+      self
     end
 
     # Returns a list of all component directories.
@@ -106,7 +113,7 @@ module Cabar
     # Called when a component has been added.
     def add_available_component! c
       @available_components << c
-      c
+      @component_parse_pending << c
     end
 
 
@@ -172,6 +179,8 @@ private
 
         # Register component, if it's enabled.
         if comp.enabled?
+          comp.parse_configuration_early!
+
           add_available_component! comp
         end
 

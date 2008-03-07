@@ -47,14 +47,14 @@ module Cabar
       super
       
       # See component_associations.
-      @facets ||= [ ]
-      @provides ||= [ ]
-      @requires ||= [ ]
-      @environment ||= [ ]
+      @facets = [ ]
+      @provides = [ ]
+      @requires = [ ]
+      @environment = [ ]
       
       # Computed
-      @dependents ||= [ ]
-      @configuration ||= { }
+      @dependents = [ ]
+      @configuration = { }
     end
     
     def deepen_dup!
@@ -104,7 +104,15 @@ module Cabar
     
     
     # friend
-    
+
+    def parse_configuration_early! conf = self._config
+      (conf['provides'] || conf['provide'] || EMPTY_HASH).each do | k, opts |
+        f = create_facet k, opts, :early => true
+      end
+
+      self
+    end
+
     def parse_configuration! conf = self._config
       return if @configured
       @configured = true
@@ -112,9 +120,6 @@ module Cabar
       @_config = nil
       
       begin
-        @provides = [ ]
-        @requires = [ ]
-        
         (conf['provides'] || conf['provide'] || EMPTY_HASH).each do | k, opts |
           f = create_facet k, opts
         end
@@ -198,13 +203,14 @@ module Cabar
     
     
     # Returns a new Facet attached to this Component.
-    def create_facet type, opts, &blk
-      f = Facet.create type, opts, &blk
+    def create_facet type, conf, opts = EMPTY_HASH, &blk
+      f = Facet.create type, conf, opts, &blk
       return f unless f
       
       f.owner = self
       f.context = self.context
       f.attach_component! self
+
       f
     end
     

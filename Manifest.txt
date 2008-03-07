@@ -21,7 +21,6 @@ example/plat/gems/1.0/cabar.yml
 example/plat/ruby/1.8.4/cabar.rb
 example/plat/ruby/1.8.4/cabar.yml
 example/plat/ruby/1.9/cabar.yml
-example/plat/ruby/std/cabar.yml
 example/prod/c2/1.0/cabar.yml
 example/prod/c2/1.1/cabar.yml
 example/prod/c2/1.2/cabar.yml

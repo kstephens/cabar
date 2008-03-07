@@ -64,19 +64,33 @@ module Cabar
     end
 
     # Creates a new Facet instance by cloning a Facet prototype.
-    def self.create proto, opts = EMPTY_HASH
+    def self.create proto_name, conf = EMPTY_HASH, opts = EMPTY_HASH
       # Get the prototype object.
-      unless Facet === proto 
-        proto = @@key_to_proto[proto.to_s] || raise("unknown Facet key #{proto.inspect}")
+      case proto_name
+      when Facet 
+        proto = proto_name
+      else
+        proto = @@key_to_proto[proto_name.to_s]
+      end
+      
+      # Process early?
+      if opts[:early] 
+        return nil unless proto
+        return nil unless proto.configure_early?
+      else
+        unless proto
+          raise Error, "unknown Facet key #{proto_name.inspect}"
+        end
+        return nil if proto.configure_early?
       end
 
-      # Ask prototype to reformat options.
+      # Ask prototype to reformat its configuration options.
+      #$stderr.puts "\nopts = "; pp conf
+      conf = proto._reformat_options! conf
       #$stderr.puts "\nopts = "; pp opts
-      opts = proto._reformat_options! opts
-      #$stderr.puts "\nopts = "; pp opts
-      opts = proto._normalize_options! opts
-      #$stderr.puts "\nopts = "; pp opts
-      return opts unless opts
+      conf = proto._normalize_options! conf
+      #$stderr.puts "\nopts = "; pp conf
+      return conf unless conf
 
       # Clone the prototype.
       obj = proto.dup
@@ -85,26 +99,29 @@ module Cabar
       obj._proto = proto
 
       # Final opts processing by caller.
-      yield opts, obj if block_given?
+      yield conf, obj if block_given?
 
-      # Set the clone's options.
-      obj._options = opts
+      # Set the clone's configuration.
+      obj._options = conf
       #$stderr.puts "\obj = "; pp obj
 
       obj
     end
 
+    DISABLED_HASH = { :enabled => false }.freeze
+
     def _reformat_options! opts
       # Handle short-hand options.
       case opts
       when true
-        opts = { }
+        opts = EMPTY_HASH
       when false
-        opts = { :enabled => false }
+        opts = DISABLED_HASH
       end
 
       opts
     end
+
 
     def key= x
       @key = x.to_s
@@ -114,6 +131,11 @@ module Cabar
     # Returns true if the Facet is composable across components.
     def is_composable?
       true
+    end
+
+    # Returns true if the Facet can be configured early.
+    def configure_early?
+      false
     end
 
     # Returns true if the Facet is enabled.

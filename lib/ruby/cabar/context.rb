@@ -90,11 +90,16 @@ module Cabar
       loader.available_components
     end
 
+    ##################################################################
+    # Selecting
+    #
+
     # Returns the selected components.
     def selected_components
       @selected_components ||=
       begin
-        @selected_components = Cabar::Component::Set.new available_components.dup
+        @selected_components = 
+          Cabar::Component::Set.new available_components.dup
         
         apply_configuration!
 

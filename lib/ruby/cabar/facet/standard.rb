@@ -101,7 +101,7 @@ module Cabar
           c.create_facet(:env_var, :var => n, :value => v)
         end
       end
-    end
+    end # class
     EnvVarGroup.new(:key => :env).register_prototype!
 
 
@@ -198,6 +198,25 @@ module Cabar
       end
     end
 
+
+    # Represents a component that recursively contains other components.
+    class Components < Path
+      def component_associations
+        [ 'provides' ]
+      end
+
+      def configure_early?
+        true
+      end
+
+      def attach_component! c
+        super
+        puts "adding component search path #{abs_path.inspect}"
+        c.context.loader.add_component_search_path! abs_path
+      end
+    end # class
+    Components.new(:key => :components, :path => [ 'comp' ]).register_prototype!
+    
 
     class EnvVarPath < Path
       attr_accessor :var
