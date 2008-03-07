@@ -4,8 +4,6 @@ See lib/perl/cabar.rb for more info.
 
 TO DO:
 
-* Make Cabar::Component not a subclass of Cabar::Facet
-
 * Change Facet.key to Facet._key to avoid collision with future use.
 
 * Change Facet.owner to Facet._owner
@@ -14,9 +12,6 @@ TO DO:
 
 * Add support to make Facet auto-discoverable by following facet conventions, such as:
 ** :key => :bin, :path => 'bin', :_discover => lambda { | f | File.directory?(f.abs_path) } 
-
-* Add support for component repositories inside components, need
-a Facet that appends additional search directories to Cabar::Context.
 
 * Add support to automatically require top_level components.
 
