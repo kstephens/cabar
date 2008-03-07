@@ -20,19 +20,21 @@ Cabar Demo
 
 bin/env cbr list
 
+bin/env cbr list - c2
+
 * Show directory structure.
 
 * Cabar cabar.yml specification.
 
 * Show components and facets:
 
-bin/env cbr show c1
+bin/env cbr show - c1
 
 * Show component version selection:
 
-bin/env cbr run c2 c2_prog foo bar
+bin/env cbr run - c2 c2_prog foo bar
 
-bin/env cbr run c2/1.1 c2_prog foo bar
+bin/env cbr run - c2/1.1 c2_prog foo bar
 
 * Cabar configuration cabar_conf.yml.
 
@@ -57,12 +59,16 @@ prod/cnu_locale/1.1/cabar.yml : provides.cnu_config_path
 
 bin/env cbr dot | dot -Tsvg:cairo -o graph.svg
 
-bin/env cbr dot --show-dependencies c1 | dot -Tsvg:cairo -o graph.svg
+bin/env cbr dot --show-dependencies - c1 | dot -Tsvg:cairo -o graph.svg
 
-bin/env cbr dot --show-facets c1 | dot -Tsvg:cairo -o graph.svg
+bin/env cbr dot --show-facets - c1 | dot -Tsvg:cairo -o graph.svg
 
-bin/env cbr dot --show-dependencies --show-facets c1 | dot -Tsvg:cairo -o graph.svg
+bin/env cbr dot --show-dependencies --show-facets - c1 | dot -Tsvg:cairo -o graph.svg
+
+* Show in-place run scripts for ruby.
+
+bin/env cbr run - c1 c2_prog
 
 * Show cabar as component
 
-CABAR_PATH=.. bin/cbr run cabar cbr list 
+CABAR_PATH=.. bin/cbr run - cabar cbr list 

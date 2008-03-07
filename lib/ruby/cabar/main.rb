@@ -157,7 +157,7 @@ END
 
 
     cmd :list, <<"END" do
-list [ --verbose ] [ <component> ]
+list [ --verbose ] [ - <component> ]
 Lists all available components.
 END
       yaml_renderer.
@@ -168,7 +168,7 @@ END
     end
 
     cmd :show, <<"END" do
-show [ <cmd-opts> ] <component>
+show [ <cmd-opts> ] [ - <component> ]
 Lists the current settings for a selected component.
 END
       select_root cmd_args
@@ -185,7 +185,7 @@ END
     end
 
     cmd :env, <<"END" do
-env [ <cmd-opts> ] <component>
+env [ <cmd-opts> ] [ - <component> ]
 Lists the environment variables for a selected component.
 END
       raise ArgumentError if cmd_args.empty?
@@ -198,7 +198,7 @@ END
 
 
     cmd :run, <<"END" do
-run [ cmd-opts ] <component> <prog> <prog-args> ....
+run [ cmd-opts ] [ - <component> ] <prog> <prog-args> ....
 Runs <prog> in the environment of the top-level component.
 END
       select_root cmd_args
@@ -243,7 +243,7 @@ END
 
 
     cmd :facet, <<"END" do
-facet [ <cmd-opts> ] <component>
+facet [ <cmd-opts> ] [ - <component> ]
 Show the facets for the top-level component.
 END
       select_root cmd_args
@@ -257,7 +257,7 @@ END
 
 
     cmd :dot, <<"END" do
-dot [ <cmd-opts> ] <component>
+dot [ <cmd-opts> ] [ - <component> ]
 Render the components as a dot graph on STDOUT.
 END
       select_root cmd_args
@@ -269,8 +269,8 @@ END
 
 
     cmd :action, <<"END" do
-action [ <cmd-opts> ] <component> <action> <args> ...
-Executes an action on a facet.
+action [ <cmd-opts> ] [ - <component> ] <action> <args> ...
+Executes an action on all required components.
 END
 
       select_root cmd_args
@@ -292,12 +292,10 @@ END
 
 
     cmd :shell, <<"END" do
-shell [ <cmd-opts> ] [ <component> ]
+shell [ <cmd-opts> ] [ - <component> ]
 Starts an interactive shell on Cabar::Context.
 END
-      unless cmd_args.empty?
-        select_root cmd_args 
-      end
+      select_root cmd_args 
 
       require 'readline'
       prompt = "  #{File.basename($0)} >> "
@@ -328,8 +326,12 @@ END
     
     # Selects the root component.
     def select_root args
-      # Find the root component.
-      root_component = context.require_component search_opts(args)
+      root_component = nil
+
+      if args.first == '-'
+        # Require the root component.
+        root_component = context.require_component search_opts(args)
+      end
 
       # Resolve configuration.
       context.resolve_components!
@@ -344,8 +346,12 @@ END
 
     # Get a Constraint object for the cmd_arguments and options.
     def search_opts args
-      # Get options.
-      name = args.shift
+      name = nil
+      if args.first == '-'
+        args.shift
+        # Get options.
+        name = args.shift
+      end
       version = cmd_opts[:version]
 
       search_opts = { }
