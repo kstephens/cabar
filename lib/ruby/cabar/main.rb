@@ -230,7 +230,7 @@ END
         # $stderr.puts "Running ruby in-place #{cmd.inspect} #{args.inspect}"
 
         ARGV.clear
-        ARGV << args
+        ARGV.push *args
         $0 = cmd
 
         load cmd

@@ -63,3 +63,6 @@ bin/env cbr dot --show-facets c1 | dot -Tsvg:cairo -o graph.svg
 
 bin/env cbr dot --show-dependencies --show-facets c1 | dot -Tsvg:cairo -o graph.svg
 
+* Show cabar as component
+
+CABAR_PATH=.. bin/cbr run cabar cbr list 
