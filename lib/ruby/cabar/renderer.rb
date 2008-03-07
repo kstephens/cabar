@@ -6,14 +6,20 @@ module Cabar
     attr_accessor :path_sep
     attr_accessor :env_var_prefix
     attr_accessor :verbose
-
+    attr_accessor :output
+    
     # FIXME: window hosts might need different path sep.
     def initialize *args
+      @output = $stdout
       super
       @path_sep ||= ':'
       @env_var_prefix ||= ''
     end
     
+    def puts *args
+      @output.puts *args
+    end
+
     def render x
       x.class.ancestors.each do | cls |
         meth = "render_#{cls.name.sub(/^.*::/, '')}" 
@@ -84,6 +90,11 @@ module Cabar
     end
 
     class InMemory < self
+      def initialize *args
+        @env = ENV
+        super
+      end
+
       def comment str
         if verbose
           $stderr.puts "# #{$0} #{str}"
@@ -94,12 +105,12 @@ module Cabar
         if verbose
           $stderr.puts "# #{$0} setenv #{name.inspect} #{val.inspect}"
         end
-        if (v = ENV[name]) && ! ENV[save_name = "CABAR___#{name}"]
-          ENV[save_name] = v
+        if (v = @env[name]) && ! @env[save_name = "CABAR___#{name}"]
+          @env[save_name] = v
         end
-        ENV[name] = val
+        @env[name] = val
 
-        if name == 'RUBYLIB'
+        if name == 'RUBYLIB' && @env.object_id == ENV.object_id
           $:.clear
           $:.push *val.split(Cabar.path_sep)
           # $stderr.puts "Changed $: => #{$:.inspect}"
@@ -110,7 +121,7 @@ module Cabar
 
     class ShellScript < self
       def _setenv name, val 
-        puts "#{name}=#{val.inspect}; export #{name}"
+        puts "#{name}=#{val.inspect}; export #{name};"
       end
     end # class
 
@@ -270,7 +281,7 @@ module Cabar
         @dot_name[x] ||=
           case x
           when Cabar::Component
-            "#{x.name}:#{x.version}".inspect
+            "#{x.name} #{x.version}".inspect
           when Cabar::Facet
             x.key.to_s.inspect
           else
