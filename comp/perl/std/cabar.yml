@@ -1,0 +1,26 @@
+<%
+  # Calls perl to get information about itself.
+  # Plugin info about perl into a "perl" component via eRB below.
+  perl_info = %q{"{ :version => \"%vd\", :load_path => [ %s ] }", $^V, join(", ", map("\"$_\"", @INC))}
+  # puts perl_info
+  perl_info = `perl -e 'printf #{perl_info}'`
+  # puts perl_info
+  perl_info = eval perl_info
+  # pp perl_info
+  perl_info[:prog] = `which perl`.chomp
+  perl_info[:bin] = File.dirname(perl_info[:prog])
+  # pp perl_info
+ %>
+cabar:
+  version: '1.0'
+  component:
+    name: perl
+    version: <%= "v#{perl_info[:version]}" %>
+    base_directory: <%= File.dirname(perl_info[:bin]).inspect %>
+    description: "This is perl as found at <%= perl_info[:prog] %>"
+  provides:
+    bin:
+      abs_path: [ <%= perl_info[:bin].inspect %> ]
+    lib/perl:
+      abs_path: <%= perl_info[:load_path].inspect %>
+
