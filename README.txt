@@ -1,6 +1,6 @@
 INTRODUCTION:
 
-See lib/perl/cabar.rb for more info.
+See lib/ruby/cabar.rb for more info.
 
 TO DO:
 

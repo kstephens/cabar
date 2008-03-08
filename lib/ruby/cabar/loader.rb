@@ -151,21 +151,8 @@ private
         comps = { }
       end
       
-      # Infer component name/version from directory name.
-      unless comps['name'] && comps['version']
-        case directory
-          # name/version
-        when /\/([a-z_][^\/]*)[\/-]([0-9]+(\.[0-9])*)$/i
-          comps['name'] ||= $1
-          comps['version'] ||= $2
-          # name
-        when /\/([a-z_][^\/]*)$/i
-          comps['name'] ||= $1
-          comps['version'] ||= '0.1'
-        else
-          raise Error, "Cannot infer component name/version from directory"
-        end
-      end
+      # Infer component name/version from directory.
+      infer_component_name comps, directory
 
       if comps.size >= 2 && comps['name'] && comps['version']
         name = comps['name']
@@ -210,6 +197,26 @@ private
       
     end
     
+    def infer_component_name comps, directory
+      # Infer component name/version from directory name.
+      unless comps['name'] && comps['version']
+        case directory
+          # name/version
+        when /\/([a-z_][^\/]*)[\/-]([0-9]+(\.[0-9])*)$/i
+          comps['name'] ||= $1
+          comps['version'] ||= $2
+          # name
+        when /\/([a-z_][^\/]*)$/i
+          comps['name'] ||= $1
+          comps['version'] ||= '0.1'
+        else
+          raise Error, "Cannot infer component name/version from directory"
+        end
+      end
+
+    end
+
+
     def valid_string? str
       String === str && ! str.empty?
     end
