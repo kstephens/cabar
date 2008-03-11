@@ -138,7 +138,7 @@ END
         self.class.cmd_names.each do | cmd |
           help = self.class.cmd_help[cmd]
           cmd = "#{cmd}:"
-          puts "    #{'%-8s' % cmd} #{help.split("\n")[1].inspect}"
+          puts "    #{'%-8s' % cmd} #{help.split("\n")[1]}"
         end
       else
         cmd = cmd_args.first.to_sym
