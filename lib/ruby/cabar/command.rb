@@ -90,7 +90,7 @@ module Cabar
       cmd.instance_eval &blk if block_given?
       cmd.documentation = <<"DOC"
 [ #{cmd.subcommands.commands.map{|x| x.name}.sort.join(' | ')} ] ...
-#{cmd.name_full} command group.
+* '#{cmd.name_full}' command group.
 DOC
       register_command! cmd
       cmd
@@ -470,15 +470,22 @@ DOC
             puts "#{x}               |"
             puts "#{x}subcommands:" unless cmd.subcommands.empty?
           else
-            puts "#{x}#{'%-10s' % (cmd.name + ':')} #{cmd.description}"
+            key = "#{x}#{'%-10s' % (cmd.name + ':')}"
+            if cmd.subcommands.empty?
+              puts "#{key} #{cmd.description.inspect}"
+            else
+              puts "#{key}"
+              puts "  #{x}#{'%-10s' % (':desc:')} #{cmd.description.inspect}"
+            end
+
             unless cmd.aliases.empty?
-              puts "#{x}#{'%-10s' % ' '}   # aka: #{cmd.aliases.sort.join(' ')}"
+              puts "##{x}#{'%-10s' % ''} aka: #{cmd.aliases.sort.join(', ')}"
             end
           end
         end
       end
       
-      cmd_group [ :component, :comp ] do
+      cmd_group [ :component, :comp, :c ] do
         cmd [ :list, :ls ], <<'DOC' do
 [ --verbose ] [ - <component> ]
 Lists all available components.
