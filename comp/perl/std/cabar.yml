@@ -23,4 +23,6 @@ cabar:
       abs_path: [ <%= perl_info[:bin].inspect %> ]
     lib/perl:
       abs_path: <%= perl_info[:load_path].inspect %>
+    lib/ruby:
+      enabled: false
 
