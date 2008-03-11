@@ -201,53 +201,38 @@ DOC
         arg = args.shift
 
         case arg
+        when '--'
+          self.cmd_args = args
+          args = EMPTY_HASH
         when /^--?([^\s=]+)=(.+)$/
           options[$1.sub(/[^A-Z0-9]/i, '_').to_sym] = $2.dup
         when /^--?([^\s=]+)=$/
           options[$1.sub(/[^A-Z0-9]/i, '_').to_sym] = args.shift
-        when /^--?([^\s=]+)$/
+        when /--?([^\s+=]+)$/
           options[$1.sub(/[^A-Z0-9]/i, '_').to_sym] = true
         else
-          cmd_name = arg
-          state.cmd_path << cmd_name
-          unless self.cmd = manager.command_by_name[cmd_name]
-            raise Cabar::Error, "Invalid command name #{state.cmd_path.inspect}"
-          end
-          manager = self.cmd.subcommands
-          
-          until args.empty?
-            arg = args.shift
-
-            case arg
-            when '--'
-              self.cmd_args = args
-              args = EMPTY_HASH
-            when /^--?([^\s=]+)=(.+)$/
-              options[$1.sub(/[^A-Z0-9]/i, '_').to_sym] = $2.dup
-            when /^--?([^\s=]+)=$/
-              options[$1.sub(/[^A-Z0-9]/i, '_').to_sym] = args.shift
-            when /--?([^\s+=]+)$/
-              options[$1.sub(/[^A-Z0-9]/i, '_').to_sym] = true
+          # Check for command.
+          # puts "cmd_path = #{state.cmd_path.inspect}"
+          # puts "manager = #{manager.inspect}"
+          if ! manager.empty?
+            cmd_name = arg.to_s
+            state.cmd_path << cmd_name
+            if self.cmd = manager.command_by_name[cmd_name]
+              manager = self.cmd.subcommands
             else
-              # Check for subcommand.
-              puts "cmd_path = #{state.cmd_path.inspect}"
-              puts "manager = #{manager.inspect}"
-              if ! manager.empty?
-                cmd_name = arg.to_s
-                state.cmd_path << cmd_name
-                if self.cmd = manager.command_by_name[cmd_name]
-                  manager = self.cmd.subcommands
-                else
-                  raise Cabar::Error, "Invalid command name #{state.cmd_path.inspect}"
-                end
-              else
-                args.unshift arg
-                state.cmd_args = args
-                args = EMPTY_ARRAY
-              end
+              raise Cabar::Error, "Invalid command name #{state.cmd_path.inspect}"
             end
+          else
+            args.unshift arg
+            state.cmd_args = args
+            args = EMPTY_ARRAY
           end
         end
+      end
+
+      if state.cmd_path.empty?
+        $stderr.puts "#{File.basename($0)}: command not specified"
+        parse_args [ "help" ]
       end
 
       # $stderr.puts "state = #{state.inspect}"
@@ -432,15 +417,15 @@ DOC
 [ --verbose ] [ <command> ]
 Lists all commands or help for a specific command.
 DOC
-        puts "cmd_args = #{cmd_args.inspect}"
+        # puts "cmd_args = #{cmd_args.inspect}"
         opts = cmd_opts.dup
         opts[:path] = cmd_args.empty? ? nil : cmd_args.dup
         print_header :command
-        main.commands.visit_commands(cmd_opts.dup) do | cmd, opts |
+        main.commands.visit_commands(opts) do | cmd, opts |
           if opts[:path]
             subpath = cmd.command_path[0 ... opts[:path].size]
-            puts "opts[:path] = #{opts[:path].inspect}"
-            puts "subpath = #{subpath.inspect}"
+            # puts "opts[:path] = #{opts[:path].inspect}"
+            # puts "subpath = #{subpath.inspect}"
             next unless opts[:path] === subpath
           end
 
@@ -532,10 +517,29 @@ DOC
 Lists all bin programs.
 DOC
           select_root cmd_args
-          context.required_components.each do | c |
+          prog = cmd_args.shift || '*'
+
+          components = 
+            case 
+            when cmd_opts[:R]
+              context.required_components
+            else
+              context.selected_components
+            end
+          
+          print_header :bin
+          components.to_a.each do | c |
             if f = c.facet('bin')
-              puts "#{c}: "
-              system "ls -lag #{f.abs_path.map{|x| "#{x}/#{prog}"}.join(' ')}"
+              cmds = f.abs_path.map{|x| "#{x}/#{prog}"}.map{|x| Dir[x]}.flatten.sort.select{|x| File.executable? x}
+              unless cmds.empty?
+                puts "    #{c.to_s}: "
+                cmds.each do | f |
+                  file = `file #{f.inspect}`.chomp
+                  file = file.split(': ', 2)
+                  puts "      #{file[0]}: #{file[1].inspect}"
+                end
+              end
+
             end
           end
         end # cmd
@@ -728,7 +732,6 @@ DOC
         name = args.shift
       end
       version = cmd_opts[:version]
-
 
       search_opts = { }
       search_opts[:name] = name if name
