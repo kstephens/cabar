@@ -1,19 +1,23 @@
 require 'cabar/base'
 
 require 'cabar/context'
-require 'cabar/command'
+require 'cabar/command/manager'
+require 'cabar/command/runner'
+require 'cabar/command/builtin'
 
 
 module Cabar
 
-  # Main command line driver.
+  # Main bin/cbr script object.
   class Main < Base
+    # Raw command line arguments from bin/cbr.
     attr_accessor :args
 
+    # The Cabar::Command::Manager for top-level commands.
     attr_accessor :commands
 
     def initialize *args
-      @commands = CommandManager.factory.new(:main => self)
+      @commands = Command::Manager.factory.new(:main => self)
       super
       define_commands!
     end
@@ -22,22 +26,26 @@ module Cabar
     # Command runner
     #
 
-    def runner
-      @runner ||= 
-        CommandRunner.factory.new(:context => self)
+    # The Cabar::Command::Runner that handles parsing arguments
+    # and running the selected command.
+    def command_runner
+      @command_runner ||= 
+        Command::Runner.factory.new(:context => self)
     end
 
+    # Interface for bin/cbr.
     def parse_args args = self.args
-      runner.parse_args(args)
+      command_runner.parse_args(args)
     end
 
+    # Interface for bin/cbr.
     def run
-      runner.run
+      command_runner.run
     end
 
     ##################################################################
 
-    # Return the Context object.
+    # Return the Cabar::Context object.
     def context
       @context ||=
       begin
@@ -51,6 +59,7 @@ module Cabar
 
     ##################################################################
 
+    # Hook for defining standard top-level commands.
     def define_commands!
       commands.define_top_level_commands!
     end
