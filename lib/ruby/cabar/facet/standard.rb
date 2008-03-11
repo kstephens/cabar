@@ -77,9 +77,6 @@ module Cabar
       end
     end # class
 
-    ActionGroup.new(:key => :actions).
-      register_prototype!
- 
 
     # This represents a list of environment variables.
     class EnvVarGroup < self
@@ -103,10 +100,6 @@ module Cabar
         end
       end
     end # class
-
-    EnvVarGroup.new(:key => :env).
-      register_prototype!
-
 
     def is_env_var?
       false
@@ -222,11 +215,6 @@ module Cabar
       end
     end # class
 
-    Components.new(:key => :components, 
-                   :path => [ 'comp' ],
-                   :inferrable => true
-                   ).register_prototype!
-    
 
     class EnvVarPath < Path
       attr_accessor :var
@@ -258,32 +246,6 @@ module Cabar
         x
       end
     end
-
-
-    EnvVarPath.new(:key => :bin,
-                   :var => :PATH, 
-                   :inferrable => true).
-      register_prototype!
-
-    EnvVarPath.new(:key => :lib,       
-                   :var => :LD_LIBRARY_PATH).
-      register_prototype!
-
-    EnvVarPath.new(:key => :include,
-                   :var => :INCLUDE_PATH,
-                   :inferrable => false).
-      register_prototype!
-
-    EnvVarPath.new(:key => 'lib/ruby', 
-                   :var => :RUBYLIB,
-                   :inferrable => true).
-      register_prototype!
-
-    EnvVarPath.new(:key => 'lib/perl', 
-                   :var => :PERL5LIB,
-                   :inferrable => true).
-      register_prototype!
-
 
   end # class
 

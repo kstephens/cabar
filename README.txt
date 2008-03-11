@@ -1,8 +1,92 @@
-INTRODUCTION:
+= Introduction
 
 See lib/ruby/cabar.rb for more info.
 
-TO DO:
+= Cabar Demo
+
+* Go to cabar/example
+
+  cd cabar/example
+
+* Show bin/env.
+
+  bin/env --env
+  eval `bin/env --env`
+
+* List available commands.
+
+  cbr help
+  cbr --verbose help comp
+
+* List plugins.
+
+  cbr plugin list
+
+* List available components.
+
+  cbr comp list
+  cbr comp list - c2
+
+* Show directory structure.
+
+* Cabar cabar.yml specification.
+
+* Show components and facets:
+
+  cbr comp show - c1
+
+* Show component version selection:
+
+  cbr comp run - c2 c2_prog foo bar
+
+  cbr comp run - c2/1.1 c2_prog foo bar
+
+* Cabar configuration cabar_conf.yml.
+
+Show how component version selection can be done outside
+of component requirements.
+
+1. Version Selection
+2. Dependencies
+3. Version Defaults
+
+  cbr comp show - c1
+
+* Show facet environment for a component.:
+
+  cbr env - c1
+
+* Show plugins:
+
+prod/cnu_config/1.0/cabar.rb
+
+prod/cnu_locale/1.1/cabar.yml : provides.cnu_config_path
+
+* Show graph:
+
+  cbr comp dot | dot -Tsvg:cairo -o graph.svg
+
+  cbr comp dot --show-dependencies - c1 | dot -Tsvg:cairo -o graph.svg
+
+  cbr comp dot --show-facets - c1 | dot -Tsvg:cairo -o graph.svg
+
+  cbr comp dot --show-dependencies --show-facets - c1 | dot -Tsvg:cairo -o graph.svg
+
+* Show in-place run scripts for ruby.
+
+  cbr bin run - c1 c2_prog
+
+* Show cabar as component
+
+(cd .. && CABAR_PATH=.. bin/cbr comp list)
+(cd .. && CABAR_PATH=.. bin/cbr run - cabar cbr list) 
+
+* Show cbr-run on a #! line.
+
+  cbr-run-test
+
+
+= TO DO:
 
 * Change Facet.key to Facet._key to avoid collision with future use.
 
@@ -63,75 +147,3 @@ entire components
 * runsv facet
 ** cbr runsv install <component> ...
 
-Cabar Demo
-
-* Show bin/env.
-
-* List available commands
-
-bin/env cbr help
-bin/env cbr --verbose help comp
-
-* List available components.
-
-bin/env cbr comp list
-bin/env cbr comp list - c2
-
-* Show directory structure.
-
-* Cabar cabar.yml specification.
-
-* Show components and facets:
-
-bin/env cbr show - c1
-
-* Show component version selection:
-
-bin/env cbr run - c2 c2_prog foo bar
-
-bin/env cbr run - c2/1.1 c2_prog foo bar
-
-* Cabar configuration cabar_conf.yml.
-
-Show how component version selection can be done outside
-of component requirements.
-
-1. Version Selection
-2. Dependencies
-3. Version Defaults
-
-bin/env cbr comp show - c1
-
-* Show environment:
-
-bin/env cbr env c1
-
-
-* Show plugins:
-
-prod/cnu_config/1.0/cabar.rb
-
-prod/cnu_locale/1.1/cabar.yml : provides.cnu_config_path
-
-* Show graph:
-
-bin/env cbr comp dot | dot -Tsvg:cairo -o graph.svg
-
-bin/env cbr comp dot --show-dependencies - c1 | dot -Tsvg:cairo -o graph.svg
-
-bin/env cbr comp dot --show-facets - c1 | dot -Tsvg:cairo -o graph.svg
-
-bin/env cbr comp dot --show-dependencies --show-facets - c1 | dot -Tsvg:cairo -o graph.svg
-
-* Show in-place run scripts for ruby.
-
-bin/env cbr run - c1 c2_prog
-
-* Show cabar as component
-
-(cd .. && CABAR_PATH=.. bin/cbr comp list)
-(cd .. && CABAR_PATH=.. bin/cbr run - cabar cbr list) 
-
-* Show cbr-run on a #! line.
-
-bin/env cbr-run-test

@@ -183,30 +183,38 @@ module Cabar
 
       def render_facets facets, x = ''
         render_header
-
         puts "#{x}  facet: "
-        facets.
-          sort { | a, b | a.key <=> b.key }.
-          each do | facet |
+
+        facets = facets.
+          sort { | a, b | a.key <=> b.key }
+
+        if @verbose
+          facets.each do | facet |
             a = facet.to_a
             puts "#{x}  - " + 
               (a.
-              map do | k, v |
-                case v
-                when Hash
-                  str = ''
-                  v.each do | vk, vv |
-                    str << "\n#{x}      #{vk}: #{vv.inspect}"
-                  end
-                  v = str
-                else
-                  v = v.inspect
-                end
-                "#{k}: #{v}"
-              end.
+               map do | k, v |
+                 case v
+                 when Hash
+                   str = ''
+                   v.each do | vk, vv |
+                     str << "\n#{x}      #{vk}: #{vv.inspect}"
+                   end
+                   v = str
+                 else
+                   v = v.inspect
+                 end
+                 "#{k}: #{v}"
+               end.
                join("\n#{x}    ")
-              )
+               )
           end
+        else
+          facets.each do | facet |
+            puts "#{x}  - #{facet.key.inspect}"
+          end
+        end
+
       end
       
     end # class

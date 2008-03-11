@@ -31,7 +31,6 @@ module Cabar
       super
       @@current = self
 
-      define_standard_command!
       import_standard_plugins!
     end
 
@@ -83,13 +82,6 @@ module Cabar
 
     ##################################################################
 
-    # Hook for defining standard top-level commands.
-    def define_standard_commands!
-      require 'cabar/command/builtin'
-
-      commands.define_top_level_commands!
-    end
-   
     # Hook for defining standard plugins.
     def import_standard_plugins!
       plugin_manager # force plugin manager to initialized

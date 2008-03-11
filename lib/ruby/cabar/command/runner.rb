@@ -42,7 +42,7 @@ module Cabar
           
           case arg
           when '--'
-            self.cmd_args = args
+            state.cmd_args = args
             args = EMPTY_HASH
           when /^--?([^\s=]+)=(.+)$/
             options[$1.sub(/[^A-Z0-9]/i, '_').to_sym] = $2.dup

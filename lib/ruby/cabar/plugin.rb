@@ -58,15 +58,24 @@ module Cabar
       attr_accessor :main
 
       # The list of plugins.
-      attr_accessor :plugins
+      attr_reader :plugins
+
+      attr_reader :plugin_by_name
 
       def initialize *args
         @plugins = [ ]
+        @plugin_by_name = { }
         super
       end
 
       def register_plugin! plugin
+        name = plugin.name.to_s
+        if @plugin_by_name[name]
+          raise Error, "Plugin named #{name.inspect} already registered."
+        end
         @plugins << plugin
+        @plugin_by_name[name] = plugin
+        self
       end
     end
 

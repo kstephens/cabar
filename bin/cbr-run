@@ -5,8 +5,7 @@ $:.unshift File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib', 'ruby
 require 'cabar'
 require 'cabar/main'
 
-ARGV.unshift '--'
-ARGV.unshift 'run'
+ARGV[0, 0] = [ 'bin', 'run', '--' ]
 
 exit(
      Cabar::Main.
