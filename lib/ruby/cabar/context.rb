@@ -143,6 +143,8 @@ module Cabar
       r = resolve_component opts, :all, &blk
       case r.size
       when 0
+        unresolved_component! opts
+        check_unresolved_components
         raise Error, "Cannot find required component #{opts.inspect}"
       else
         # Select latest version.
@@ -200,6 +202,7 @@ module Cabar
 
     # Called during resolve_compoent!
     def unresolved_component! opts
+      opts = opts.to_hash unless Hash === opts
       (@unresolved_components[opts[:name]] ||= [ ]) << opts
       self
     end
@@ -226,6 +229,10 @@ Connot resolve component #{name.inspect}:
     #{
     selected_components.
     selections[name].map do | q |
+#$stderr.puts "name = #{name.inspect}"
+#$stderr.puts "x = #{x.inspect}"
+#$stderr.puts "q = #{q.inspect}"
+q = q.to_hash unless Hash === q
       "%s\n      %s" % [ (q[:version] || '<<ANY>>'), "by #{q[:_by]}" ]
     end.
     join("\n    ")}
