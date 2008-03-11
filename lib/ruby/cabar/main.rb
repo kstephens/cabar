@@ -1,86 +1,38 @@
 require 'cabar/base'
 
-require 'cabar/error'
 require 'cabar/context'
-require 'cabar/renderer'
+require 'cabar/command'
 
 
 module Cabar
 
   # Main command line driver.
   class Main < Base
-    attr_accessor :args, :cmd, :cmd_opts, :cmd_args, :exit_code
+    attr_accessor :args
 
-    @@cmd_help = { }
-
+    attr_accessor :commands
 
     def initialize *args
+      @commands = CommandManager.factory.new(:main => self)
       super
-      self.exit_code = -1
+      define_commands!
     end
 
+    ##################################################################
+    # Command runner
+    #
+
+    def runner
+      @runner ||= 
+        CommandRunner.factory.new(:context => self)
+    end
 
     def parse_args args = self.args
-      args = args.dup
-
-      self.cmd = nil
-      self.cmd_args = [ ]
-      self.cmd_opts = { }
-      
-      until args.empty?
-        arg = args.shift
-
-        case arg
-        when /^--?([^\s=]+)=(.+)$/
-          _options[$1.sub(/[^A-Z0-9]/i, '_').to_sym] = $2.dup
-        when /^--?([^\s=]+)=$/
-          _options[$1.sub(/[^A-Z0-9]/i, '_').to_sym] = args.shift
-        when /^--?([^\s=]+)$/
-          _options[$1.sub(/[^A-Z0-9]/i, '_').to_sym] = true
-        else
-          self.cmd = arg.to_sym
-          
-          until args.empty?
-            arg = args.shift
-
-            case arg
-            when '--'
-              self.cmd_args = args
-              args = EMPTY_HASH
-            when /^--?([^\s=]+)=(.+)$/
-              cmd_opts[$1.sub(/[^A-Z0-9]/i, '_').to_sym] = $2.dup
-            when /^--?([^\s=]+)=$/
-              cmd_opts[$1.sub(/[^A-Z0-9]/i, '_').to_sym] = args.shift
-            when /--?([^\s+=]+)$/
-              cmd_opts[$1.sub(/[^A-Z0-9]/i, '_').to_sym] = true
-            else
-              args.unshift arg
-              self.cmd_args = args
-              args = EMPTY_ARRAY
-            end
-          end
-        end
-      end
-
-      self
+      runner.parse_args(args)
     end
 
-
     def run
-      begin
-        self.exit_code = 0
-        unless self.class.cmd_names.include?(cmd)
-          raise Cabar::Error, "invalid command: #{cmd.inspect}"
-        end
-        send "cmd_#{cmd}"
-      rescue SystemExit => err
-        raise err
-      rescue Exception => err
-        $stderr.puts "#{File.basename($0)}: #{err.inspect}\n  #{err.backtrace.join("\n  ")}"
-        self.exit_code = 10
-      end
-
-      self.exit_code
+      runner.run
     end
 
     ##################################################################
@@ -89,316 +41,21 @@ module Cabar
     def context
       @context ||=
       begin
-        Context.new(:directory => File.expand_path('.')).make_current!
-      end
-    end
-
-
-    ##################################################################
-    # Command methods.
-    #
-
-    def self.cmd_names
-      @@cmd_names ||= [ ]
-    end
-
-
-    def self.cmd_help
-      @@cmd_help ||= { }
-    end
-
-
-    # Define a command.
-    def self.cmd name, doc = nil, &blk
-      if Enumerable === name
-        name.each { | x | cmd x, doc, &blk }
-        return
-      end
-
-      name = name.to_sym
-      self.cmd_names << name
-      self.cmd_help[name] = doc if doc
-      self.class_eval do 
-        send(:define_method, "cmd_#{name}", &blk)
+        Context.factory.
+          new(:main => self,
+              :directory => File.expand_path('.')).
+          make_current!
       end
     end
 
 
     ##################################################################
 
-
-    cmd :help, <<"END" do
-help [ <command> ]
-Shows help on a command.
-END
-      if cmd_args.empty?
-        puts "cabar:"
-        puts "  version: #{Cabar.version}"
-        puts "  commands:"
-        self.class.cmd_names.each do | cmd |
-          help = self.class.cmd_help[cmd]
-          cmd = "#{cmd}:"
-          puts "    #{'%-8s' % cmd} #{help.split("\n")[1]}"
-        end
-      else
-        cmd = cmd_args.first.to_sym
-        msg = self.class.cmd_help[cmd]
-        raise ArgumentError, "unknown command #{cmd.inspect}" unless msg
-        puts "#{File.basename($0)} #{msg}"
-      end
-    end
-
-    cmd :config, <<"END" do
-config 
-Shows current configuration.
-END
-      puts "#{context.config_raw.to_yaml}"
+    def define_commands!
+      commands.define_top_level_commands!
     end
 
 
-    cmd :list, <<"END" do
-list [ --verbose ] [ - <component> ]
-Lists all available components.
-END
-      yaml_renderer.
-        render_components(context.
-                          available_components.
-                          select(search_opts(cmd_args))
-                          )
-    end
-
-    cmd :show, <<"END" do
-show [ <cmd-opts> ] [ - <component> ]
-Lists the current settings for a selected component.
-END
-      select_root cmd_args
-
-      yaml_renderer.
-        render_components(context.
-                          required_components
-                          )
-      yaml_renderer.
-        render_facets(
-                      context.
-                      facets.
-                      values)
-    end
-
-    cmd :env, <<"END" do
-env [ <cmd-opts> ] [ - <component> ]
-Lists the environment variables for a selected component.
-END
-      raise ArgumentError if cmd_args.empty?
-      select_root cmd_args
-
-      r = Renderer::ShellScript.new cmd_opts
-
-      context.render r
-    end
-
-
-    cmd :run, <<"END" do
-run [ cmd-opts ] [ - <component> ] <prog> <prog-args> ....
-Runs <prog> in the environment of the top-level component.
-END
-      select_root cmd_args
-
-      r = Renderer::InMemory.new cmd_opts
-
-      context.render r
-
-      exec_program *cmd_args
-    end
-    alias :cmd_exec :cmd_run
-
-
-    # Locates an executable using PATH.
-    # 
-    # If the script starts with:
-    #
-    #   #!/usr/bin/env cbr-run
-    #   #!ruby
-    #
-    # the script is run directly inside cabar's ruby interpreter after
-    # appropriately replacing ARGV and $0.
-    #
-    # If the script starts with:
-    #
-    #   #!/usr/bin/env cbr-run
-    #   #!/some-exe -arg1 -arg2
-    #
-    # some-exe is executed with [ "-arg1", "-arg2", script ].
-    #
-    # Otherwise the executable is simple exec'ed.
-    def exec_program cmd, *args
-      # $stderr.puts "exec_program #{cmd.inspect} #{args.inspect}"
-
-      unless /\// === cmd 
-        ENV['PATH'].split(Cabar.path_sep).each do | x |
-          x = File.expand_path(File.join(x, cmd))
-          if File.executable?(x)
-            cmd = x
-            break
-          end
-        end
-      end
-
-      if File.readable?(cmd) && 
-          File.executable?(cmd) && 
-          (lines = File.open(cmd) { |fh| 
-             lines = [ ]
-             lines << fh.readline 
-             lines << fh.readline
-             lines
-           })
-
-        case
-        when (/^\s*#!.*ruby/ === lines[0] || /^\s*#!.*ruby/ === lines[1])
-          # $stderr.puts "Running ruby in-place #{cmd.inspect} #{args.inspect}"
-          
-          ARGV.clear
-          ARGV.push *args
-          $0 = cmd
-          
-          load cmd
-          exit 0
-        when (/^\s*#!.*cbr-run/ === lines[0] && /^\s*#!\s*(.*)/ === lines[1])
-          require 'shellwords'
-          words = Shellwords.shellwords($1)
-          words << cmd
-          args.unshift *words
-          # $stderr.puts "Running #{args.inspect}"
-          Kernel::exec *args
-          raise Error, "cannot execute #{args.inspect}"
-        end
-      end
-      
-      args.unshift cmd
-      Kernel::exec *args
-      raise Error, "cannot execute #{args.inspect}"
-    end
-
-
-    cmd :facet, <<"END" do
-facet [ <cmd-opts> ] [ - <component> ]
-Show the facets for the top-level component.
-END
-      select_root cmd_args
-
-      yaml_renderer.
-        render_facets(context.
-                      facets.
-                      values
-                      )
-    end
-
-
-    cmd :dot, <<"END" do
-dot [ <cmd-opts> ] [ - <component> ]
-Render the components as a dot graph on STDOUT.
-END
-      select_root cmd_args
-
-      r = Renderer::DotGraph.new cmd_opts
-
-      r.render(context)
-    end
-
-
-    cmd :action, <<"END" do
-action [ <cmd-opts> ] [ - <component> ] <action> <args> ...
-Executes an action on all required components.
-END
-
-      select_root cmd_args
-      action = cmd_args.shift
-
-      context.
-        required_components.each do | c |
-          # puts "c.facets = #{c.facets.inspect}"
-          c.facets.select do | f |
-            f.key == 'actions' &&
-            f.can_do_action?(action)
-          end.each do | f |
-            # puts "f = #{f.to_a.inspect}"
-            f.execute_action! action, cmd_args.dup
-          end
-        end
-
-    end
-
-
-    cmd :shell, <<"END" do
-shell [ <cmd-opts> ] [ - <component> ]
-Starts an interactive shell on Cabar::Context.
-END
-      select_root cmd_args 
-
-      require 'readline'
-      prompt = "  #{File.basename($0)} >> "
-      _ = nil
-      err = nil
-      while line = Readline.readline(prompt, true)
-        begin
-          _ = context.instance_eval do
-            eval line
-          end
-          puts _.inspect
-        rescue Exception => err
-          puts err.inspect
-        end
-      end
-    end
-
-    private
-
-    # Return a YAML renderer.
-    def yaml_renderer
-      @yaml_renderer ||=
-        Cabar::Renderer::Yaml.new cmd_opts
-    end
-
-    #####################################################
-
-    
-    # Selects the root component.
-    def select_root args
-      # Require the root component.
-      root_component = context.require_component search_opts(args, ENV['CABAR_TOP_LEVEL'])
-
-      # Resolve configuration.
-      context.resolve_components!
-
-      # Validate configuration.
-      context.validate_components!
-
-      # Return the root component.
-      root_component
-    end
-
-
-    # Get a Constraint object for the cmd_arguments and options.
-    def search_opts args, default = nil
-      name = nil
-      if args.first == '-'
-        args.shift
-        # Get options.
-        name = args.shift
-      end
-      version = cmd_opts[:version]
-
-
-      search_opts = { }
-      search_opts[:name] = name if name
-      search_opts[:name] ||= default if default
-
-      search_opts[:version] = version if version
-
-      search_opts = Cabar::Constraint.create(search_opts)
-      
-      search_opts
-    end
-    
   end # class
 
 end # module

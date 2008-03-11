@@ -216,6 +216,11 @@ module Cabar
       @facet_by_key.key? f
     end
 
+    def facet f
+      f = f.key if Facet === f
+      @facet_by_key[f]
+    end
+
     def attach_facet! f
       return f unless f
       

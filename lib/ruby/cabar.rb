@@ -5,8 +5,8 @@
 # Features:
 #
 #   Extensibility:
-#     Component facets can be added by components to glue components
-#     together in.
+#     Component "facets" can be added by components to glue components
+#     together in.  Components can add plug-ins to Cabar.
 #
 #   Configurability:
 #     User configuration can be used to override configurations
