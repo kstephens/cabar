@@ -143,6 +143,9 @@ module Cabar
       r = resolve_component opts, :all, &blk
       case r.size
       when 0
+        constraint = opts
+        opts = opts.to_hash unless Hash === opts
+        opts[:dependent] = constraint.to_s
         unresolved_component! opts
         check_unresolved_components
         raise Error, "Cannot find required component #{opts.inspect}"
@@ -218,30 +221,37 @@ module Cabar
 
       unresolved_components.each do | name, x |
         msg << <<"END"
-Connot resolve component #{name.inspect}:
-  Available:
+cabar:
+  version: #{Cabar.version}
+  error:
+    message:   #{"Connot resolve component".inspect}
+    component: #{name.inspect}
+END
+        msg << "    for:\n" 
+        x.each do | data |
+          msg << "    - #{data[:dependent].inspect}\n"
+        end
+
+        msg << <<"END"
+    available:
     #{
     available_components.
     select(:name => name).to_a.
-    map{|c| c.to_s}.
+    map{|c| "- #{c.to_s.inspect}"}.
     join("\n    ")}
-  Requested:
-    #{
+    requested:
+      #{
     selected_components.
     selections[name].map do | q |
 #$stderr.puts "name = #{name.inspect}"
 #$stderr.puts "x = #{x.inspect}"
 #$stderr.puts "q = #{q.inspect}"
 q = q.to_hash unless Hash === q
-      "%s\n      %s" % [ (q[:version] || '<<ANY>>'), "by #{q[:_by]}" ]
+      "constraint: %s\n      %s" % [ (q[:version] || '<<ANY>>').to_s.inspect, "by: #{q[:_by].to_s.inspect}" ]
     end.
-    join("\n    ")}
+    join("\n      ")}
+---
 END
-        x.each do | data |
-          msg << <<"END"
-  For #{data[:dependent]}
-END
-        end
       end
       $stderr.puts msg
       raise Error, "UnresolvedComponent"
