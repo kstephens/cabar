@@ -8,6 +8,9 @@ module Cabar
   class Command
     # Manages a list of commands.
     class Manager < Base
+      # The owner of this manager.
+      attr_accessor :owner
+
       # A list of all commands.
       attr_reader :commands
 
@@ -39,8 +42,12 @@ module Cabar
       end
       
       def register_command! cmd
+        # $stderr.puts "#{self.inspect} register_command! #{cmd.name.inspect}"
+
         return nil if @commands.include? cmd
+
         @commands << cmd
+
         (cmd.aliases + [ cmd.name ]).each do | name |
           name = name.to_s
           if @command_by_name[name]
@@ -68,6 +75,7 @@ module Cabar
         opts[:name] = name.to_s.freeze
         opts[:aliases] = opts[:aliases].map{|x| x.to_s.freeze}.freeze
         opts[:proc] = blk
+        opts[:supercommand] = owner if Command === owner        
         
         # $stderr.puts "opts = #{opts.inspect}"
         
@@ -122,7 +130,7 @@ DOC
       end
       
       def inspect
-        "#<#{self.class} #{commands.inspect}>"
+        "#<#{self.class} #{object_id} #{owner} #{commands.map{|x| x.name}.inspect}>"
       end
 
     end # class

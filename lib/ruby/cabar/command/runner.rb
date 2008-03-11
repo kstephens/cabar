@@ -90,6 +90,12 @@ module Cabar
             raise Cabar::Error, "Invalid command name #{state.cmd_path.inspect}"
           end
           
+          # Command is not executable?
+          unless cmd.proc
+            parse_args [ 'help', *state.cmd_path ]
+            return run 
+          end
+
           # Clone the Command object.
           # $stderr.puts "original cmd = #{cmd.inspect}"
           cmd = cmd.dup

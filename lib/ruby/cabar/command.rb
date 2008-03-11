@@ -41,7 +41,7 @@ module Cabar
 
     def initialize *args, &blk
       @state = State.factory.new
-      @subcommands = Manager.factory.new
+      @subcommands = Manager.factory.new(:owner => self)
       super
       instance_eval if block_given?
     end
