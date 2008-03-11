@@ -172,7 +172,7 @@ module Cabar
           puts "    description: #{(c.description rescue '').inspect}"
           puts "    directory: #{c.directory.inspect}"
           puts "    base_directory: #{c.base_directory.inspect}"
-          puts "    provides: [ #{c.provides.map{|x| x.key.inspect}.sort.join(', ')} ]"
+          puts "    facet: [ #{c.provides.map{|x| x.key.inspect}.sort.join(', ')} ]"
           puts "    requires: [ #{c.requires.map{|x| "#{x.name}/#{x.version}".inspect}.sort.join(', ')} ]"
           puts "    configuration: #{c.configuration.inspect}"
           render_facets c.facets, '  ' if _options[:show_facet]

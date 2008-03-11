@@ -132,7 +132,7 @@ module Cabar
       return if @configured
       @configured = true
       
-      $stderr.puts "configuring #{self._config_file}"
+      # $stderr.puts "configuring #{self._config_file}"
 
       @_config = nil
       
@@ -140,7 +140,7 @@ module Cabar
       non_inferrable = { }
 
       begin
-        (conf['provides'] || conf['provide'] || EMPTY_HASH).each do | k, opts |
+        (conf['facet'] || conf['provides'] || conf['provide'] || EMPTY_HASH).each do | k, opts |
           case opts
           when Hash
             n_i = opts['inferrable'] == false || opts['enabled'] == false
@@ -150,7 +150,7 @@ module Cabar
             n_i = false
           end
 
-          $stderr.puts "k = #{k.inspect} #{opts.inspect}"
+          # $stderr.puts "k = #{k.inspect} #{opts.inspect}"
           f = create_facet k, opts
 
           if n_i || (f && (! f.inferrable? || ! f.enabled?))
@@ -271,6 +271,9 @@ module Cabar
       # Attach inferrable Facets only if inferred.
       attach = true
       if opts[:infer] && ! f.infer? 
+        attach = false
+      end
+      unless f.enabled?
         attach = false
       end
 

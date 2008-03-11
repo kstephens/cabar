@@ -271,11 +271,12 @@ END
     def collect_facets coll = { }, comp_facet = { }
       required_components.each do | c |
         c.provides.each do | facet |
+          next unless facet.enabled?
           if facet.is_composable? 
-            if f = coll[facet.key.to_s]
+            if f = coll[facet.key]
               f.compose_facet! facet
             else
-              coll[facet.key.to_s] = facet.dup
+              coll[facet.key] = facet.dup
             end
           else
             (comp_facet[c] ||= [ ]) << facet

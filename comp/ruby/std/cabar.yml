@@ -19,4 +19,4 @@ cabar:
     lib/ruby:
       abs_path: <%= ruby_info[:load_path].inspect %>
     lib/perl:
-      inferrable: false
+      enabled: false
