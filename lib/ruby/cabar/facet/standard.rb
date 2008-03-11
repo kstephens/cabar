@@ -253,10 +253,9 @@ module Cabar
       end
 
       def to_a
-        super +
-          [
-           [ :var, var ],
-          ]
+        x = super
+        x[2, 0] = [ [ :var, var ] ]
+        x
       end
     end
 
