@@ -132,13 +132,30 @@ module Cabar
       return if @configured
       @configured = true
       
-      # $stderr.puts "configuring #{self._config_file}"
+      $stderr.puts "configuring #{self._config_file}"
 
       @_config = nil
       
+      # Keep track of which facets are declared to be non-inferrable.
+      non_inferrable = { }
+
       begin
         (conf['provides'] || conf['provide'] || EMPTY_HASH).each do | k, opts |
+          case opts
+          when Hash
+            n_i = opts['inferrable'] == false || opts['enabled'] == false
+          when false
+            n_i = true
+          else
+            n_i = false
+          end
+
+          $stderr.puts "k = #{k.inspect} #{opts.inspect}"
           f = create_facet k, opts
+
+          if n_i || (f && (! f.inferrable? || ! f.enabled?))
+            non_inferrable[k] = true
+          end
         end
         
         (conf['select'] || EMPTY_HASH).each do | k, opts |
@@ -176,6 +193,7 @@ module Cabar
         # Infer other facets.
         Facet.prototypes.each do | f |
           next if self.has_facet? f
+          next if non_inferrable[f.key]
           next unless f.inferrable?
           # $stderr.puts "- #{self.inspect}: inferring facet #{f.key.inspect}"
           f = create_facet f, EMPTY_HASH, :infer => true

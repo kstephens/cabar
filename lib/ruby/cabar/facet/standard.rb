@@ -224,7 +224,7 @@ module Cabar
 
     Components.new(:key => :components, 
                    :path => [ 'comp' ],
-                   :_inferrable => true
+                   :inferrable => true
                    ).register_prototype!
     
 
@@ -262,7 +262,7 @@ module Cabar
 
     EnvVarPath.new(:key => :bin,
                    :var => :PATH, 
-                   :_inferrable => true).
+                   :inferrable => true).
       register_prototype!
 
     EnvVarPath.new(:key => :lib,       
@@ -271,17 +271,17 @@ module Cabar
 
     EnvVarPath.new(:key => :include,
                    :var => :INCLUDE_PATH,
-                   :_inferrable => false).
+                   :inferrable => false).
       register_prototype!
 
     EnvVarPath.new(:key => 'lib/ruby', 
                    :var => :RUBYLIB,
-                   :_inferrable => true).
+                   :inferrable => true).
       register_prototype!
 
     EnvVarPath.new(:key => 'lib/perl', 
                    :var => :PERL5LIB,
-                   :_inferrable => true).
+                   :inferrable => true).
       register_prototype!
 
 

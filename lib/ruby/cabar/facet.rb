@@ -25,8 +25,8 @@ module Cabar
     attr_accessor :_proto
 
     # True if the facet is inferrable.
-    attr_accessor :_inferrable
-    alias :inferrable? :_inferrable
+    attr_accessor :inferrable
+    alias :inferrable? :inferrable
 
     # The owner of the facet, usu. the Component.
     attr_accessor :owner
@@ -38,7 +38,7 @@ module Cabar
     attr_accessor :configuration
 
     def initialize *args
-      @_inferrable = false
+      @inferrable = false
       super
     end
 

@@ -100,7 +100,7 @@ of component requirements.
 2. Dependencies
 3. Version Defaults
 
-bin/env cbr comp show c1
+bin/env cbr comp show - c1
 
 * Show environment:
 
