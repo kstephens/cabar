@@ -6,11 +6,11 @@ module Cabar
 
     # This represents group of action commands to run on a component.
     #
-    # actions:
+    # action:
     #   name_1: cmd_1
     #   name_2: cmd_2
     class ActionGroup < self
-      attr_accessor :actions
+      attr_accessor :action
 
       def component_associations
         [ 'provides' ]
@@ -21,20 +21,20 @@ module Cabar
       end
 
       def _reformat_options! opts
-        opts = { :actions => opts }
+        opts = { :action => opts }
         opts
       end
 
       def compose_facet! f
-        actions.cabar_merge! f.actions
+        @action.cabar_merge! f.action
       end
 
       def can_do_action? action
-        actions.key? action.to_s
+        @action.key? action.to_s
       end
 
       def execute_action! action, args
-        expr = actions[action.to_s] || raise("cannot find action #{action.inspect}")
+        expr = @action[action.to_s] || raise("cannot find action #{action.inspect}")
         puts "component #{component}:"
         puts "action: #{action.inspect}: #{expr.inspect}"
 
@@ -72,7 +72,7 @@ module Cabar
       def to_a
         super +
           [
-           [ :actions, actions ],
+           [ :action, action ],
           ]
       end
     end # class

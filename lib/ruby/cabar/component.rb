@@ -149,12 +149,17 @@ module Cabar
       end
     end
     
-    def to_s
-      "#{name}/#{version}@#{directory}"
+    def to_s format = :long
+      case format
+      when :short
+        "#{name}/#{version}"
+      when :long
+        "#{name}/#{version}@#{directory}"
+      end
     end
     
-    def inspect
-      to_s.inspect
+    def inspect *args
+      to_s(*args).inspect
     end
     
     

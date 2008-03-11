@@ -94,9 +94,6 @@ prod/cnu_locale/1.1/cabar.yml : provides.cnu_config_path
 
 * Change Facet.context to Facet._context
 
-* Change 'actions' facet to 'action' to be in alignment with
-facet commands.
-
 * Add support to automatically require top_level components.
 
 * From discussion with Jeremy 2008/03/10
@@ -140,7 +137,7 @@ entire components
 ** cbr bin run <cmd> <args> ...
 ** cbr lib/ruby doc
 
-* actions should be only on top-level components by default.
+* action run should be only on top-level components by default.
 ** cbr action run test
 ** cbr action -R run test
 

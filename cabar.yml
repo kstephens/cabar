@@ -6,14 +6,14 @@ cabar:
     version: v1.0
     description: 'Cabar - Component Backplane Manager'
 
-  provides:
+  facet:
     bin: true
     lib/ruby: true
 # Support subcomponent repositories.
     components: 
       path: 'comp'
-    actions:
-      test: "rake test"
+    action:
+      test: 'rake test'
 
   requires:
     component:
