@@ -168,7 +168,7 @@ module Cabar
           end
         end
         
-        (conf['requires'] || conf['require'] || EMPTY_HASH).each do | k, v |
+        (conf['depend'] || conf['requires'] || conf['require'] || EMPTY_HASH).each do | k, v |
           case k
           when 'component'
             k = :required_component

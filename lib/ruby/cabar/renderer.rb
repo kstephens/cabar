@@ -167,13 +167,13 @@ module Cabar
       
       def render_component c
         if @verbose 
-          puts "  - name: #{c.name.inspect}"
-          puts "    version: #{c.version.to_s.inspect}"
-          puts "    description: #{(c.description rescue '').inspect}"
-          puts "    directory: #{c.directory.inspect}"
-          puts "    base_directory: #{c.base_directory.inspect}"
-          puts "    facet: [ #{c.provides.map{|x| x.key.inspect}.sort.join(', ')} ]"
-          puts "    requires: [ #{c.requires.map{|x| "#{x.name}/#{x.version}".inspect}.sort.join(', ')} ]"
+          puts "  - name:          #{c.name.inspect}"
+          puts "    version:       #{c.version.to_s.inspect}"
+          puts "    description:   #{c.description.inspect}" if c.description
+          puts "    directory:     #{c.directory.inspect}"
+          puts "    base_dir:      #{c.base_directory.inspect}" if c.directory != c.base_directory
+          puts "    facet:         [ #{c.provides.map{|x| x.key.inspect}.sort.join(', ')} ]"
+          puts "    requires:      [ #{c.requires.map{|x| "#{x.name}/#{x.version}".inspect}.sort.join(', ')} ]"
           puts "    configuration: #{c.configuration.inspect}"
           render_facets c.facets, '  ' if _options[:show_facet]
         else
