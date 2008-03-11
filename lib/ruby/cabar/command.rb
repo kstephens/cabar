@@ -16,6 +16,7 @@ module Cabar
     def initialize *args
       @commands = [ ]
       @command_by_name = { }
+      super
     end
 
     def command_names
@@ -37,15 +38,18 @@ module Cabar
     end
 
     def register_command! cmd
-      return if @commands.include? cmd
+      return nil if @commands.include? cmd
       @commands << cmd
-      cmd.aliases + [ cmd.name ].each do | name |
+      (cmd.aliases + [ cmd.name ]).each do | name |
         name = name.to_s
         if @command_by_name[name]
           raise InvalidCommand, "A command named #{name.inspect} is already registered"
         end
         @command_by_name[name] = cmd
+        # $stderr.puts "  register_command! #{cmd.inspect} as #{name.inspect}"
       end
+
+      cmd
     end
 
     def create_command! name, opts, blk
@@ -67,7 +71,6 @@ module Cabar
       # $stderr.puts "opts = #{opts.inspect}"
 
       cmd = cls.factory.new opts
-      # $stderr.puts "  Registering Command: #{cmd.inspect}"
 
       cmd
     end
@@ -80,17 +83,19 @@ module Cabar
     end
     alias :cmd :define_command
     
-    def cmd_group name, opts = nil, &blk
-      opts ||= { } 
+    # Define a command group.
+    def define_command_group name, opts = nil, &blk
+      opts ||= { }
       cmd = create_command! name, opts, nil
       cmd.instance_eval &blk if block_given?
       cmd.documentation = <<"DOC"
 [ #{cmd.subcommands.commands.map{|x| x.name}.sort.join(' | ')} ] ...
-#{cmd.command_path.join(' ')} command group.
+#{cmd.name_full} command group.
 DOC
       register_command! cmd
       cmd
     end
+    alias :cmd_group :define_command_group
 
     
     # Visits a command.
@@ -220,7 +225,7 @@ DOC
             if self.cmd = manager.command_by_name[cmd_name]
               manager = self.cmd.subcommands
             else
-              raise Cabar::Error, "Invalid command name #{state.cmd_path.inspect}"
+              raise Cabar::Error, "Invalid command path #{state.cmd_path.inspect}"
             end
           else
             args.unshift arg
@@ -339,9 +344,24 @@ DOC
     end
 
 
+    def names
+      @aliases.dup << @name
+    end
+
     # Returns true if matches by name or alias.
     def === x
-      x === @name || @aliases.any?{|x| n === x} 
+      case x
+      when String
+        x === @name || @aliases.any?{|x| n === x} 
+      when Array
+        path = names_path.dup
+        x.all? do | x |
+          p = path.shift
+          p.nil? || p.any?{|p| x === p }
+        end
+      when
+        false
+      end
     end
 
     # Returns the lines of documentation.
@@ -350,18 +370,31 @@ DOC
     end
 
     # Return the full path to this command.
-    def command_path
-      @command_path ||=
+    def name_path
+      @name_path ||=
         begin
-          path = @supercommand ? @supercommand.command_path.dup : [ ] 
+          path = @supercommand ? @supercommand.name_path.dup : [ ] 
           path.push name
         end
     end
 
+    def names_path
+      @names_path ||=
+        begin
+          path = @supercommand ? @supercommand.names_path.dup : [ ] 
+          path.push names
+        end
+    end
+
+    def name_full
+      name_path.join(' ')
+    end
+
+
     # Returns the synopsis of this command from
     # the first line of documentation.
     def synopsis
-      "#{command_path.join(' ')} " + documentation_lines[0]
+      "#{name_full} " + documentation_lines[0]
     end
 
     # Returns the description of this command from
@@ -423,10 +456,7 @@ DOC
         print_header :command
         main.commands.visit_commands(opts) do | cmd, opts |
           if opts[:path]
-            subpath = cmd.command_path[0 ... opts[:path].size]
-            # puts "opts[:path] = #{opts[:path].inspect}"
-            # puts "subpath = #{subpath.inspect}"
-            next unless opts[:path] === subpath
+            next unless cmd === opts[:path]
           end
 
           x = opts[:indent]
@@ -440,33 +470,51 @@ DOC
             puts "#{x}               |"
             puts "#{x}subcommands:" unless cmd.subcommands.empty?
           else
-            puts "#{x}#{'%-8s' % cmd.name}: #{cmd.description}"
+            puts "#{x}#{'%-10s' % (cmd.name + ':')} #{cmd.description}"
+            unless cmd.aliases.empty?
+              puts "#{x}#{'%-10s' % ' '}   # aka: #{cmd.aliases.sort.join(' ')}"
+            end
           end
         end
       end
       
-      cmd :list, <<'DOC' do
+      cmd_group [ :component, :comp ] do
+        cmd [ :list, :ls ], <<'DOC' do
 [ --verbose ] [ - <component> ]
 Lists all available components.
 DOC
-        yaml_renderer.
-          render_components(context.
-                            available_components.
-                            select(search_opts(cmd_args))
-                            )
-      end
-      
-      cmd :show, <<'DOC' do
+          yaml_renderer.
+            render_components(context.
+                              available_components.
+                              select(search_opts(cmd_args))
+                              )
+        end
+
+        cmd :dot, <<'DOC' do
+[ - <component> ]
+Render the components as a dot graph on STDOUT.
+DOC
+          select_root cmd_args
+          
+          r = Renderer::DotGraph.new cmd_opts
+          
+          r.render(context)
+        end
+
+        cmd :show, <<'DOC' do
 [ <cmd-opts???> ] [ - <component> ]
 Lists the current settings for a selected component.
 DOC
-        select_root cmd_args
+          select_root cmd_args
+          
+          yaml_renderer.
+            render_components(context.required_components)
+          yaml_renderer.
+            render_facets(context.facets.values)
+        end
         
-        yaml_renderer.
-          render_components(context.required_components)
-        yaml_renderer.
-          render_facets(context.facets.values)
       end
+
       
       cmd :env, <<'DOC' do
 [ - <component> ]
@@ -559,19 +607,7 @@ DOC
                         values
                         )
       end
-      
-      
-      cmd :dot, <<'DOC' do
-[ - <component> ]
-Render the components as a dot graph on STDOUT.
-DOC
-        select_root cmd_args
-        
-        r = Renderer::DotGraph.new cmd_opts
-        
-        r.render(context)
-      end
-      
+            
       
       cmd :action, <<'DOC' do
 [ - <component> ] <action> <args> ...

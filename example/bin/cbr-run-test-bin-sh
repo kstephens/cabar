@@ -1,0 +1,8 @@
+#!/usr/bin/env cbr-run
+#!/bin/sh
+
+echo "cbr-run-test-bin-sh $0 $@"
+
+env | sort 
+
+exit 9

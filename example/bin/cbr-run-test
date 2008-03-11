@@ -1,0 +1,8 @@
+#!/usr/bin/env cbr-run
+#!ruby
+
+puts Cabar::Context.current
+
+puts ENV.inspect
+
+exit 0
