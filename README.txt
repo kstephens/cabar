@@ -12,6 +12,62 @@ TO DO:
 
 * Add support to automatically require top_level components.
 
+* From discussion with Jeremy 2008/03/10
+** cbr <nothing> crashes.
+** example directory needs README/docs.
+** Unit test against example directory.
+
+** Implement Cabar::Command
+*** command name and aliases
+*** subcommands 
+*** Cabar::Command::Runner
+
+** Create Cabar::Plugin::Builder DSL
+*** Create facets
+*** Create commands for facets
+
+** Version control plugins
+*** CABAR_REMOTE_PATH specifies a remote list of repositories:
+**** CABAR_REMOTE_PATH="svn://rubyforge.org/package ; http://foobar.com/cabar ; p4://"
+*** CABAR_REMOTE_DEST specifies where "cabar remote get" will put components.
+cbr remote get -R cnuapp/1.1
+cbr remote list
+cbr remote update 
+
+* Modify cabar config
+** cbr config
+** cbr config set select <component> 1.2
+
+* Need web_service facet
+** cbr bin lsws start
+** cbr bin apache start
+
+* Facets realizations are not scoped.
+** Provide a mechanism to select particular component facets rather than
+entire components
+
+* Gem plugin
+
+** Install gems into a gem platform.
+
+*** cbr gem install rails - cnu_gems/1.1
+
+* All facets have top-level commands
+** cbr action list
+** cbr action run <action>
+** cbr bin list
+** cbr bin run <cmd> <args> ...
+** cbr lib/ruby doc
+
+* actions should be only on top-level components by default.
+** cbr action run test
+** cbr action -R run test
+
+* runsv facet
+
+
+** cbr runsv install <component> ...
+
 Cabar Demo
 
 * Show bin/env.
