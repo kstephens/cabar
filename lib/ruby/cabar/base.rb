@@ -121,7 +121,9 @@ END
 
     # Returns @_options[sel] if it exists.
     def method_missing sel, *args, &blk
-      if args.empty? && ! block_given? && @_options.key?(sel = sel.to_sym)
+      if args.empty? && 
+          ! block_given? &&
+          (sel = sel.to_sym) # && @_options.key?(sel)
         #self.class.define_method sel.to_sym do | |
         #  @_options[sel]
         #end
