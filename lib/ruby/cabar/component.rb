@@ -8,6 +8,46 @@ module Cabar
   # Represents a Component that can be composed into a system
   # using Facets to describe how to compose it.
   #
+  # A Component resides in a component repository.
+  # Multiple component repositories can be searched by specifying
+  # CABAR_PATH environment variable.
+  #
+  # Components are located by the searching the component
+  # repositories with the following pattern:
+  # 
+  #   */cabar.yml
+  #   */*/cabar.yml
+  #
+  # For example:
+  #
+  #   my_component/cabar.yml
+  #   my_component/1.1/cabar.yml
+  #   my_component-1.2/cabar.yml
+  # 
+  # A component cabar.yml file is a the manifest for the component.
+  # It has the following major sections:
+  # 
+  # * component - defines the component(s) that this directory defines.
+  # * facets - specifies the facets that this component provides.
+  # * requires - specifies the components that this component depends on.
+  #
+  # For example, a my_component/1.2/cabar.yml:
+  #
+  #   cabar:
+  #     version: v1.0
+  #     component:
+  #       name: my_component
+  #       version: v1.2
+  #       description: "My first component"
+  #     facet:
+  #       bin: true
+  #       lib/ruby: true
+  #     requires:
+  #       ruby: v1.8.6
+  #
+  # This component depends on ruby 1.8.6 and has a bin directory containing
+  # executables and a library of ruby modules.
+  #
   class Component < Base
     #attr_accessor :name
     attr_accessor_type :version, Cabar::Version
@@ -141,23 +181,17 @@ module Cabar
 
       begin
         (conf['facet'] || conf['provides'] || conf['provide'] || EMPTY_HASH).each do | k, opts |
-          case opts
-          when Hash
-            n_i = opts['inferrable'] == false || opts['enabled'] == false
-          when false
-            n_i = true
-          else
-            n_i = false
-          end
-
           # $stderr.puts "k = #{k.inspect} #{opts.inspect}"
           f = create_facet k, opts
 
-          if n_i || (f && (! f.inferrable? || ! f.enabled?))
+          # Do not inferr disabled Facets.
+          if ! f || (! f.inferrable? || ! f.enabled?)
             non_inferrable[k] = true
           end
         end
         
+        # Select specific component version.
+        # Does not imply dependency.
         (conf['select'] || EMPTY_HASH).each do | k, opts |
           case k
           when 'component'
@@ -168,6 +202,7 @@ module Cabar
           end
         end
         
+        # Handle component dependencies.
         (conf['depend'] || conf['requires'] || conf['require'] || EMPTY_HASH).each do | k, v |
           case k
           when 'component'
