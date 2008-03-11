@@ -130,6 +130,8 @@ private
       conf_file ||= 
         File.join(directory, "cabar.yml")
       
+      # $stderr.puts "loading #{conf_file}"
+
       conf = @context.configuration.read_config_file conf_file
       conf = conf['cabar']
       
@@ -185,6 +187,7 @@ private
 
         # Register component, if it's enabled.
         if comp.enabled?
+          # $stderr.puts "enabled #{conf_file}"
           comp.parse_configuration_early!
 
           add_available_component! comp

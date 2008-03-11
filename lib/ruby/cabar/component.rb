@@ -132,6 +132,8 @@ module Cabar
       return if @configured
       @configured = true
       
+      # $stderr.puts "configuring #{self._config_file}"
+
       @_config = nil
       
       begin
@@ -153,6 +155,9 @@ module Cabar
           case k
           when 'component'
             k = :required_component
+            unless v
+              puts "k = #{k.inspect} v = #{v.inspect}"
+            end
             v.each do | name, opts |
               f = create_facet k, opts do | opts, facet |
                 opts[:name] ||= name
