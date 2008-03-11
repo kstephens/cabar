@@ -177,7 +177,7 @@ module Cabar
           puts "    configuration: #{c.configuration.inspect}"
           render_facets c.facets, '  ' if _options[:show_facet]
         else
-          puts "  - #{[ c.name, c.version.to_s, c.directory].inspect}"
+          puts "  - #{[ c.name, c.version.to_s, c.directory ].inspect}"
         end
       end
 
