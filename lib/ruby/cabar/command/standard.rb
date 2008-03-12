@@ -14,7 +14,11 @@ class Cabar::Command
     puts "  #{str}:" if str
   end
   
-  
+
+  def setup_environment!
+    context.render Cabar::Renderer::InMemory.new
+  end
+
   # Return a YAML renderer.
   def yaml_renderer
     @yaml_renderer ||=

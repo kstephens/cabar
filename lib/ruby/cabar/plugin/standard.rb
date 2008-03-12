@@ -81,13 +81,21 @@ DOC
     end
 
     cmd [ :run, :exec, 'do' ], <<'DOC' do
-[ - <component> ] <action> <args> ...
+<action> [ - <component> ] <args> ...
 Executes an action on all required components.
 DOC
-      select_root cmd_args
       action = cmd_args.shift || raise(ArgumentError, "expected action name")
-      
+      comp = select_root cmd_args
+      puts "comp = #{comp}"
+       
+      # Render environment vars.
+      setup_environment!
+      # puts ENV['RUBYLIB']
+
       get_actions(action).each do | c, f |
+        if comp && comp != c
+          next
+        end
         f.execute_action! action, cmd_args.dup
       end
     end
