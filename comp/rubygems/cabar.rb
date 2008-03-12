@@ -18,8 +18,12 @@ DOC
         # puts "f = #{f.to_a.inspect}"
         puts "    #{c.to_s(:short)}: "
         puts "      gems:"
-        facet.action.each do | k, v |
-          puts "        #{k}: #{v.inspect}"
+        facet.abs_path.each do | p |
+          puts "        directory: #{p.inspect}"
+          puts "        gem:"
+          Dir["#{p}/gems/*-*"].each do | gem_dir |
+            puts "        - #{File.basename(gem_dir).inspect}"
+          end
         end
       end
     end
@@ -28,12 +32,11 @@ DOC
       def get_gems_facets match = nil
         result = [ ]
         
-        context.
-          required_components.each do | c |
+        context.required_components.each do | c |
           # puts "c.facets = #{c.facets.inspect}"
           c.facets.each do | f |
             if f.key == 'rubygems' &&
-              actions << [ c, f ]
+              result << [ c, f ]
             end
           end
         end
