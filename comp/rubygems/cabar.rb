@@ -20,9 +20,9 @@ DOC
         puts "      gems:"
         facet.abs_path.each do | p |
           puts "        directory: #{p.inspect}"
-          puts "        gem:"
-          Dir["#{p}/gems/*-*"].each do | gem_dir |
-            puts "        - #{File.basename(gem_dir).inspect}"
+          puts "          gem:"
+          Dir["#{p}/specifications/*-*"].each do | gem_dir |
+            puts "          - #{File.basename(gem_dir).inspect}"
           end
         end
       end
