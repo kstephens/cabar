@@ -82,56 +82,49 @@ module Cabar
       
       # Executes the selected Command.
       def run
-        begin
-          cmd = self.cmd
-          
-          unless cmd
-            raise Cabar::Error, "Invalid command name #{state.cmd_path.inspect}"
-          end
-          
-          # Command is not executable?
-          unless cmd.proc
-            parse_args [ 'help', '--error=', 'command has subcommands', *state.cmd_path ]
-            return run 
-          end
-
-          # Clone the Command object.
-          # $stderr.puts "original cmd = #{cmd.inspect}"
-          cmd = cmd.dup
-          
-          # Attach to the context.
-          cmd.main = @context
-          
-          # Merge the current state.
-          state.merge! cmd.state
-          
-          # Attach to this cmd state.
-          state_save = cmd.state
-          cmd.state = state
-          
-          # We need to define the singleton method here
-          # because singleton methods do not survive
-          # dup!
-          (class << cmd; self; end).class_eval do 
-            define_method :execute_command!, cmd.proc
-          end
-          
-          # $stderr.puts "state = #{cmd.state.inspect}"
-          # $stderr.puts "cmd = #{cmd.inspect}"
-          # $stderr.puts "cmd.methods = #{cmd.methods.sort.inspect}"
-          
-          # Execute the command.
-          cmd.execute_command!
-        rescue SystemExit => err
-          raise err
-        rescue Exception => err
-          state.exit_code = 10
-          $stderr.puts Cabar::Error.cabar_format(err)
-        ensure 
-          cmd.state = state_save
+        cmd = self.cmd
+        
+        unless cmd
+          raise Cabar::Error, "Invalid command name #{state.cmd_path.inspect}"
         end
         
-        state.exit_code
+        # Command is not executable?
+        unless cmd.proc
+          parse_args [ 'help', '--error=', 'command has subcommands', *state.cmd_path ]
+          return run 
+        end
+        
+        # Clone the Command object.
+        # $stderr.puts "original cmd = #{cmd.inspect}"
+        cmd = cmd.dup
+        
+        # Attach to the context.
+        cmd.main = @context
+        
+        # Merge the current state.
+        state.merge! cmd.state
+        
+        # Attach to this cmd state.
+        state_save = cmd.state
+        cmd.state = state
+        
+        # We need to define the singleton method here
+        # because singleton methods do not survive
+        # dup!
+        (class << cmd; self; end).class_eval do 
+          define_method :execute_command!, cmd.proc
+        end
+        
+        # $stderr.puts "state = #{cmd.state.inspect}"
+        # $stderr.puts "cmd = #{cmd.inspect}"
+        # $stderr.puts "cmd.methods = #{cmd.methods.sort.inspect}"
+        
+        # Execute the command.
+        cmd.execute_command!
+        
+        cmd.state.exit_code
+      ensure 
+        cmd.state = state_save
       end # run
 
     end # class

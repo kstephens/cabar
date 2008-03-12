@@ -1,15 +1,6 @@
 #!/usr/bin/env ruby
 
-$:.unshift File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib', 'ruby'))
-
-require 'cabar'
-require 'cabar/main'
-
 ARGV[0, 0] = [ 'bin', 'run', '--' ]
 
-exit(
-     Cabar::Main.
-     new(:args => ARGV).
-     parse_args.
-     run
-     )
+load "#{File.dirname($0)}/cbr"
+

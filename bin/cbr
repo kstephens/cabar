@@ -4,11 +4,14 @@ $:.unshift File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib', 'ruby
 
 require 'cabar'
 require 'cabar/main'
+require 'cabar/error'
 
-exit(
-     Cabar::Main.
-     new(:args => ARGV).
-     parse_args.
-     run
-     )
+Kernel.exit(
+            Cabar::Error.cabar_error_handler do
+              Cabar::Main.
+                new(:args => ARGV).
+                parse_args.
+                run
+            end
+            )
 

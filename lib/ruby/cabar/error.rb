@@ -20,6 +20,15 @@ module Cabar
       msg.join("\n")
     end
 
+    def self.cabar_error_handler &blk
+      yield
+    rescue SystemExit => err
+      raise err
+    rescue Exception => err
+      $stderr.puts Cabar::Error.cabar_format(err)
+      Kernel.exit 10
+    end
+
   end # class
 
 end # module
