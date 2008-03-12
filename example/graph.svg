@@ -13,7 +13,7 @@
 <polygon style="fill:white;stroke:white;" points="-4,4 -4,-614 363,-614 363,4 -4,4"/>
 <!-- C c1 1.0 -->
 <g id="node1" class="node"><title>C c1 1.0</title>
-<a xlink:href="file:///home/stephens/local/src/cabar/example/dev/c1" xlink:title="c1 1.0\n./dev/c1\n* action\l* bin\l* lib/ruby\l">
+<a xlink:href="file:///home/stephens/local/src/cabar/example/dev/c1" xlink:title="c1 &#45; requires on c2/1.2">
 <polygon style="fill:none;stroke:black;" points="158,-610 86,-610 86,-502 158,-502 158,-610"/>
 <text text-anchor="middle" x="122" y="-592" style="font-family:Nimbus Roman No9 L;font-weight:regular;font-size:11.34pt;">c1 1.0</text>
 <text text-anchor="middle" x="122" y="-572" style="font-family:Nimbus Roman No9 L;font-weight:regular;font-size:11.34pt;">./dev/c1</text>
@@ -24,7 +24,7 @@
 </g>
 <!-- C c2 1.2 -->
 <g id="node2" class="node"><title>C c2 1.2</title>
-<a xlink:href="file:///home/stephens/local/src/cabar/example/dev/c2/1.2" xlink:title="c2 1.2\n./dev/c2/1.2\n* bin\l* lib/ruby\l">
+<a xlink:href="file:///home/stephens/local/src/cabar/example/dev/c2/1.2" xlink:title="c2/1.2">
 <polygon style="fill:none;stroke:black;" points="82,-300 1.56507e-14,-300 1.60982e-15,-212 82,-212 82,-300"/>
 <text text-anchor="middle" x="41" y="-282" style="font-family:Nimbus Roman No9 L;font-weight:regular;font-size:11.34pt;">c2 1.2</text>
 <text text-anchor="middle" x="41" y="-262" style="font-family:Nimbus Roman No9 L;font-weight:regular;font-size:11.34pt;">./dev/c2/1.2</text>
@@ -39,7 +39,7 @@
 </g>
 <!-- C c3 2.1 -->
 <g id="node3" class="node"><title>C c3 2.1</title>
-<a xlink:href="file:///home/stephens/local/src/cabar/example/prod/c3" xlink:title="c3 2.1\n./prod/c3\n* bin\l* cnu_config_path\l* include\l* lib\l">
+<a xlink:href="file:///home/stephens/local/src/cabar/example/prod/c3" xlink:title="c3/2.1">
 <polygon style="fill:none;stroke:black;" points="182,-446 62,-446 62,-318 182,-318 182,-446"/>
 <text text-anchor="middle" x="122" y="-428" style="font-family:Nimbus Roman No9 L;font-weight:regular;font-size:11.34pt;">c3 2.1</text>
 <text text-anchor="middle" x="122" y="-408" style="font-family:Nimbus Roman No9 L;font-weight:regular;font-size:11.34pt;">./prod/c3</text>
@@ -61,7 +61,7 @@
 </g>
 <!-- C ruby 1.8.6.111 -->
 <g id="node5" class="node"><title>C ruby 1.8.6.111</title>
-<a xlink:href="file:///home/stephens/local/src/cabar/comp/ruby/std" xlink:title="ruby 1.8.6.111\n/home/stephens/local/src/cabar/comp/ruby/std\n* bin\l* lib/ruby\l">
+<a xlink:href="file:///home/stephens/local/src/cabar/comp/ruby/std" xlink:title="Ruby &#45; /home/stephens/local/ruby/1.8.6&#45;p111/bin/ruby">
 <polygon style="fill:none;stroke:black;" points="344,-88 72,-88 72,-2.84217e-14 344,-0 344,-88"/>
 <text text-anchor="middle" x="208" y="-70" style="font-family:Nimbus Roman No9 L;font-weight:regular;font-size:11.34pt;">ruby 1.8.6.111</text>
 <text text-anchor="middle" x="208" y="-50" style="font-family:Nimbus Roman No9 L;font-weight:regular;font-size:11.34pt;">/home/stephens/local/src/cabar/comp/ruby/std</text>
@@ -81,7 +81,7 @@
 </g>
 <!-- C cnu_config 1.0 -->
 <g id="node4" class="node"><title>C cnu_config 1.0</title>
-<a xlink:href="file:///home/stephens/local/src/cabar/example/prod/cnu_config/1.0" xlink:title="cnu_config 1.0\n./prod/cnu_config/1.0\n* lib/ruby\l">
+<a xlink:href="file:///home/stephens/local/src/cabar/example/prod/cnu_config/1.0" xlink:title="cnu_config/1.0">
 <polygon style="fill:none;stroke:black;" points="277,-194 139,-194 139,-126 277,-126 277,-194"/>
 <text text-anchor="middle" x="208" y="-176" style="font-family:Nimbus Roman No9 L;font-weight:regular;font-size:11.34pt;">cnu_config 1.0</text>
 <text text-anchor="middle" x="208" y="-156" style="font-family:Nimbus Roman No9 L;font-weight:regular;font-size:11.34pt;">./prod/cnu_config/1.0</text>

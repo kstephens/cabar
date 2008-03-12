@@ -331,9 +331,10 @@ module Cabar
         unless show_unrequired_components
           return unless required
         end
-        style="solid"
-        style="dotted" unless required
-        puts "  #{dot_name c} [ shape=box, label=#{dot_label c}, style=#{style}, URL=#{('file://' + c.directory).inspect} ];"
+        style = "solid"
+        style = "dotted" unless required
+        tooltip = (c.description || c.to_s(:short)).inspect
+        puts "  #{dot_name c} [ shape=box, label=#{dot_label c}, tooltip=#{tooltip}, style=#{style}, URL=#{('file://' + c.directory).inspect} ];"
       end
 
       def render_Facet f
