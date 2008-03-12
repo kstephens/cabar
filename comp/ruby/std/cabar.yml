@@ -11,7 +11,7 @@ cabar:
   component:
     name: ruby
     version: <%= "v#{ruby_info[:version]}.#{ruby_info[:patchlevel]}" %>
-    description: "This is ruby found at <%= ruby_info[:prog] %>"
+    description: "Ruby - <%= ruby_info[:prog] %>"
     base_directory: <%= File.dirname(ruby_info[:bin]).inspect %>
   provides:
     bin:
