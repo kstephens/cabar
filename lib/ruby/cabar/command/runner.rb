@@ -121,7 +121,8 @@ module Cabar
         
         # Execute the command.
         cmd.execute_command!
-        
+
+        # Return the command's exit code.
         cmd.state.exit_code
       ensure 
         cmd.state = state_save
