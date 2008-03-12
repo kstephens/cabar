@@ -71,8 +71,7 @@ module Cabar
         end
         
         if state.cmd_path.empty?
-          $stderr.puts "#{File.basename($0)}: command not specified"
-          parse_args [ "help" ]
+          parse_args [ 'help', '--error=', 'command not specified'  ]
         end
         
         # $stderr.puts "state = #{state.inspect}"
@@ -92,7 +91,7 @@ module Cabar
           
           # Command is not executable?
           unless cmd.proc
-            parse_args [ 'help', *state.cmd_path ]
+            parse_args [ 'help', '--error=', 'command has subcommands', *state.cmd_path ]
             return run 
           end
 

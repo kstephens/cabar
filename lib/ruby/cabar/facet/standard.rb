@@ -9,7 +9,7 @@ module Cabar
     # action:
     #   name_1: cmd_1
     #   name_2: cmd_2
-    class ActionGroup < self
+    class Action < self
       attr_accessor :action
 
       def component_associations

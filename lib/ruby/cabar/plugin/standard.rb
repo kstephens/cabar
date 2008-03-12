@@ -15,7 +15,13 @@ DOC
     # puts "cmd_args = #{cmd_args.inspect}"
     opts = cmd_opts.dup
     opts[:path] = cmd_args.empty? ? nil : cmd_args.dup
-    print_header :command
+
+    print_header
+    if error = opts[:error]
+      puts "  error: #{error.to_s.inspect}"
+    end
+    puts "  command:"
+
     main.commands.visit_commands(opts) do | cmd, opts |
       if opts[:path]
         next unless cmd === opts[:path]
@@ -52,7 +58,7 @@ DOC
   # action facet
   #
 
-  facet :action, :class => Cabar::Facet::ActionGroup
+  facet :action, :class => Cabar::Facet::Action
   cmd_group :action do
 
     cmd [ :list, :ls ] , <<'DOC' do
@@ -62,12 +68,13 @@ DOC
       select_root cmd_args
       action = cmd_args.shift
 
-      print_header :action
+      print_header :component
       get_actions(action).each do | c, facet |
         # puts "f = #{f.to_a.inspect}"
         puts "    #{c.to_s(:short)}: "
+        puts "      action:"
         facet.action.each do | k, v |
-          puts "      #{k}: #{v.inspect}"
+          puts "        #{k}: #{v.inspect}"
         end
       end
     end
