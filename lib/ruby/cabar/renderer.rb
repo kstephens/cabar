@@ -307,12 +307,14 @@ module Cabar
           versions = components.select{ | c | c.name == c_name }
           # next if versions.size < 2
 
+          puts "subgraph #{('SG C ' + c_name).inspect} {"
           a = "C #{c_name}".inspect
-          puts "  #{a} [ label=#{c_name.inspect} ];"
+          puts "  #{a} [ shape=plaintext, label=#{c_name.inspect} ];"
           versions.each do | c_v |
             b = dot_name c_v
-            puts "  #{a} -> #{b} [ style=dotted ];" 
+            puts "  #{a} -> #{b} [ style=dotted, arrowhead=none ];" 
           end
+          puts "}"
         end
 
         puts ""
@@ -377,6 +379,7 @@ module Cabar
         end
 
         puts "  #{dot_name c1} -> #{dot_name c2} [ label=#{dot_label d}, arrowhead=open ];"
+        puts "  #{dot_name c1} -> #{dot_name c2, :version => false} [ style=dotted, arrowhead=open ];"
       end
 
       def render_facet_link c, f
@@ -386,11 +389,16 @@ module Cabar
       end
 
       # Returns the dot node or edge name for an object.
-      def dot_name x
-        @dot_name[x] ||=
+      def dot_name x, opts = EMPTY_HASH
+        @dot_name[[ x, opts ]] ||=
           case x
           when Cabar::Component
-            "C #{x.name} #{x.version}".inspect
+            case opts[:version]
+            when false
+              "C #{x.name}".inspect
+            else
+              "C #{x.name} #{x.version}".inspect
+            end
           when Cabar::Facet
             "F #{x.key}".inspect
           else
