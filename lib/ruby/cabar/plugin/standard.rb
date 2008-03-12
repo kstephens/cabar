@@ -344,9 +344,10 @@ DOC
         end
 
         puts "    #{plugin.name}: "
-        puts "      file:     #{plugin.file.inspect}"
-        puts "      commands: #{plugin.commands.map{|x| x.name_full}.inspect}"
-        puts "      facets:   #{plugin.facets.map{|x| x.key}.inspect}"
+        puts "      component: #{plugin.component.to_s.inspect}"
+        puts "      file:      #{plugin.file.inspect}"
+        puts "      commands:  #{plugin.commands.map{|x| x.name_full}.inspect}"
+        puts "      facets:    #{plugin.facets.map{|x| x.key}.inspect}"
       end
     end
   end

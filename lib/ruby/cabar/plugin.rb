@@ -3,6 +3,7 @@ require 'cabar/base'
 require 'cabar/context'
 require 'cabar/facet/standard' # Cabar::Facet::EnvVarPath
 require 'cabar/main'
+require 'cabar/observer'
 
 
 module Cabar
@@ -15,8 +16,21 @@ module Cabar
       @@default_name
     end
     def self.default_name= x
+      old = @@default_name
       @@default_name = x
+      old
     end
+    
+    @@default_component = nil
+    def self.default_component
+      @@default_component
+    end
+    def self.default_component= x
+      old = @@default_component
+      @@default_component = x
+      old
+    end
+
 
     # The manager for this plugin.
     attr_accessor :manager
@@ -36,15 +50,18 @@ module Cabar
     # Array of commands defined by this plugin.
     attr_accessor :commands
 
+    # The Component that this plugin belongs to.
+    attr_accessor :component
+
     def initialize *args, &blk
       @file = caller[1]
       @facets = [ ]
       @commands = [ ]
-
       super
 
       @file = $1 if /^(.*):\d+:in / === @file
       @name ||= @@default_name
+      @component ||= @@default_component
 
       @block = blk
 
@@ -84,12 +101,15 @@ module Cabar
 
     # Manages plugins.
     class Manager < Base
+      include Cabar::Observer::Observed
+
       # The Cabar::Main object.
       attr_accessor :main
 
-      # The list of plugins.
+      # The list of plugins in installed order.
       attr_reader :plugins
 
+      # Plugin by name.
       attr_reader :plugin_by_name
 
       def initialize *args
@@ -110,8 +130,12 @@ module Cabar
         # This realizes the plugin.
         plugin.install!
 
+        plugin.manager = self
         @plugins << plugin
         @plugin_by_name[name] = plugin
+
+        notify_observers(:plugin_installed, plugin)
+        
         self
       end
     end
@@ -207,23 +231,6 @@ module Cabar
         case @context
         when Cabar::Command::Manager
           cmd_mgr = @context
-=begin
-FIXME
-        when Cabar::Facet
-          # Start at top-level command.
-          cmd_mgr = Cabar::Main.current.commands
-
-          # Define a top-level command for the facet unless
-          # a top-level command by that name already
-          # exists.
-          cmd_name = @context.key
-
-          unless top_level_cmd = cmd_mgr.command_by_name[cmd_name]
-            top_level_cmd = cmd_mgr.define_command_group cmd_name
-          end
-
-          cmd_mgr = top_level_cmd.subcommands
-=end
         else
           # Default to top-level command.
           cmd_mgr = Cabar::Main.current.commands

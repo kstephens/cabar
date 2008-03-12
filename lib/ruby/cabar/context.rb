@@ -10,6 +10,7 @@ require 'cabar/constraint'
 
 module Cabar
   class Context < Base
+    # The Cabar::Main object.
     attr_reader :main
 
     # Set of all components availiable.

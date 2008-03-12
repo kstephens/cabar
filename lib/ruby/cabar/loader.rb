@@ -25,8 +25,8 @@ module Cabar
      super
     end
 
-    def log msg
-      $stderr.puts msg if @verbose
+    def log msg, force = nil
+      $stderr.puts msg if force || @verbose
     end
 
     def add_component_search_path! path
@@ -84,8 +84,11 @@ module Cabar
       
       self
     rescue Exception => err
-      raise  Error.new('Loading components', :error => err, :directory => dir, :pending_paths => @component_search_path_pending, :pending_directories => @component_directories_pending)
-      self
+      raise Error.new('Loading components', 
+                      :error => err, 
+                      :directory => dir, 
+                      :pending_paths => @component_search_path_pending,
+                      :pending_directories => @component_directories_pending)
     end
 
     # Returns a list of all component directories.
@@ -205,8 +208,9 @@ private
         begin
           plugin = [ plugin ] unless Array === plugin
 
-          save_name = Cabar::Plugin.default_name
-          Cabar::Plugin.default_name = name
+          save_name = Cabar::Plugin.default_name = name
+
+          Cabar::Main.current.plugin_manager.add_observer(self, :plugin_installed, :plugin_installed!)
 
           plugin.each do | file |
             file = Cabar.path_expand(file, directory) 
@@ -216,6 +220,7 @@ private
           end
         ensure
           Cabar::Plugin.default_name = save_name
+          Cabar::Main.current.plugin_manager.delete_observer(self, :plugin_installed)
         end
       end
 
@@ -224,7 +229,15 @@ private
       [ conf, comps, conf_file ]
     end
 
+    def plugin_installed! plugin
+      log "      plugin installed #{plugin.name.inspect} #{plugin.file.inspect}"
+      (@plugins ||= [ ]) << plugin
+    end
+
     def parse_component! directory, conf_file = nil
+      # List of plugins loaded.
+      @plugins = [ ]
+
       conf, comps, conf_file = parse_component_config directory, conf_file
 
       return nil unless conf
@@ -243,7 +256,8 @@ private
         opts[:context] = self
         opts[:enabled] = conf['enabled']
         opts[:_config_file] = conf_file
-        
+        opts[:plugins] = @plugins
+
         comp = create_component opts
         
         unless valid_string? comp.name

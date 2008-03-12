@@ -16,7 +16,10 @@ module Cabar
     # The Cabar::Command::Manager for top-level commands.
     attr_accessor :commands
 
-    # The Cabar::Plugin::Manager.
+    # The Cabar::Context that manages component resolution.
+    attr_accessor :context
+
+    # The Cabar::Plugin::Manager manages all plugins.
     attr_accessor :plugin_manager
 
     def self.current

@@ -78,6 +78,9 @@ module Cabar
     # General configuration settings for this Component.
     attr_accessor :configuration
     
+    # Array of plugins defined by this component.
+    attr_accessor :plugins
+
     # The temporary configuration Hash.
     attr_accessor :_config
     
@@ -96,6 +99,7 @@ module Cabar
 
     
     def initialize *args
+      @plugins = [ ]
       super
       
       # See component_associations.
@@ -119,6 +123,12 @@ module Cabar
       self
     end
     
+    def plugins= x
+      @plugins = x
+      x.each { | x | x.component = self }
+      x
+    end
+
     # Returns the base directory for facet artifacts.
     def base_directory
       @base_directory ||= directory
