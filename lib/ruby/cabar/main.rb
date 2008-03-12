@@ -50,7 +50,7 @@ module Cabar
         begin
           @command_runner = Command::Runner.factory.new(:context => self)
           
-          define_standard_commands!
+          context.avaliable_components
           
           @command_runner
         end
