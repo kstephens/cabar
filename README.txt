@@ -8,10 +8,10 @@ See lib/ruby/cabar.rb for more info.
 
   cd cabar/example
 
-* Show bin/env.
+* Show bin/cbr_env.
 
-  bin/env --env
-  eval `bin/env --env`
+  bin/cbr_env --env
+  eval `bin/cbr_env --env`
 
 * List available commands.
 
