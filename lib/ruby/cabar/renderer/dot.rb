@@ -3,7 +3,6 @@ require 'cabar/renderer'
 
 module Cabar
 
-  # Base class for rendering methods of Components and Facets.
   class Renderer
 
     # Renders as a dot graph.
@@ -21,7 +20,7 @@ module Cabar
         @show_facets = false
         @show_facet_names = false
         @show_facet_links = false
-        @show_unrequired_components = true
+        @show_unrequired_components = false
 
         super
 
@@ -46,8 +45,15 @@ module Cabar
         # Get list of all components.
         components = 
           cntx.
-          available_components.
+          available_components.to_a.
           sort { |a, b| a.name <=> b.name }
+
+        unless show_unrequired_components
+          components = components.select do | c |
+            @context.required_component? c
+          end
+        end
+
         @components = components
 
         # Get list of all facets.
@@ -114,12 +120,13 @@ module Cabar
         puts "}"
       end
 
+      def required? c
+        @context.required_component? c
+      end
+
       def render_Component c
         # $stderr.puts "render_Component #{c}"
-        required = @context.required_component? c
-        unless show_unrequired_components
-          return unless required
-        end
+        required = required? c
         style = "solid"
         style = "dotted" unless required
         tooltip = (c.description || c.to_s(:short)).inspect
@@ -135,18 +142,13 @@ module Cabar
 
       def render_dependency_link d
         return unless show_dependencies
+
         c1 = d.component
         c2 = d.resolved_component
 
-        return unless c1 && c2
-
-        required = 
-          @context.required_component?(c1) &&
-          @context.required_component?(c2)
-
-        unless show_unrequired_components
-          return unless required
-        end
+        return unless c1 && c2 &&
+          @components.include?(c1) &&
+          @components.include?(c2)
 
         puts "  #{dot_name c1} -> #{dot_name c2} [ label=#{dot_label d}, arrowhead=open ];"
         puts "  #{dot_name c1} -> #{dot_name c2, :version => false} [ style=dotted, arrowhead=open ];"
