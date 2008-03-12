@@ -314,7 +314,7 @@ module Cabar
       def render_Facet f
         # $stderr.puts "render_Facet #{f.class}"
         return unless show_facet_links
-        return if Cabar::RequiredComponent === f
+        return if Cabar::Facet::RequiredComponent === f
         puts "  #{dot_name f} [ shape=hexagon, label=#{dot_label f} ];"
       end
 
@@ -326,7 +326,7 @@ module Cabar
       end
 
       def render_facet_link c, f
-        return if Cabar::RequiredComponent === f
+        return if Cabar::Facet::RequiredComponent === f
         return unless show_facet_links
         puts "  #{dot_name c} -> #{dot_name f} [ style=dotted, arrowhead=none ];"
       end
@@ -354,7 +354,7 @@ module Cabar
               str << "\\n" + x.provides.map{|f| f.key}.sort.map{|f| "* #{f}"}.join("\\l") + "\\l"
             end
             '"' + str + '"'
-          when Cabar::RequiredComponent
+          when Cabar::Facet::RequiredComponent
             x._proto ? "#{x.version}".inspect : x.key.to_s.inspect
           when Cabar::Facet
             x.key.to_s.inspect
