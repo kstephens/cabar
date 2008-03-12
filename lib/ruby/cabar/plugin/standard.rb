@@ -1,6 +1,8 @@
 
 require 'cabar/command/standard' # Standard command support.
 require 'cabar/facet/standard'   # Standard facets and support.
+require 'cabar/renderer/dot'     # Dot graph support.
+
 
 Cabar::Plugin.new :name => 'cabar' do
 
@@ -284,7 +286,7 @@ Render the components as a dot graph on STDOUT.
 DOC
       select_root cmd_args
       
-      r = Cabar::Renderer::DotGraph.new cmd_opts
+      r = Cabar::Renderer::Dot.new cmd_opts
       
       r.render(context)
     end
