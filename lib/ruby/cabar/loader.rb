@@ -8,6 +8,8 @@ module Cabar
   class Loader < Base
     attr_accessor :context
 
+    attr_accessor :verbose
+
     attr_reader :component_search_path
     attr_reader :component_directories
   
@@ -22,6 +24,10 @@ module Cabar
       super
     end
 
+    def log msg
+      $stderr.puts msg if @verbose
+    end
+
     def add_component_search_path! path
       if Array === path
         path.each { | x | add_component_search_path! x }
@@ -31,6 +37,7 @@ module Cabar
       return self if @component_search_path.include? path
       return self if @component_search_path_pending.include? path
       @component_search_path_pending << path
+      log "  add_component_search_path! #{path.inspect}"
       self
     end
 
@@ -43,9 +50,12 @@ module Cabar
     end
 
     def load_components!
+      path = nil
+      dir = nil
+
       # While there are still component paths to search.
       @component_search_path_pending.cabar_each! do | path |
-        # $stderr.puts "search path #{path.inspect}"
+        log "search path #{path.inspect}"
         @component_search_path << path
         
         search_for_component_directories(path).each do | dir |
@@ -55,9 +65,9 @@ module Cabar
         # While there are still components to load.
         @component_directories_pending.cabar_each! do | dir |
           @component_directories << dir
-          # $stderr.puts "  component dir #{dir.inspect}"
+          log "  component dir #{dir.inspect}"
           
-          comp = parse_component dir
+          parse_component! dir
         end
 
       end
@@ -66,9 +76,19 @@ module Cabar
       # the components can be fully configured.
       @component_parse_pending.cabar_each! do | c |
         c.parse_configuration!
-        # $stderr.puts "component #{c.inspect}"
+        log "component #{c.inspect}"
       end
       
+      self
+    rescue Exception => err
+      msg = ''
+      msg << "directory: #{dir.inspect}\n"
+      msg << "pending paths: #{@component_search_path_pending.inspect}\n"
+      msg << "pending directories: #{@component_directories_pending.inspect}\n"
+      msg << "  #{err.backtrace.join("\n  ")}"
+      x = Error.new "#{err.inspect}\n#{msg}"
+#      x.backtrace = err.backtrace 
+      raise x
       self
     end
 
@@ -118,7 +138,7 @@ module Cabar
 
 
     # Helper method to create a Component.
-    def create_component(opts)
+    def create_component opts
       c = Component.factory.new opts
       c.context = @context
       c
@@ -126,25 +146,20 @@ module Cabar
 
 private
 
-    def parse_component directory, conf_file = nil 
+    def parse_component_config directory, conf_file = nil
       conf_file ||= 
         File.join(directory, "cabar.yml")
       
-      # $stderr.puts "loading #{conf_file}"
+      log "    loading #{conf_file}"
 
       conf = @context.configuration.read_config_file conf_file
       conf = conf['cabar']
       
-      # Handle plugins.
-      if plugin = conf['plugin']
-        plugin = [ plugin ] unless Array === plugin
-        plugin.each do | file |
-          file = File.expand_path(file, directory) 
-          # $stderr.puts "#{$0}: using plugin #{plugin}"
-          require file
-        end
+      # Enabled?
+      if conf['enabled'] != nil && ! conf['enabled']
+        return nil
       end
-      
+
       # Handle components.
       unless comps = conf['component']
         raise Error, "does not have a component definition"
@@ -152,16 +167,63 @@ private
       unless Hash === comps
         comps = { }
       end
-      
+
       # Infer component name/version from directory.
       infer_component_name comps, directory
 
+      # Transform:
+      #
+      #   component:
+      #     name: NAME
+      #     version: VERSION
+      #     ...
+      # TO:
+      #
+      #   component:
+      #     NAME:
+      #       version: VERSION
+      #       ...
+      #
+      name = nil
       if comps.size >= 2 && comps['name'] && comps['version']
         name = comps['name']
         comps.delete 'name'
         comps = { name => comps }
       end
       
+      # Handle plugins.
+      # Use component name as the default name.
+      if plugin = conf['plugin']
+        begin
+          plugin = [ plugin ] unless Array === plugin
+
+          save_name = Cabar::Plugin.default_name
+          Cabar::Plugin.default_name = name
+
+          plugin.each do | file |
+            file = File.expand_path(file, directory) 
+            log "    loading plugin #{file}"
+            require file
+            log "    loading plugin #{file}: DONE"
+          end
+        ensure
+          Cabar::Plugin.default_name = save_name
+        end
+      end
+
+      log "    loading #{conf_file}: DONE"
+
+      [ conf, comps, conf_file ]
+    end
+
+    def parse_component! directory, conf_file = nil
+      conf, comps, conf_file = parse_component_config directory, conf_file
+
+      return nil unless conf
+
+      log "    loading #{conf_file}: DONE"
+
+      # Process each component definition.
       comps.each do | name, opts |
         # Overlay configuration.
         comp_config = @context.config['configure'] || EMPTY_HASH
@@ -171,6 +233,7 @@ private
         opts[:name] = name
         opts[:directory] = directory
         opts[:context] = self
+        opts[:enabled] = conf['enabled']
         opts[:_config_file] = conf_file
         
         comp = create_component opts
@@ -187,11 +250,13 @@ private
 
         # Register component, if it's enabled.
         if comp.enabled?
-          # $stderr.puts "enabled #{conf_file}"
+          log "      enabled #{conf_file}"
           comp.parse_configuration_early!
 
           add_available_component! comp
         end
+
+        log "    parse #{conf_file}: DONE"
 
         comp
       end
