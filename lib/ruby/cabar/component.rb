@@ -166,7 +166,7 @@ module Cabar
     # friend
 
     def parse_configuration_early! conf = self._config
-      (conf['provides'] || conf['provide'] || EMPTY_HASH).each do | k, opts |
+      (conf['facet'] || conf['provides'] || conf['provide'] || EMPTY_HASH).each do | k, opts |
         f = create_facet k, opts, :early => true
       end
 
