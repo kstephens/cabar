@@ -80,8 +80,8 @@ prod/cnu_locale/1.1/cabar.yml : provides.cnu_config_path
 
 * Show cabar as component
 
-(cd .. && CABAR_PATH=.. bin/cbr comp list)
-(cd .. && CABAR_PATH=.. bin/cbr run - cabar cbr list) 
+  (cd .. && CABAR_PATH=@. bin/cbr comp list)
+  (cd .. && CABAR_PATH=@. bin/cbr run - cabar cbr list) 
 
 * Show cbr-run on a #! line.
 
