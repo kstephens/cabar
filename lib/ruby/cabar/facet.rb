@@ -3,8 +3,10 @@ require 'cabar/base'
 
 module Cabar
 
-  # A Facet represents a slice of supplied information that
-  # used to compose components together.
+  # A Facet represents the result of slicing off a component
+  # from a monolithic software system.
+  #
+  # Facets are used to compose components together.
   #
   # Examples:
   #   search paths
@@ -15,6 +17,7 @@ module Cabar
   #   test actions
   #   packaging
   #   deployment
+  #   component instantiation
   #   version control
   # 
   class Facet < Base
@@ -139,7 +142,7 @@ module Cabar
       case opts
       when true
         opts = EMPTY_HASH
-      when false
+      when false, nil
         opts = DISABLED_HASH
       end
 
@@ -147,6 +150,7 @@ module Cabar
     end
 
 
+    # Ensures key is a String.
     def key= x
       @key = x.to_s
       x
