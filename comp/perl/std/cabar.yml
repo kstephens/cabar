@@ -16,7 +16,7 @@ cabar:
   component:
     name: perl
     version: <%= "v#{perl_info[:version]}" %>
-    description: "This is perl found at <%= perl_info[:prog] %>"
+    description: "Perl - <%= perl_info[:prog] %>"
     base_directory: <%= File.dirname(perl_info[:bin]).inspect %>
   provides:
     bin:
