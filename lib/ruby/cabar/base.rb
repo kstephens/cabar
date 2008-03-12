@@ -10,17 +10,38 @@ module Cabar
   end
 
   SEMICOLON = ';'.freeze
-  COLON = ','.freeze
+  COLON = ':'.freeze
 
   # Returns the path separator for this platform.
   def self.path_sep
-    @path_sep ||= (ENV['PATH'] =~ /;/ ? SEMICOLON : COLON)
+    @@path_sep ||= (ENV['PATH'] =~ /;/ ? SEMICOLON : COLON)
   end
 
   def self.path_split path
     path = path.split(path_sep)
     path.reject{|x| x.empty?}
     path
+  end
+  
+  def self.path_expand p, dir = nil
+    case p
+    when Array
+      p.map { | p | path_expand(p, dir) }.cabar_uniq_return!
+    else
+      p = p.to_s.dup
+      if p.sub!(/^@/, '')
+        '@' + File.expand_path(p, dir)
+      else
+        File.expand_path(p, dir)
+      end
+    end
+  end
+
+  def self.yaml_header str = nil
+"---
+cabar:
+  version: #{Cabar.version.to_s.inspect}
+" + (str ? "  #{str}:" : '')
   end
 
   # Common base class for Cabar classes.

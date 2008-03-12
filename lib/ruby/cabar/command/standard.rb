@@ -7,13 +7,9 @@ require 'cabar/renderer'
 # Define helpers for built-in commands.
 
 class Cabar::Command
-
   def print_header str = nil
-    puts "cabar:"
-    puts "  version: #{Cabar.version.to_s.inspect}"
-    puts "  #{str}:" if str
+    puts Cabar.yaml_header(str)
   end
-  
 
   def setup_environment!
     context.render Cabar::Renderer::InMemory.new

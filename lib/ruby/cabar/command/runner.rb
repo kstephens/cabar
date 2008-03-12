@@ -109,9 +109,9 @@ module Cabar
           state_save = cmd.state
           cmd.state = state
           
-          # We need to define the singleton methods here
+          # We need to define the singleton method here
           # because singleton methods do not survive
-          # dup.
+          # dup!
           (class << cmd; self; end).class_eval do 
             define_method :execute_command!, cmd.proc
           end
@@ -125,8 +125,8 @@ module Cabar
         rescue SystemExit => err
           raise err
         rescue Exception => err
-          $stderr.puts "#{File.basename($0)}: #{err.inspect}\n  #{err.backtrace.join("\n  ")}"
           state.exit_code = 10
+          $stderr.puts Cabar::Error.cabar_format(err)
         ensure 
           cmd.state = state_save
         end

@@ -21,7 +21,8 @@ module Cabar
       @component_directories = [ ]
       @component_directories_pending = [ ]
       @component_parse_pending = [ ]
-      super
+      @verbose = ENV['CABAR_DEBUG'] ? true : false
+     super
     end
 
     def log msg
@@ -33,7 +34,7 @@ module Cabar
         path.each { | x | add_component_search_path! x }
         return self
       end
-      path = File.expand_path(path)
+      path = Cabar.path_expand(path)
       return self if @component_search_path.include? path
       return self if @component_search_path_pending.include? path
       @component_search_path_pending << path
@@ -42,7 +43,7 @@ module Cabar
     end
 
     def add_component_directory! path
-      path = File.expand_path(path)
+      path = Cabar.path_expand(path)
       return self if @component_directories.include? path
       return self if @component_directories_pending.include? path
       @component_directories_pending << path
@@ -50,6 +51,8 @@ module Cabar
     end
 
     def load_components!
+      log "load_components!"
+
       path = nil
       dir = nil
 
@@ -94,9 +97,17 @@ module Cabar
 
     # Returns a list of all component directories.
     def search_for_component_directories *path
+      log "search_for_component_directories #{path.inspect}"
+
       # Find all */*/cabar.yml or */cabar.yml files.
       x = path.map do | p |
-        [ "#{p}/*/*/cabar.yml", "#{p}/*/cabar.yml" ]
+        # Handle '@foo/bar' as a direct reference to component foo/bar.
+        p = p.dup
+        if p.sub!(/^@/, '' )
+          [ "#{p}/cabar.yml" ]
+        else
+          [ "#{p}/*/*/cabar.yml", "#{p}/*/cabar.yml" ]
+        end
       end.cabar_flatten_return!
       
       # Glob matching.
@@ -110,7 +121,11 @@ module Cabar
       end
       
       # Unique.
-      x.cabar_uniq_return!
+      x = x.cabar_uniq_return!
+
+      log "result #{x.inspect}"
+
+      x
     end
 
 
@@ -201,7 +216,7 @@ private
           Cabar::Plugin.default_name = name
 
           plugin.each do | file |
-            file = File.expand_path(file, directory) 
+            file = Cabar.path_expand(file, directory) 
             log "    loading plugin #{file}"
             require file
             log "    loading plugin #{file}: DONE"

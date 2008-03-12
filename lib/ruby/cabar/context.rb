@@ -222,11 +222,12 @@ module Cabar
       unresolved_components.each do | name, x |
         msg << <<"END"
 cabar:
-  version: #{Cabar.version}
+  version: #{Cabar.version.to_s.inspect}
   error:
-    message:   #{"Connot resolve component".inspect}
+    message:   "Connot resolve component"
     component: #{name.inspect}
 END
+
         msg << "    for:\n" 
         x.each do | data |
           msg << "    - #{data[:dependent].inspect}\n"
@@ -239,7 +240,7 @@ END
     select(:name => name).to_a.
     map{|c| "- #{c.to_s.inspect}"}.
     join("\n    ")}
-    requested:
+    selected:
       #{
     selected_components.
     selections[name].map do | q |
@@ -253,6 +254,9 @@ q = q.to_hash unless Hash === q
 ---
 END
       end
+#    rescue Exception => err
+#      $stderr.puts msg
+#    ensure
       $stderr.puts msg
       raise Error, "UnresolvedComponent"
     end

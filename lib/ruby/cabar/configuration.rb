@@ -85,6 +85,8 @@ module Cabar
       opts
     end
 
+
+
     def component_search_path= x 
       case y = x
       when Array
@@ -94,7 +96,7 @@ module Cabar
         raise ArgumentError, "expected Array or String"
       end
 
-      @component_search_path = y.map { | p | File.expand_path(p) }.cabar_uniq_return!
+      @component_search_path = Cabar.path_expand(y)
 
       x
     end
@@ -108,7 +110,7 @@ module Cabar
         raise ArgumentError, "Expected Array or String"
       end
       
-      @config_file_path = y.map { | p | File.expand_path(p) }.cabar_uniq_return!
+      @config_file_path = Cabar.path_expand(y)
       
       # Flush caches:
       @config = nil

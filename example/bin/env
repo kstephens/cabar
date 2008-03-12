@@ -11,8 +11,13 @@ d="$(dirname "$0")"
 d="$(cd "$d" && /bin/pwd)"
 base="$(cd "$d/.." && /bin/pwd)"
 
-_export CABAR_PATH "${base}/dev:${base}/prod:${base}/plat:${base}/../.."
+# Overlay dev(eloper), prod(uction), plat(form) and cabar itself.
+_export CABAR_PATH "${base}/dev:${base}/prod:${base}/plat:@${base}/.."
+
+# Parse a config file.
 _export CABAR_CONFIG "${base}/cabar_conf.yml"
+
+# Define a default top-level component.
 _export CABAR_TOP_LEVEL 'c1'
 
 cabar_bin="$(cd "$d/../../bin" && /bin/pwd)"

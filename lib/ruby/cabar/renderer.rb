@@ -154,8 +154,7 @@ module Cabar
       def render_header
         return if @render_header
         @render_header = 1
-        puts "cabar:"
-        puts "  version: #{Cabar.version.to_s.inspect}"
+        puts Cabar.yaml_header
       end
 
       def render_components comps
