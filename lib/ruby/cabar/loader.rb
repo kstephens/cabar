@@ -84,14 +84,7 @@ module Cabar
       
       self
     rescue Exception => err
-      msg = ''
-      msg << "directory: #{dir.inspect}\n"
-      msg << "pending paths: #{@component_search_path_pending.inspect}\n"
-      msg << "pending directories: #{@component_directories_pending.inspect}\n"
-      msg << "  #{err.backtrace.join("\n  ")}"
-      x = Error.new "#{err.inspect}\n#{msg}"
-#      x.backtrace = err.backtrace 
-      raise x
+      raise  Error.new('Loading components', :error => err, :directory => dir, :pending_paths => @component_search_path_pending, :pending_directories => @component_directories_pending)
       self
     end
 
@@ -276,8 +269,7 @@ private
         comp
       end
     rescue Exception => err
-      raise Error, "in #{conf_file.inspect}:\n  in #{self.class}:\n  #{err.inspect}\n  #{err.backtrace.join("\n  ")}"
-      
+      raise Error.new("in #{conf_file.inspect}: in #{self.class}", :error => err)
     end
     
     def infer_component_name comps, directory
