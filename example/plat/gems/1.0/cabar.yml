@@ -15,4 +15,5 @@ cabar:
   requires:
     component:
       ruby: true
+      rubygems: true
 
