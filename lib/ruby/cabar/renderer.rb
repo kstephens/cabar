@@ -251,7 +251,7 @@ module Cabar
         @show_facets = false
         @show_facet_names = false
         @show_facet_links = false
-        @show_unrequired_components = false
+        @show_unrequired_components = true
 
         super
 
@@ -276,7 +276,9 @@ module Cabar
         # Get list of all components.
         components = 
           cntx.
-          available_components
+          available_components.
+          sort { |a, b| a.name <=> b.name }
+        @components = components
 
         # Get list of all facets.
         facets =
@@ -287,6 +289,7 @@ module Cabar
         map { | f |
           f._proto
         }.uniq.sort_by{|x| x.key}
+        @facets = facets
 
         puts "digraph Cabar {"
         puts "  overlap=false;"
@@ -296,6 +299,20 @@ module Cabar
         puts "  // components as nodes"
         components.each do | c |
           render c
+        end
+
+        puts ""
+        puts "  // component version grouping"
+        components.map{ | c | c.name}.uniq.each do | c_name |
+          versions = components.select{ | c | c.name == c_name }
+          # next if versions.size < 2
+
+          a = "C #{c_name}".inspect
+          puts "  #{a} [ label=#{c_name.inspect} ];"
+          versions.each do | c_v |
+            b = dot_name c_v
+            puts "  #{a} -> #{b} [ style=dotted ];" 
+          end
         end
 
         puts ""
