@@ -2,6 +2,8 @@ require 'cabar/base'
 
 
 module Cabar
+
+  # Base class for rendering methods of Components and Facets.
   class Renderer < Base
     attr_accessor :env_var_prefix
     attr_accessor :verbose
@@ -90,6 +92,8 @@ module Cabar
       # NOTHING
     end
 
+    # Renders environment variables directly into
+    # this Ruby process.
     class InMemory < self
       def initialize *args
         @env = ENV
@@ -120,6 +124,7 @@ module Cabar
     end # class
 
 
+    # Renders environment variables as a sourceable /bin/sh shell script.
     class ShellScript < self
       def _setenv name, val 
         puts "#{name}=#{val.inspect}; export #{name};"
@@ -127,6 +132,7 @@ module Cabar
     end # class
 
     
+    # Renders environment variables as Ruby code.
     class RubyScript < self
       def _setenv name, val
         puts "ENV[#{name.inspect}] = #{val.inspect}"
@@ -134,6 +140,7 @@ module Cabar
     end # class
 
 
+    # Renders as YAML.
     class Yaml < self
       attr_accessor :verbose
 
@@ -171,10 +178,10 @@ module Cabar
           puts "    version:       #{c.version.to_s.inspect}"
           puts "    description:   #{c.description.inspect}" if c.description
           puts "    directory:     #{c.directory.inspect}"
-          puts "    base_dir:      #{c.base_directory.inspect}" if c.directory != c.base_directory
+          puts "    base_dir:      #{c.base_directory.inspect}" if c.base_directory != c.directory
           puts "    facet:         [ #{c.provides.map{|x| x.key.inspect}.sort.join(', ')} ]"
           puts "    requires:      [ #{c.requires.map{|x| "#{x.name}/#{x.version}".inspect}.sort.join(', ')} ]"
-          puts "    configuration: #{c.configuration.inspect}"
+          puts "    configuration: #{c.configuration.inspect}" if ! c.configuration.empty?
           render_facets c.facets, '  ' if _options[:show_facet]
         else
           puts "  - #{[ c.name, c.version.to_s, c.directory ].inspect}"
@@ -221,6 +228,8 @@ module Cabar
     end # class
 
 
+    # Renders as a dot graph.
+    # See http://www.graphviz.org/
     class DotGraph < self
       attr_accessor :show_dependencies
       attr_accessor :show_facets
