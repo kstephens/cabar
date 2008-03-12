@@ -45,11 +45,11 @@ module Cabar
             state.cmd_args = args
             args = EMPTY_HASH
           when /^--?([^\s=]+)=(.+)$/
-            options[$1.sub(/[^A-Z0-9]/i, '_').to_sym] = $2.dup
+            options[$1.gsub(/[^A-Z0-9]/i, '_').to_sym] = $2.dup
           when /^--?([^\s=]+)=$/
-            options[$1.sub(/[^A-Z0-9]/i, '_').to_sym] = args.shift
+            options[$1.gsub(/[^A-Z0-9]/i, '_').to_sym] = args.shift
           when /--?([^\s+=]+)$/
-            options[$1.sub(/[^A-Z0-9]/i, '_').to_sym] = true
+            options[$1.gsub(/[^A-Z0-9]/i, '_').to_sym] = true
           else
             # Check for command.
             # puts "cmd_path = #{state.cmd_path.inspect}"
