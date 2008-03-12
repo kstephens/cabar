@@ -27,6 +27,9 @@ module Cabar
     # Source of this plugin.
     attr_accessor :file
 
+    # Block to install the plugin components using the Builder.
+    attr_accessor :block
+
     # Array of Facets defined by this plugin.
     attr_accessor :facets
     
@@ -43,23 +46,37 @@ module Cabar
       @file = $1 if /^(.*):\d+:in / === @file
       @name ||= @@default_name
 
-      if block_given?
-        build! &blk
-      end
+      @block = blk
+
+      # Get the main plugin manager now.
+      @manager ||= Cabar::Main.current.plugin_manager
+
+      # Register this plugin.
+      register!
     end
 
     
-    def build! &blk
-      # Get the main plugin manager.
-      @manager ||= Cabar::Main.current.plugin_manager
-
-      # Create a new builder.
-      Builder.factory.new(:plugin => self, &blk)
-
+    # Installs the parts of the plugin.
+    def register!
       # Register the plugin.
       @manager.register_plugin! self
     end
 
+    # Installs the plugin's parts.
+    def install!
+      return if @installed
+
+      return if @installing
+      @installing = true
+
+      # Create a new builder, use the plugin's
+      # block to execute the DSL.
+      Builder.factory.new(:plugin => self, &@block)
+
+      @installed = true
+    ensure
+      @installing = false
+    end
 
     def to_s
       "plugin #{name}"
@@ -83,9 +100,16 @@ module Cabar
 
       def register_plugin! plugin
         name = plugin.name.to_s
+
+        # Unfortunately we need to allow multiple plugins to be
+        # loaded but not registered.
         if @plugin_by_name[name]
-          raise Error, "Plugin named #{name.inspect} already registered."
+          return
         end
+
+        # This realizes the plugin.
+        plugin.install!
+
         @plugins << plugin
         @plugin_by_name[name] = plugin
         self
