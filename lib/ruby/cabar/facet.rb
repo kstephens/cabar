@@ -109,7 +109,7 @@ module Cabar
         return nil unless proto.configure_early?
       else
         unless proto
-          raise Error, "unknown Facet key #{proto_name.inspect}"
+          raise Error, "unknown Facet #{proto_name.inspect}"
         end
         return nil if proto.configure_early?
       end
