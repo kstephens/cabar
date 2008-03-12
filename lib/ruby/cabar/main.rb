@@ -48,9 +48,10 @@ module Cabar
     def command_runner
       @command_runner ||= 
         begin
+          # Force loading of plugins.
+          context.available_components
+
           @command_runner = Command::Runner.factory.new(:context => self)
-          
-          context.avaliable_components
           
           @command_runner
         end
