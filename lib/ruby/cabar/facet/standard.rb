@@ -210,7 +210,7 @@ module Cabar
 
       def attach_component! c
         super
-        # puts "adding component search path #{abs_path.inspect}"
+        # $stderr.puts "adding component search path #{abs_path.inspect}"
         c.context.loader.add_component_search_path! abs_path
       end
     end # class
