@@ -338,7 +338,7 @@ module Cabar
         @dot_label[x] ||=
           case x
           when Cabar::Component
-            dir = x.directory.sub(/^#{@current_directory}/, '')
+            dir = x.directory.sub(/^#{@current_directory}/, './')
             str = "#{x.name} #{x.version}\\n#{dir}"
             if show_facets
               str << "\\n" + x.provides.map{|f| f.key}.sort.map{|f| "* #{f}"}.join("\\l") + "\\l"
