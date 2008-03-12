@@ -1,0 +1,12 @@
+Manifest.txt
+README.txt
+Rakefile
+Releases.txt
+bin
+cabar.yml
+comp
+doc
+example
+lib
+rake_helper.rb
+test
