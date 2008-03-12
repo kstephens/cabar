@@ -1,0 +1,13 @@
+# Rakefile for cabar/example components.
+
+task :default => :dependency_graph
+
+task :dependency_graph do
+  dot_file = "doc/dependency_graph.dot"
+  # mkdir File.dirname(dot_file)
+  sh "bin/cbr_env cbr comp dot --show-dependencies --show-facet_names > #{dot_file}"
+  [ :dot, :neato, :twopi, :circo, :fdp ].each do | g |
+    sh "#{g} -Tsvg -o doc/dependency_graph_#{g}.svg #{dot_file}"
+  end
+end
+
