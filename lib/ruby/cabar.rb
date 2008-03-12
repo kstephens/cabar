@@ -43,7 +43,7 @@ module Cabar
   # Split all the elements in a path.
   # Remove any empty elements.
   def self.path_split path, sep = nil
-    sep = path_sep
+    sep ||= path_sep
     path = path.split(sep)
     path.reject{|x| x.empty?}
     path
