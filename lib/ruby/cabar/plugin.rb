@@ -10,6 +10,14 @@ module Cabar
   # Plugin object for gracefully adding new functionality
   # to Cabar
   class Plugin < Base
+    @@default_name = nil
+    def self.default_name
+      @@default_name
+    end
+    def self.default_name= x
+      @@default_name = x
+    end
+
     # The manager for this plugin.
     attr_accessor :manager
 
@@ -33,6 +41,7 @@ module Cabar
       super
 
       @file = $1 if /^(.*):\d+:in / === @file
+      @name ||= @@default_name
 
       if block_given?
         build! &blk
