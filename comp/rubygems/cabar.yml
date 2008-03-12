@@ -1,0 +1,27 @@
+<%
+  # Calls ruby to get information about itself.
+  rubygems_info = { }
+  begin
+    require 'rubygems'
+    require 'rubygems/rubygems_version'
+#    require 'gem'
+    rubygems_info[:installed] = true
+    rubygems_info[:version] = Gem::RubyGemsVersion
+  rescue
+    rubygems_info[:installed] = false
+  end	
+  # pp ruby_info
+ %>
+cabar:
+  version: '1.0'
+#  enabled: <%= rubygems_info[:installed].inspect %>
+  component:
+    name: rubygems
+    version: v<%= rubygems_info[:version] || '0.1' %>
+    description: "Rubygems - Cabar support facets"
+  plugin: 'cabar.rb'
+  requires:
+    component:
+      ruby: true
+      cabar: true
+
