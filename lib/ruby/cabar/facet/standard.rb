@@ -252,3 +252,7 @@ module Cabar
 end # module
 
 
+
+require 'cabar/facet/required_component'
+
+

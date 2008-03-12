@@ -188,7 +188,8 @@ module Cabar
         end
       end
 
-      def render_facets facets, x = ''
+      def render_facets facets, x = nil, opts = EMPTY_HASH
+        x ||= ''
         render_header
         puts "#{x}  facet: "
 
@@ -197,25 +198,33 @@ module Cabar
 
         if @verbose
           facets.each do | facet |
-            a = facet.to_a
-            a << [ :_defined_in, facet._defined_in.to_s ]
-            puts "#{x}  - " + 
-              (a.
-               map do | k, v |
-                 case v
-                 when Hash
-                   str = ''
-                   v.each do | vk, vv |
-                     str << "\n#{x}      #{vk}: #{vv.inspect}"
+            case
+            when opts[:prototype]
+              puts "#{x}    #{facet.key}:"
+              puts "#{x}      class:       #{facet.class.to_s}"
+              puts "#{x}      _defined_in: #{facet._defined_in.to_s.inspect}"
+            else
+
+              a = facet.to_a
+              a << [ :_defined_in, facet._defined_in.to_s ]
+              puts "#{x}  - " + 
+                (a.
+                 map do | k, v |
+                   case v
+                   when Hash
+                     str = ''
+                     v.each do | vk, vv |
+                       str << "\n#{x}      #{vk}: #{vv.inspect}"
+                     end
+                     v = str
+                   else
+                     v = v.inspect
                    end
-                   v = str
-                 else
-                   v = v.inspect
-                 end
-                 "#{k}: #{v}"
-               end.
-               join("\n#{x}    ")
-               )
+                   "#{k}: #{v}"
+                 end.
+                 join("\n#{x}    ")
+                 )
+            end
           end
         else
           facets.each do | facet |

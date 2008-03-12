@@ -44,7 +44,7 @@ DOC
           puts "#{key} #{cmd.description.inspect}"
         else
           puts "#{key}"
-          puts "  #{x}#{'%-10s' % (':desc:')} #{cmd.description.inspect}"
+          puts "  #{x}#{'%-10s' % (':desc:')}   #{cmd.description.inspect}"
         end
         
         unless cmd.aliases.empty?
@@ -220,6 +220,8 @@ DOC
   # Component commands
   #
 
+  facet :required_component, :class => Cabar::Facet::RequiredComponent
+  
   cmd_group [ :component, :comp, :c ] do
     cmd [ :list, :ls ], <<'DOC' do
 [ --verbose ] [ - <component> ]
@@ -272,6 +274,20 @@ DOC
   
 
   ##################################################################
+  # Facet
+  #
+
+  cmd_group :facet do
+    cmd :list, <<'DOC' do
+[ --verbose ] [ name ]
+List avaliable facets.
+DOC
+      facets = Cabar::Facet.prototypes
+      yaml_renderer.render_facets facets, nil, :prototype => true
+    end
+  end # cmd_group
+
+  ##################################################################
   # Recursive subcomponents.
   #
 
@@ -284,7 +300,7 @@ DOC
   cmd_group :plugin do
     cmd :list, <<'DOC' do
 [ name ]
-Lists plugins.
+List plugins.
 DOC
       name = cmd_args.shift
 

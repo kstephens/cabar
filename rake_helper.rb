@@ -139,13 +139,17 @@ task :rubyfiles do
 end
 
 task :make_manifest do 
-  open("Manifest.txt", "w") do |f|
-    f.puts Dir['**/*'].reject { |fn| 
+  files = Dir['**/*'].reject { |fn| 
       fn == 'email.txt' ||
       ! test(?f, fn) || 
       fn =~ /CVS|.svn|([#~]$)|(.gem$)|(^pkg\/)|(^doc\/)/ 
     }.sort.join("\n") + "\n"
+
+  open("Manifest.txt", "w") do |f|
+    f.puts files
   end
+
+  puts files
 end
 
 
