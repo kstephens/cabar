@@ -10,7 +10,7 @@ class Cabar::Command
 
   def print_header str = nil
     puts "cabar:"
-    puts "  version: #{Cabar.version}"
+    puts "  version: #{Cabar.version.to_s.inspect}"
     puts "  #{str}:" if str
   end
   
