@@ -10,16 +10,17 @@ module Cabar
     # The error chaing, if any.
     attr_accessor :error_chain
 
+    # Option hash, if any.
     attr_accessor :options
 
     def initialize msg, *args
       # $stderr.puts "#{self.class}.initialize(#{msg.inspect}, #{args.inspect})"
+      @options = EMPTY_HASH
       if Hash === args[-1]
-        opts = args.pop
-        @error = opts[:error]
-        opts.delete(:error)
+        @options = args.pop
+        @error = @options[:error]
+        @options.delete(:error)
       end
-      @options = opts
 
       super msg, *args
 
@@ -52,23 +53,24 @@ module Cabar
         msg << "    object: #{err.inspect.inspect}"
       end
 
-      if err_chain = err.respond_to?(:error_chain) && err.error_chain
-        i = -1
-        err_chain.each do | suberr |
-          msg << "    error_#{i += 1}:"
-          msg << "      class: #{suberr.class}"
-          msg << "      message: #{suberr.message.inspect}"
+      options = err.respond_to?(:options) && err.options
+      options && options.each do | k, v |
+        msg << "    #{k}: #{v.inspect}"
+      end
+
+      i = -1
+      err_chain = err.respond_to?(:error_chain) && err.error_chain
+      err_chain && err_chain.each do | suberr |
+        msg << "    error_#{i += 1}:"
+        msg << "      class: #{suberr.class}"
+        msg << "      message: #{suberr.message.inspect}"
+        msg << "      backtrace:"
+        suberr.backtrace.each do | x |
+          msg << "      - #{x.to_s.inspect}"
         end
       end
 
-      if err.respond_to? :options
-        options = err.options
-        options.each do | k, v |
-          msg << "    #{k}: #{v.inspect}"
-        end
-      end
-
-      if err.respond_to? :backtrace
+      if backtrace = err.respond_to?(:backtrace) && err.backtrace
         msg << "    backtrace: "
         err.backtrace.each do | x |
           msg << "    - #{x.to_s.inspect}"
