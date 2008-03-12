@@ -10,8 +10,8 @@ module Cabar
       msg = [ ]
       msg << Cabar.yaml_header(:error)
       msg << "    message: #{err.inspect.inspect}"
-      msg << "    backtrace: "
       if err.respond_to? :backtrace
+        msg << "    backtrace: "
         err.backtrace.each do | x |
           msg << "    - #{x.to_s.inspect}"
         end
