@@ -234,6 +234,7 @@ module Cabar
       attr_accessor :show_dependencies
       attr_accessor :show_facets
       attr_accessor :show_facet_links
+      attr_accessor :show_unrequired_components
 
       def initialize *args
         @show_dependencies = false
@@ -291,8 +292,12 @@ module Cabar
 
       def render_Component c
         # $stderr.puts "render_Component #{c}"
+        required = @context.required_component? c
+        unless show_unrequired_components
+          return unless required
+        end
         style="solid"
-        style="dotted" unless @context.required_component? c
+        style="dotted" unless required
         puts "  #{dot_name c} [ shape=box, label=#{dot_label c}, style=#{style.inspect} ];"
       end
 
