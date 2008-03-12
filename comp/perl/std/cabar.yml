@@ -8,6 +8,7 @@
   perl_info = eval perl_info
   # pp perl_info
   perl_info[:prog] = `which perl`.chomp
+  perl_info[:available] = ! perl_info[:prog].to_s.empty?
   perl_info[:bin] = File.dirname(perl_info[:prog])
   # pp perl_info
  %>
@@ -17,6 +18,7 @@ cabar:
     name: perl
     version: <%= "v#{perl_info[:version]}" %>
     description: "Perl - <%= perl_info[:prog] %>"
+    enabled: <%= perl_info[:available].inspect %>
     base_directory: <%= File.dirname(perl_info[:bin]).inspect %>
   provides:
     bin:
