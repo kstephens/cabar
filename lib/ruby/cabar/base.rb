@@ -9,12 +9,19 @@ module Cabar
     Version.create '1.0'
   end
 
+  SEMICOLON = ';'.freeze
+  COLON = ','.freeze
+
   # Returns the path separator for this platform.
-  # FIXME
   def self.path_sep
-    ':'
+    @path_sep ||= (ENV['PATH'] =~ /;/ ? SEMICOLON : COLON)
   end
 
+  def self.path_split path
+    path = path.split(path_sep)
+    path.reject{|x| x.empty?}
+    path
+  end
 
   # Common base class for Cabar classes.
   # Handles common stuff, should probably

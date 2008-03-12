@@ -26,12 +26,6 @@ module Cabar
       self.component_search_path = ENV['CABAR_PATH']   || '.'
     end
     
-    def split_path path
-      path = path.split(Cabar.path_sep)
-      path.reject{|x| x.empty?}
-      path
-    end
-
     # Applies this configuration to the Context.
     def apply_configuration! context
       by = "config@#{config['config_file_path'].inspect}"
@@ -95,7 +89,7 @@ module Cabar
       case y = x
       when Array
       when String
-        y = split_path(x)
+        y = Cabar.path_split(x)
       else
         raise ArgumentError, "expected Array or String"
       end
@@ -109,7 +103,7 @@ module Cabar
       case y = x
       when Array
       when String
-        y = split_path(x)
+        y = Cabar.path_split(x)
       else
         raise ArgumentError, "Expected Array or String"
       end
