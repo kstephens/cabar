@@ -262,6 +262,8 @@ module Cabar
         }.uniq.sort_by{|x| x.key}
 
         puts "digraph Cabar {"
+        puts "  overlap=false;"
+        puts "  splines=true;"
 
         puts "  // components"
         components.each do | c |
