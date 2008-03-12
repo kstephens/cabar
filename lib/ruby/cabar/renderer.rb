@@ -300,7 +300,7 @@ module Cabar
         end
         style="solid"
         style="dotted" unless required
-        puts "  #{dot_name c} [ shape=box, label=#{dot_label c}, style=#{style.inspect} ];"
+        puts "  #{dot_name c} [ shape=box, label=#{dot_label c}, style=#{style}, URL=#{('file://' + c.directory).inspect} ];"
       end
 
       def render_Facet f
