@@ -27,6 +27,9 @@ module Cabar
     # The prototype used to create this object.
     attr_accessor :_proto
 
+    # The plugin that defined this facet.
+    attr_accessor :_defined_in
+
     # True if the facet is inferrable.
     attr_accessor :inferrable
     alias :inferrable? :inferrable

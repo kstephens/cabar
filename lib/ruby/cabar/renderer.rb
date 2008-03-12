@@ -191,6 +191,7 @@ module Cabar
         if @verbose
           facets.each do | facet |
             a = facet.to_a
+            a << [ :_defined_in, facet._defined_in.to_s ]
             puts "#{x}  - " + 
               (a.
                map do | k, v |

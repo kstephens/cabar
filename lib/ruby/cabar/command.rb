@@ -39,6 +39,9 @@ module Cabar
     # The context that undefined methods will delegate to.
     attr_accessor :main
 
+    # The plugin this command was defined in.
+    attr_accessor :_defined_in
+
     def initialize *args, &blk
       @state = State.factory.new
       @subcommands = Manager.factory.new(:owner => self)

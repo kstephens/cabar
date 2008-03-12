@@ -52,6 +52,10 @@ module Cabar
     end
 
 
+    def to_s
+      "plugin #{name}"
+    end
+
     # Manages plugins.
     class Manager < Base
       # The Cabar::Main object.
@@ -95,10 +99,12 @@ module Cabar
       # Define a Facet.
       def facet name, opts = nil, &blk
         opts ||= { }
+
         opts[:key] = name
         opts[:class] ||= Facet::EnvVarPath
         cls = opts[:class]
         opts.delete(:class)
+        opts[:_defined_in] = @plugin
 
         # Create a new Facet prototype.
         facet = cls.new(opts)
@@ -126,6 +132,8 @@ module Cabar
 
         cmd = _command_manager.define_command *args, &blk
 
+        cmd._defined_in = @plugin
+
         @plugin.commands << cmd
 
         cmd
@@ -139,6 +147,8 @@ module Cabar
         # $stderr.puts "define_command_group #{args.inspect}"
 
         cmd = _command_manager.define_command_group *args
+
+        cmd._defined_in = @plugin
 
         @plugin.commands << cmd
 

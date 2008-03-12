@@ -31,11 +31,12 @@ DOC
       if opts[:verbose]
         puts "#{x}#{cmd.name}:"
         x = opts[:indent] << '  '
-        puts "#{x}aliases: #{cmd.aliases.inspect}" unless cmd.aliases.empty?
-        puts "#{x}synopsis: #{cmd.synopsis.inspect}"
+        puts "#{x}aliases:    #{cmd.aliases.inspect}" unless cmd.aliases.empty?
+        puts "#{x}synopsis:   #{cmd.synopsis.inspect}"
         puts "#{x}documentation: |"
         puts "#{x}  #{cmd.documentation_lines[1 .. -1].join("\n#{x}  ")}"
         puts "#{x}               |"
+        puts "#{x}defined_in: #{cmd._defined_in.to_s.inspect}"
         puts "#{x}subcommands:" unless cmd.subcommands.empty?
       else
         key = "#{x}#{'%-10s' % (cmd.name + ':')}"
@@ -274,11 +275,17 @@ DOC
 
   cmd_group :plugin do
     cmd :list, <<'DOC' do
-NO-ARGS
-Lists all plugins.
+[ name ]
+Lists plugins.
 DOC
+      name = cmd_args.shift
+
       print_header :plugin
       Cabar::Main.current.plugin_manager.plugins.each do | plugin |
+        if name && ! (name === plugin.name)
+          next
+        end
+
         puts "    #{plugin.name}: "
         puts "      file:     #{plugin.file.inspect}"
         puts "      commands: #{plugin.commands.map{|x| x.name_full}.inspect}"
