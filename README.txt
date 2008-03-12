@@ -64,6 +64,8 @@ prod/cnu_locale/1.1/cabar.yml : provides.cnu_config_path
 
 * Show graph:
 
+  CABAR_PATH=@. cbr comp dot --show-dependencies
+
   cbr comp dot | dot -Tsvg:cairo -o graph.svg
 
   cbr comp dot --show-dependencies - c1 | dot -Tsvg:cairo -o graph.svg

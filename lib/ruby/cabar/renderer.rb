@@ -241,13 +241,30 @@ module Cabar
     class DotGraph < self
       attr_accessor :show_dependencies
       attr_accessor :show_facets
+      attr_accessor :show_facet_names
       attr_accessor :show_facet_links
       attr_accessor :show_unrequired_components
+      attr_accessor :show_all
 
       def initialize *args
-        @show_dependencies = false
+        @show_dependencies = true
         @show_facets = false
+        @show_facet_names = false
+        @show_facet_links = false
+        @show_unrequired_components = false
+
         super
+
+        @show_facet_links &&= @show_facets
+        if @show_all
+          @show_dependencies =
+          @show_facets =
+          @show_facet_names =
+          @show_facet_links =
+          @show_unrequired_components =
+            true
+        end
+
         @dot_name = { }
         @dot_label = { }
         @current_directory = File.expand_path('.') + '/'
@@ -256,10 +273,12 @@ module Cabar
       def render_Context cntx
         @context = cntx
 
+        # Get list of all components.
         components = 
           cntx.
           available_components
 
+        # Get list of all facets.
         facets =
         components.
         map { | c |
@@ -273,30 +292,36 @@ module Cabar
         puts "  overlap=false;"
         puts "  splines=true;"
 
-        puts "  // components"
+        puts ""
+        puts "  // components as nodes"
         components.each do | c |
           render c
         end
 
-        puts "  // facets"
+        puts ""
+        puts "  // facets as nodes"
         facets.each do | f |
           render f
         end
 
-        puts "  // dependencies"
+        puts ""
+        puts "  // dependencies as edges"
         components.each do | c |
           c.requires.each do | d |
             render_dependency_link d
           end
         end
 
-        puts "  // facet links"
+        puts ""
+        puts "  // facet usages as edges"
         components.each do | c |
           c.facets.each do | f |
             render_facet_link c, f
           end
         end
 
+        puts ""
+        puts "// END"
         puts "}"
       end
 
@@ -313,7 +338,7 @@ module Cabar
 
       def render_Facet f
         # $stderr.puts "render_Facet #{f.class}"
-        return unless show_facet_links
+        return unless show_facets
         return if Cabar::Facet::RequiredComponent === f
         puts "  #{dot_name f} [ shape=hexagon, label=#{dot_label f} ];"
       end
@@ -322,6 +347,17 @@ module Cabar
         return unless show_dependencies
         c1 = d.component
         c2 = d.resolved_component
+
+        return unless c1 && c2
+
+        required = 
+          @context.required_component?(c1) &&
+          @context.required_component?(c2)
+
+        unless show_unrequired_components
+          return unless required
+        end
+
         puts "  #{dot_name c1} -> #{dot_name c2} [ label=#{dot_label d}, arrowhead=open ];"
       end
 
@@ -331,32 +367,39 @@ module Cabar
         puts "  #{dot_name c} -> #{dot_name f} [ style=dotted, arrowhead=none ];"
       end
 
+      # Returns the dot node or edge name for an object.
       def dot_name x
         @dot_name[x] ||=
           case x
           when Cabar::Component
-            "#{x.name} #{x.version}".inspect
+            "C #{x.name} #{x.version}".inspect
           when Cabar::Facet
-            x.key.to_s.inspect
+            "F #{x.key}".inspect
           else
-            x.to_s.inspect
+            "X #{x}".inspect
           end
       end
 
 
+      # Returns the dot node or edge label for an object.
       def dot_label x
         @dot_label[x] ||=
           case x
           when Cabar::Component
+            # * name and version
+            # * directory
+            # * facets (optional)
             dir = x.directory.sub(/^#{@current_directory}/, './')
             str = "#{x.name} #{x.version}\\n#{dir}"
-            if show_facets
+            if show_facet_names
               str << "\\n" + x.provides.map{|f| f.key}.sort.map{|f| "* #{f}"}.join("\\l") + "\\l"
             end
             '"' + str + '"'
           when Cabar::Facet::RequiredComponent
+            # Use the version requirement.
             x._proto ? "#{x.version}".inspect : x.key.to_s.inspect
           when Cabar::Facet
+            # Use the facet name.
             x.key.to_s.inspect
           else
             x.to_s.inspect
