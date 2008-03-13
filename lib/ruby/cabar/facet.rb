@@ -159,6 +159,14 @@ module Cabar
       x
     end
 
+    def to_s
+      @key.to_s
+    end
+
+#    def <=> f
+#      @key <=> f.key
+#    end
+
     # Returns true if the Facet is composable across components.
     def is_composable?
       true

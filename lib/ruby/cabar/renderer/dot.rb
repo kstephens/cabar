@@ -71,11 +71,11 @@ module Cabar
         puts "  overlap=false;"
         puts "  splines=true;"
 
-        puts ""
-        puts "  // components as nodes"
-        components.each do | c |
-          render c
-        end
+#        puts ""
+#        puts "  // components as nodes"
+#        components.each do | c |
+#          render c
+#        end
 
         puts ""
         puts "  // component version grouping"
@@ -83,14 +83,25 @@ module Cabar
           versions = components.select{ | c | c.name == c_name }
           # next if versions.size < 2
 
-          puts "subgraph #{('SG C ' + c_name).inspect} {"
-          a = "C #{c_name}".inspect
-          puts "  #{a} [ shape=plaintext, label=#{c_name.inspect} ];"
+          a = versions.first
+        
+          tooltip = "available: " + versions.sort.reverse.map{|v| v.version.to_s }.join(', ')
+          tooltip = tooltip.inspect
+          puts "    #{a_name = dot_name a, :version => false} [ shape=box, label=#{"#{c_name}".inspect}, tooltip=#{tooltip} ];"
+
+
+          puts "  subgraph #{dot_name a, :subgraph => true} {"
+          puts "    label=\"\";";
+          puts "    color=black;";
+ 
           versions.each do | c_v |
+            render c_v
+
             b = dot_name c_v
-            puts "  #{a} -> #{b} [ style=dotted, arrowhead=none ];" 
+            puts "    #{a_name} -> #{b} [ style=dotted, arrowhead=none ];" 
           end
-          puts "}"
+          puts "  }"
+
         end
 
         puts ""
@@ -165,32 +176,46 @@ module Cabar
         @dot_name[[ x, opts ]] ||=
           case x
           when Cabar::Component
+            prefix = ''
+            if opts[:subgraph]
+              opts[:version] = false
+              prefix = "SG "
+            end
+
+            prefix +
             case opts[:version]
             when false
-              "C #{x.name}".inspect
+              "C #{x.name}"
             else
-              "C #{x.name} #{x.version}".inspect
+              "C #{x.name} #{x.version}"
             end
           when Cabar::Facet
-            "F #{x.key}".inspect
+            "F #{x.key}"
           else
-            "X #{x}".inspect
-          end
+            "X #{x}"
+          end.
+          inspect
       end
 
 
       # Returns the dot node or edge label for an object.
-      def dot_label x
-        @dot_label[x] ||=
+      def dot_label x, opts = EMPTY_HASH
+        @dot_label[[x, opts]] ||=
           case x
           when Cabar::Component
             # * name and version
             # * directory
             # * facets (optional)
             dir = x.directory.sub(/^#{@current_directory}/, './')
-            str = "#{x.name} #{x.version}\\n#{dir}"
-            if show_facet_names
-              str << "\\n" + x.provides.map{|f| f.key}.sort.map{|f| "* #{f}"}.join("\\l") + "\\l"
+            str = ''
+            str << "#{x.name}"
+            str << " #{x.version}" if opts[:version] != false
+            str << "\\n#{dir}"
+            if show_facet_names && opts[:show_facet_names] != false
+              str << "\\n"
+              x.provides.map{|f| f.key}.sort.each{|f| str << "<- #{f}\\l"}
+              x.plugins.each{|p| str << "<* #{p.name}\\l"}
+              # x.plugins.each{|p| p.facets.each{|f| str << "+ #{f}\\l"}}
             end
             '"' + str + '"'
           when Cabar::Facet::RequiredComponent
