@@ -46,11 +46,11 @@ DOC
           puts "#{key} #{cmd.description.inspect}"
         else
           puts "#{key}"
-          puts "  #{x}#{'%-10s' % (':desc:')}   #{cmd.description.inspect}"
+          puts "  #{x}#{'%-10s' % ':desc:'}   #{cmd.description.inspect}"
         end
         
         unless cmd.aliases.empty?
-          puts "##{x}#{'%-10s' % ''} aka: #{cmd.aliases.sort.join(', ')}"
+          puts "  #{x}#{'%-10s' % ':alias:'}  #{cmd.aliases.sort.inspect}"
         end
       end
     end

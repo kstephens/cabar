@@ -249,7 +249,7 @@ module Cabar
         end
 
       rescue Exception => err
-        raise("in #{self.inspect}: #{err}\n  #{err.backtrace.join("\n  ")}")
+        raise Error.new("in #{self.inspect}", :error => err)
       end
     end
     

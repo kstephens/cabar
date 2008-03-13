@@ -6,10 +6,11 @@ cabar:
     version: v1.0
     description: 'Cabar - Component Backplane Manager'
 
+  plugin: lib/ruby/cabar/plugin/standard.rb
+
   facet:
     bin: true
     lib/ruby: true
-# Support subcomponent repositories.
     components: 
       path: 'comp'
     action:

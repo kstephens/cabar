@@ -85,6 +85,11 @@ module Cabar
         add_component_search_path!(configuration.component_search_path)
     end
 
+    # Force loading of a component directory.
+    def load_component! directory, opts = nil
+      loader.load_component!(directory, opts)
+    end
+
     #
     # Returns a set of all availabe components
     # found through the component_directories search path.

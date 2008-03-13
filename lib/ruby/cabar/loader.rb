@@ -29,16 +29,33 @@ module Cabar
       $stderr.puts msg if force || @verbose
     end
 
-    def add_component_search_path! path
+    def add_component_search_path! path, opts = nil
+      opts ||= EMPTY_HASH
+
       if Array === path
         path.each { | x | add_component_search_path! x }
         return self
       end
       path = Cabar.path_expand(path)
-      return self if @component_search_path.include? path
-      return self if @component_search_path_pending.include? path
-      @component_search_path_pending << path
-      log "  add_component_search_path! #{path.inspect}"
+
+      unless opts[:force]
+        return self if @component_search_path.include? path
+        return self if @component_search_path_pending.include? path
+      else
+        @component_search_path_pending.delete path
+      end
+
+      case opts[:priority] || :after
+      when :before
+        @component_search_path_pending.unshift path
+      when :after
+        @component_search_path_pending << path
+      else
+        raise ArgumentError, "position must be :before or :after"
+      end
+
+      log "  add_component_search_path! #{path.inspect} #{opts.inspect}"
+
       self
     end
 
@@ -50,6 +67,18 @@ module Cabar
       self
     end
 
+    # Force loading of a component directory.
+    def load_component! directory, opts = nil
+      add_component_search_path!("@#{directory}", opts)
+    end
+
+    # Load components from the component_search_path
+    # and component_directory queues.
+    #
+    # A queue is used because some components
+    # may add addition component search paths during
+    # loading, to implement recursive component repositories.
+    #
     def load_components!
       log "load_components!"
 

@@ -33,8 +33,6 @@ module Cabar
 
       super
       @@current = self
-
-      import_standard_plugins!
     end
 
     def plugin_manager
@@ -76,22 +74,23 @@ module Cabar
     def context
       @context ||=
       begin
-        Context.factory.
+        @context =
+          Context.factory.
           new(:main => self,
               :directory => File.expand_path('.')).
           make_current!
+
+        # Force loading of cabar itself early.
+        @context.load_component!(Cabar.cabar_base_directory, 
+                                 :priority => :before, 
+                                 :force => true)
+
+        @context
       end
     end
 
 
     ##################################################################
-
-    # Hook for defining standard plugins.
-    def import_standard_plugins!
-      plugin_manager # force plugin manager to initialized
-
-      require 'cabar/plugin/standard'
-    end
 
     def inspect
       to_s

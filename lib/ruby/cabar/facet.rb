@@ -188,7 +188,7 @@ module Cabar
     #
     # Subclasses must override this.
     def compose! facet
-      raise "undefined"
+      raise "not implemented"
     end
 
     # Render the Facet with the Renderer.

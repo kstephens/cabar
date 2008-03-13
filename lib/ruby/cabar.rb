@@ -65,6 +65,12 @@ module Cabar
     end
   end
 
+  # The directory containing Cabar itself.
+  def self.cabar_base_directory
+    @@cabar_base_directory ||=
+      path_expand(File.join(File.dirname(__FILE__), '..', '..'))
+  end
+
   # Construct a cabar YAML header.
   def self.yaml_header str = nil
 "---
