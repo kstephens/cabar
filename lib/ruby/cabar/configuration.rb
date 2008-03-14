@@ -64,22 +64,25 @@ module Cabar
       # end
     end
     
+    DISABLED_HASH = { :enabled => false }.freeze
 
     def normalize_component_options opts
+      case opts
+      when nil, false
+        opts = DISABLED_HASH
+      when true
+        opts = EMPTY_HASH
+      when String, Float, Integer
+        opts = { :version => opts }
+      end
+      
+      # Convert String keys to Symbols.
       opts = opts.inject({ }) do | h, kv |
         k, v = *kv
         h[k.to_sym] = v
         h
       end
-      case opts
-      when nil, false
-        opts = { :enabled => false }
-      when true
-        opts = { }
-      when String, Float, Integer
-        opts = { :version => opts }
-      end
-      
+
       opts[:version] = Cabar::Version::Requirement.create_cabar(opts[:version]) if opts[:version]
       
       opts
