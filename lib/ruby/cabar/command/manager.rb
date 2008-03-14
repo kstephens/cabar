@@ -65,25 +65,18 @@ module Cabar
 
         return nil if @commands.include? cmd
 
+        # Check for name and aliase collisions.
+        collisions = cmd.names.select{ |name| @command_by_name[name] }
+        unless collisions.empty?
+          raise Error::InvalidCommand, "A command named #{collisions.inspect} is already registered"
+        end
+
+        # Associate.
+        @commands << cmd
         cmd.names.each do | name |
-          name = name.to_s
-
-          # Check for collisions.
-          if @command_by_name[name]
-            # Back out cmd from all @command_by_name.
-            @command_by_name.each do | k, v |
-              if v == cmd
-                @command_by_name.delete(k)
-              end
-            end
-            raise Error::InvalidCommand, "A command named #{name.inspect} is already registered"
-          end
-
           @command_by_name[name] = cmd
           # $stderr.puts "  register_command! #{cmd.inspect} as #{name.inspect}"
         end
-        
-        @commands << cmd
         cmd.manager = self
 
         cmd
