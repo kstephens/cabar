@@ -43,11 +43,13 @@ module Cabar
         @context = cntx
 
         # Get list of all components.
-        components = 
+
+        available_components = 
           cntx.
           available_components.to_a.
           sort { |a, b| a.name <=> b.name }
 
+        components = available_components
         unless show_unrequired_components
           components = components.select do | c |
             @context.required_component? c
@@ -67,6 +69,9 @@ module Cabar
         }.uniq.sort_by{|x| x.key}
         @facets = facets
 
+        @edges = [ ]
+        @subgraph = 0
+
         puts "digraph Cabar {"
         puts "  overlap=false;"
         puts "  splines=true;"
@@ -84,23 +89,48 @@ module Cabar
           # next if versions.size < 2
 
           a = versions.first
-        
-          tooltip = "available: " + versions.sort.reverse.map{|v| v.version.to_s }.join(', ')
+          a_name = dot_name a, :version => false
+
+          # Get all versions of
+          # component a.
+          available_a = 
+            available_components.
+            select{|c| c.name == a.name }
+
+          # Show all versions available in a tooltip.
+          tooltip = "available: " + 
+            available_a.
+            sort{|a,b| a.version <=> b.version}.
+            reverse.
+            map{|v| v.version.to_s }.join(', ')
           tooltip = tooltip.inspect
-          puts "    #{a_name = dot_name a, :version => false} [ shape=box, style=rounded, label=#{"#{c_name}".inspect}, tooltip=#{tooltip} ];"
+          
+          # Are any versions of a required?
+          any_required = available_a.any?{|c| required? c}
 
-
-          puts "  subgraph #{dot_name a, :subgraph => true} {"
-          puts "    label=\"\";";
-          puts "    color=black;";
+          # Make a subgraph of all versions of component a.
+          puts "// #{a_name}"
+          puts "  subgraph sg_#{@subgraph += 1} {"
+          puts "    label=#{a_name};"
+          puts "    color=black;"
+          puts "    style=solid;"
  
+          puts "    node [ shape=box, style=#{any_required ? :solid : :dotted}, label=#{"#{c_name}".inspect}, tooltip=#{tooltip} ] #{a_name};"
+
           versions.each do | c_v |
             render c_v
-
+            
             b = dot_name c_v
             puts "    #{a_name} -> #{b} [ style=dotted, arrowhead=none ];" 
           end
           puts "  }"
+
+=begin
+          versions.each do | c_v |
+            b = dot_name c_v
+            edge_puts "    #{a_name} -> #{b} [ style=dotted, arrowhead=none ];" 
+          end
+=end
 
         end
 
@@ -126,6 +156,11 @@ module Cabar
           end
         end
 
+        # Render all edges.
+        @edges.each do | e |
+          puts e
+        end
+
         puts ""
         puts "// END"
         puts "}"
@@ -141,14 +176,14 @@ module Cabar
         style = "solid"
         style = "dotted" unless required
         tooltip = (c.description || c.to_s(:short)).inspect
-        puts "  #{dot_name c} [ shape=box, label=#{dot_label c}, tooltip=#{tooltip}, style=#{style}, URL=#{('file://' + c.directory).inspect} ];"
+        puts "  node [ shape=box, label=#{dot_label c}, tooltip=#{tooltip}, style=#{style}, URL=#{('file://' + c.directory).inspect} ] #{dot_name c};"
       end
 
       def render_Facet f
         # $stderr.puts "render_Facet #{f.class}"
         return unless show_facets
         return if Cabar::Facet::RequiredComponent === f
-        puts "  #{dot_name f} [ shape=hexagon, label=#{dot_label f} ];"
+        puts "  node [ shape=hexagon, label=#{dot_label f} ] #{dot_name f};"
       end
 
       def render_dependency_link d
@@ -161,14 +196,22 @@ module Cabar
           @components.include?(c1) &&
           @components.include?(c2)
 
-        puts "  #{dot_name c1} -> #{dot_name c2} [ label=#{dot_label d}, arrowhead=open ];"
-        puts "  #{dot_name c1} -> #{dot_name c2, :version => false} [ style=dotted, arrowhead=open ];"
+        edge_puts "  #{dot_name c1} -> #{dot_name c2} [ label=#{dot_label d}, arrowhead=open ];"
+        edge_puts "  #{dot_name c1} -> #{dot_name c2, :version => false} [ style=dotted, arrowhead=open ];"
       end
 
       def render_facet_link c, f
         return if Cabar::Facet::RequiredComponent === f
         return unless show_facet_links
-        puts "  #{dot_name c} -> #{dot_name f} [ style=dotted, arrowhead=none ];"
+        edge_puts "  #{dot_name c} -> #{dot_name f} [ style=dotted, arrowhead=none ];"
+      end
+
+      def edge_puts x
+        if @edges
+          @edges << x.to_s
+        else
+          puts x.to_s
+        end
       end
 
       # Returns the dot node or edge name for an object.
