@@ -3,7 +3,7 @@
 Cabar::Plugin.new :name => 'cabar', :documentation => <<"DOC" do
 Cabar standard plugin.
 Includes all plugins named 'cabar/plugin/*.rb' 
-found in $RUBYLIB (#{ENV['RUBYLIB'].inspect}).
+found in $: (#{$:.inspect}).
 DOC
 
   require 'cabar/command/standard' # Standard command support.
