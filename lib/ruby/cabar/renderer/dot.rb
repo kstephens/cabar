@@ -36,6 +36,7 @@ module Cabar
 
         @dot_name = { }
         @dot_label = { }
+        @required = { } # cache
         @current_directory = File.expand_path('.') + '/'
       end
 
@@ -69,6 +70,7 @@ module Cabar
         }.uniq.sort_by{|x| x.key}
         @facets = facets
 
+        # Delay edges until end.
         @edges = [ ]
         @subgraph = 0
 
@@ -109,9 +111,10 @@ module Cabar
           any_required = available_a.any?{|c| required? c}
 
           # Make a subgraph of all versions of component a.
+          puts ""
           puts "// #{a_name}"
           puts "  subgraph sg_#{@subgraph += 1} {"
-          puts "    label=#{a_name};"
+          puts "    label=#{a.name.inspect};"
           puts "    color=black;"
           puts "    style=solid;"
  
@@ -119,18 +122,19 @@ module Cabar
 
           versions.each do | c_v |
             render c_v
-            
-            b = dot_name c_v
-            puts "    #{a_name} -> #{b} [ style=dotted, arrowhead=none ];" 
+#            
+#            b = dot_name c_v
+#            edge_puts "    #{a_name} -> #{b} [ style=dotted, arrowhead=none ];" 
           end
           puts "  }"
+          puts ""
 
-=begin
+          edge_puts ""
+          edge_puts "// component #{a.name.inspect} versions as edges"
           versions.each do | c_v |
             b = dot_name c_v
             edge_puts "    #{a_name} -> #{b} [ style=dotted, arrowhead=none ];" 
           end
-=end
 
         end
 
@@ -140,16 +144,16 @@ module Cabar
           render f
         end
 
-        puts ""
-        puts "  // dependencies as edges"
+        edge_puts ""
+        edge_puts "  // dependencies as edges"
         components.each do | c |
           c.requires.each do | d |
             render_dependency_link d
           end
         end
 
-        puts ""
-        puts "  // facet usages as edges"
+        edge_puts ""
+        edge_puts "  // facet usages as edges"
         components.each do | c |
           c.facets.each do | f |
             render_facet_link c, f
@@ -164,10 +168,6 @@ module Cabar
         puts ""
         puts "// END"
         puts "}"
-      end
-
-      def required? c
-        @context.required_component? c
       end
 
       def render_Component c
@@ -196,14 +196,21 @@ module Cabar
           @components.include?(c1) &&
           @components.include?(c2)
 
-        edge_puts "  #{dot_name c1} -> #{dot_name c2} [ label=#{dot_label d}, arrowhead=open ];"
         edge_puts "  #{dot_name c1} -> #{dot_name c2, :version => false} [ style=dotted, arrowhead=open ];"
+
+        edge_puts "  #{dot_name c1} -> #{dot_name c2} [ label=#{dot_label d}, #{required?(c1) && required?(c2) ? '' : 'style=dotted, '} arrowhead=normal ];"
+
       end
 
       def render_facet_link c, f
         return if Cabar::Facet::RequiredComponent === f
         return unless show_facet_links
         edge_puts "  #{dot_name c} -> #{dot_name f} [ style=dotted, arrowhead=none ];"
+      end
+
+      def required? c
+        @required[c.object_id] ||=
+          [ @context.required_component?(c) ].first
       end
 
       def edge_puts x
@@ -256,9 +263,19 @@ module Cabar
             str << "\\n#{dir}"
             if show_facet_names && opts[:show_facet_names] != false
               str << "\\n"
-              x.provides.map{|f| f.key}.sort.each{|f| str << "<- #{f}\\l"}
-              x.plugins.each{|p| str << "<* #{p.name}\\l"}
-              # x.plugins.each{|p| p.facets.each{|f| str << "+ #{f}\\l"}}
+              # <- <<exported facet name>>
+              x.provides.
+                map{|f| f.key}.
+                sort.
+                each{|f| str << "<- #{f}\\l"}
+
+              # <* <<plugin name>>
+              x.plugins.
+                map{|p| p.name}.
+                sort.
+                map{|p| p.sub(/\/.*$/, '/*')}.
+                uniq.
+                each{|p| str << "<* #{p}\\l"}
             end
             '"' + str + '"'
           when Cabar::Facet::RequiredComponent
