@@ -114,6 +114,8 @@ DOC
         opts[:indent] ||= '    '
         opts[:cmd_path] ||= [ ]
         
+        opts[:previous] = nil
+
         commands.sort { |a, b| a.name <=> b.name }.each do | cmd | 
           opts[:cmd_path].push cmd.name
           
@@ -121,7 +123,9 @@ DOC
           
           # yield cmd and opts to the block.
           yield cmd, opts
-          
+
+          opts[:previous] = cmd
+
           opts[:indent] << '  '
           
           cmd.subcommands.visit_commands opts, &blk

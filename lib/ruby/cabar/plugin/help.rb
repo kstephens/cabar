@@ -24,12 +24,16 @@ DOC
     puts "  command:"
 
     main.commands.visit_commands(opts) do | cmd, opts |
-      if opts[:path]
+      case
+      when opts[:path]
         next unless cmd === opts[:path]
+#      when ! opts[:verbose] && opts[:cmd_path].size > 1
+#        next 
       end
       
       x = opts[:indent]
       if opts[:verbose]
+        puts ""
         puts "#{x}#{cmd.name}:"
         x = opts[:indent] << '  '
         puts "#{x}aliases:    #{cmd.aliases.inspect}" unless cmd.aliases.empty?
@@ -40,10 +44,16 @@ DOC
         puts "#{x}defined_in: #{cmd._defined_in.to_s.inspect}"
         puts "#{x}subcommands:" unless cmd.subcommands.empty?
       else
+        # puts "# #{cmd.subcommands.object_id}"
         key = "#{x}#{'%-10s' % (cmd.name + ':')}"
         if cmd.subcommands.empty?
+          if opts[:previous] && 
+              opts[:previous].subcommands.object_id != cmd.subcommands.object_id
+            puts ""
+          end
           puts "#{key} #{cmd.description.inspect}"
         else
+          puts ""
           puts "#{key}"
           puts "  #{x}#{'%-10s' % ':desc:'}   #{cmd.description.inspect}"
         end
