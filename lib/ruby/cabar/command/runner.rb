@@ -57,7 +57,7 @@ module Cabar
             if ! manager.empty?
               cmd_name = arg.to_s
               state.cmd_path << cmd_name
-              if self.cmd = manager.command_by_name[cmd_name]
+              if self.cmd = manager.command_for_name(cmd_name)
                 manager = self.cmd.subcommands
               else
                 raise Cabar::Error, "Invalid command path #{state.cmd_path.inspect}"

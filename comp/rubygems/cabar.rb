@@ -2,12 +2,15 @@
 # require 'cabar/command/standard' # Standard command support.
 # require 'cabar/facet/standard'   # Standard facets and support.
 
-Cabar::Plugin.new do
+Cabar::Plugin.new :documentation => <<'DOC' do
+Support for rubygems repository components.
+DOC
 
   facet :rubygems, :path => [ 'gems' ], :var => :GEM_PATH
+
   cmd_group [ :rubygems, :gems ] do
 
-    cmd [ :list, :ls ] , <<'DOC' do
+    cmd [ :list ] , <<'DOC' do
 [ - <component> ] [ <action> ] 
 List gems repositories.
 DOC

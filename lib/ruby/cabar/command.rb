@@ -1,7 +1,7 @@
 require 'cabar/base'
 
 require 'cabar/error'
-
+require 'abbrev'
 
 module Cabar
   # Represents commands that can be run from Cabar::Main.
@@ -27,11 +27,14 @@ module Cabar
     # The documentation for the command.
     attr_accessor :documentation
 
-    # The Proc to be executed.
+    # The Proc to be executed for the command.
     attr_accessor :proc
 
     # The Command that holds this as a subcommand.
     attr_accessor :supercommand
+
+    # The CommandManager that manages this command.
+    attr_accessor :manager
 
     # A CommandManager for subcommands.
     attr_accessor :subcommands
@@ -59,6 +62,29 @@ module Cabar
     def names
       @aliases.dup << @name
     end
+
+    # Returns all the valid abbreviations for this command.
+    def abbreviations
+      if @manager
+        # Get abbreviations for all commands.
+        a = @manager.commands.map{|c| c.names}.flatten.abbrev
+        # $stderr.puts "a = #{a.inspect}"
+
+        # select all abbrevations for this commands names.
+        ns = names
+        a = a.map{ | abbr, name | ns.include?(name) ? abbr : nil }.compact
+        # $stderr.puts "a = #{a.inspect}"
+        a.sort!
+        a
+      else
+        EMPTY_ARRAY
+      end
+    end
+
+    def aliases_and_abbreviations
+      (abbreviations + @aliases).sort.uniq
+    end
+
 
     # Returns true if matches by name or alias.
     def === x

@@ -24,19 +24,22 @@ DOC
     puts "  command:"
 
     main.commands.visit_commands(opts) do | cmd, opts |
+      verbose = opts[:verbose]
       case
       when opts[:path]
         next unless cmd === opts[:path]
+        verbose = true
 #      when ! opts[:verbose] && opts[:cmd_path].size > 1
 #        next 
       end
       
       x = opts[:indent]
-      if opts[:verbose]
+      if verbose
         puts ""
         puts "#{x}#{cmd.name}:"
         x = opts[:indent] << '  '
         puts "#{x}aliases:    #{cmd.aliases.inspect}" unless cmd.aliases.empty?
+        puts "#{x}abbrevs:    #{cmd.abbreviations.inspect}" unless cmd.abbreviations.empty?
         puts "#{x}synopsis:   #{cmd.synopsis.inspect}"
         puts "#{x}documentation: |"
         puts "#{x}  #{cmd.documentation_lines[1 .. -1].join("\n#{x}  ")}"
@@ -58,8 +61,8 @@ DOC
           puts "  #{x}#{'%-10s' % ':desc:'}   #{cmd.description.inspect}"
         end
         
-        unless cmd.aliases.empty?
-          puts "  #{x}#{'%-10s' % ':alias:'}  #{cmd.aliases.sort.inspect}"
+        unless (a = cmd.aliases_and_abbreviations).empty?
+          puts "  #{x}#{'%-10s' % ':alias:'}  #{a.sort.inspect}"
         end
       end
 

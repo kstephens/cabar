@@ -17,6 +17,7 @@ module Cabar
       attr_reader :commands
 
       # A Hash that maps command names (and aliases) to Command objects.
+      # A commands names and aliases must be unique
       attr_reader :command_by_name
       
       def initialize *args
@@ -26,13 +27,13 @@ module Cabar
       end
       
       def command_names
-        @command_by_name.keys.sort
+        @commands.map{|c| c.name}.sort
       end
       
-      def commands
-        @commands
+      def command_names_and_aliases
+        @commands.map{|c| c.names}.flatten.sort
       end
-      
+
       def empty?
         @commands.empty?
       end
@@ -43,22 +44,48 @@ module Cabar
         @command_by_name = @command_by_name.dup
       end
       
+      # Returns the command for a command name.
+      # Using aliases and abbreviations.
+      def command_for_name name
+        # Try name and aliases.
+        cmd = @command_by_name[name]
+
+        # Try abbreviations.
+        unless cmd 
+          cmd = @commands.find { | c | c.abbreviations.include? name }
+        end
+
+        cmd
+      end
+
+      # If a command with the same name or alias has been
+      # register, raise an error.
       def register_command! cmd
         # $stderr.puts "#{self.inspect} register_command! #{cmd.name.inspect}"
 
         return nil if @commands.include? cmd
 
-        @commands << cmd
-
-        (cmd.aliases + [ cmd.name ]).each do | name |
+        cmd.names.each do | name |
           name = name.to_s
+
+          # Check for collisions.
           if @command_by_name[name]
+            # Back out cmd from all @command_by_name.
+            @command_by_name.each do | k, v |
+              if v == cmd
+                @command_by_name.delete(k)
+              end
+            end
             raise Error::InvalidCommand, "A command named #{name.inspect} is already registered"
           end
+
           @command_by_name[name] = cmd
           # $stderr.puts "  register_command! #{cmd.inspect} as #{name.inspect}"
         end
         
+        @commands << cmd
+        cmd.manager = self
+
         cmd
       end
       

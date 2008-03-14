@@ -11,8 +11,8 @@ DOC
   # Configuration
   #
 
-  cmd_group [ :config, :conf, :cf ] do
-    cmd [ :show, :list, :ls ], <<'DOC' do
+  cmd_group [ :config, :conf, :cfg ] do
+    cmd [ :show, :list ], <<'DOC' do
 
 Show current configuration.
 DOC

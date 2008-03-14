@@ -12,7 +12,7 @@ Cabar::Plugin.new :name => 'cabar/action' do
   facet :action, :class => Cabar::Facet::Action
   cmd_group :action do
 
-    cmd [ :list, :ls ] , <<'DOC' do
+    cmd :list, <<'DOC' do
 [ - <component> ] [ <action> ] 
 List actions available on all required components
 DOC

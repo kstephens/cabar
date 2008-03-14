@@ -16,7 +16,7 @@ DOC
   facet :required_component, :class => Cabar::Facet::RequiredComponent
   
   cmd_group [ :component, :comp, :c ] do
-    cmd [ :list, :ls ], <<'DOC' do
+    cmd :list, <<'DOC' do
 [ --verbose ] [ - <component> ]
 Lists all available components.
 DOC
