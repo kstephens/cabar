@@ -6,6 +6,12 @@ require 'forwardable'
 
 module Cabar
   class Version
+
+    # This maintains an ordered set of object that
+    # respond to :name and :version.
+    #
+    # Set is sorted by name in proper order
+    # and version in reverse order.
     class Set < ::Object
       extend Forwardable
       
@@ -65,9 +71,11 @@ module Cabar
 
       def include? x
         ! ! @a.find do | x2 | 
-          x != x2.object_id &&
-          x.name === x2.name && 
-          x.version === x2.version
+          x2 == x || (
+                      x.object_id != x2.object_id &&
+                      x.name === x2.name && 
+                      x.version === x2.version
+                      )
         end
       end
 
@@ -89,6 +97,7 @@ module Cabar
         push c
       end
       
+      # Reduces set based on additional constraint.
       def select! opts, &blk
         opts = Cabar::Constraint.create opts
 
