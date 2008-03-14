@@ -5,6 +5,8 @@ require 'cabar/command'
 
 
 module Cabar
+  class Error::InvalidCommand < Error; end
+
   class Command
     # Manages a list of commands.
     class Manager < Base
@@ -51,7 +53,7 @@ module Cabar
         (cmd.aliases + [ cmd.name ]).each do | name |
           name = name.to_s
           if @command_by_name[name]
-            raise InvalidCommand, "A command named #{name.inspect} is already registered"
+            raise Error::InvalidCommand, "A command named #{name.inspect} is already registered"
           end
           @command_by_name[name] = cmd
           # $stderr.puts "  register_command! #{cmd.inspect} as #{name.inspect}"
