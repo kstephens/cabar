@@ -19,10 +19,16 @@ DOC
         end
 
         puts "    #{plugin.name}: "
+        if plugin.documentation
+          puts "      documentation: |"
+          puts "        #{plugin.documentation}"
+          puts "                     |"
+        end
         puts "      component: #{plugin.component.to_s.inspect}"
         puts "      file:      #{plugin.file.inspect}"
         puts "      commands:  #{plugin.commands.map{|x| x.name_full}.inspect}"
         puts "      facets:    #{plugin.facets.map{|x| x.key}.inspect}"
+        puts ""
       end
 
     end # cmd

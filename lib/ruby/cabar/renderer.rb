@@ -183,6 +183,7 @@ module Cabar
           puts "    configuration: #{c.configuration.inspect}" if ! c.configuration.empty?
           puts "    plugins:       #{c.plugins.map{|p| p.name}.inspect}" if ! c.plugins.empty?
           render_facets c.facets, '  ' if _options[:show_facet]
+          puts ""
         else
           puts "  - #{[ c.name, c.version.to_s, c.directory ].inspect}"
         end
