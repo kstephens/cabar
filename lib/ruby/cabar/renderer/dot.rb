@@ -87,7 +87,7 @@ module Cabar
         
           tooltip = "available: " + versions.sort.reverse.map{|v| v.version.to_s }.join(', ')
           tooltip = tooltip.inspect
-          puts "    #{a_name = dot_name a, :version => false} [ shape=box, label=#{"#{c_name}".inspect}, tooltip=#{tooltip} ];"
+          puts "    #{a_name = dot_name a, :version => false} [ shape=box, style=rounded, label=#{"#{c_name}".inspect}, tooltip=#{tooltip} ];"
 
 
           puts "  subgraph #{dot_name a, :subgraph => true} {"
