@@ -8,6 +8,7 @@ module Cabar
   class Component
 
     # Set of selected components by name.
+    # Each component name has a version set.
     class Set
       # List of constraints applied to this set.
       attr_reader :selections
@@ -26,6 +27,10 @@ module Cabar
         s.to_a
       end
       
+      def include? x
+        to_a.include? x
+      end
+
       def join *args
         to_a.join *args
       end
