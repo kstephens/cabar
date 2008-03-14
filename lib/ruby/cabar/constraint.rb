@@ -3,6 +3,7 @@ require 'cabar/base'
 module Cabar
 
   # Represents a constraint by name and/or version.
+  # Could be extended to handle hardward architectures, etc.
   class Constraint < Base
     attr_accessor :name
     attr_accessor_type :version, Cabar::Version::Requirement
@@ -86,6 +87,11 @@ module Cabar
         end
       end
     end
+
+    def call(obj)
+      to_proc.call(obj)
+    end
+
 
     # Returns true if object matches this constraint.
     def === obj
