@@ -24,6 +24,7 @@
 module Cabar
   EMPTY_HASH = { }.freeze
   EMPTY_ARRAY = [ ].freeze
+  EMPTY_STRING = ''.freeze
 
   # The Cabar version.
   def self.version
@@ -57,7 +58,7 @@ module Cabar
       p.map { | p | path_expand(p, dir) }.cabar_uniq_return!
     else
       p = p.to_s.dup
-      if p.sub!(/^@/, '')
+      if p.sub!(/^@/, EMPTY_STRING)
         '@' + File.expand_path(p, dir)
       else
         File.expand_path(p, dir)
@@ -76,7 +77,7 @@ module Cabar
 "---
 cabar:
   version: #{Cabar.version.to_s.inspect}
-" + (str ? "  #{str}:" : '')
+" + (str ? "  #{str}:" : EMPTY_STRING)
   end
 end
 
