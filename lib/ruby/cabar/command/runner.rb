@@ -32,22 +32,28 @@ module Cabar
       def parse_args args
         
         state = self.state = State.factory.new
-        state.args = args.dup
-        
+        # Avoid modifying ARGV and its String elements.
+        args = state.args = args.map{|x| x.dup}
+        # Avoid modifying state.args during shifts.
+        args = args.dup
+
         options = state.cmd_opts
         manager = self.manager
         
         until args.empty?
           arg = args.shift
-          
+          arg = arg.dup rescue arg
+
           case arg
           when '--'
             state.cmd_args = args
             args = EMPTY_HASH
           when /^--?([^\s=]+)=(.+)$/
-            options[$1.gsub(/[^A-Z0-9]/i, '_').to_sym] = $2.dup
+            options[$1.gsub(/[^A-Z0-9]/i, '_').to_sym] = $2
           when /^--?([^\s=]+)=$/
-            options[$1.gsub(/[^A-Z0-9]/i, '_').to_sym] = args.shift
+            arg = args.shift
+            arg = arg.dup rescue arg
+            options[$1.gsub(/[^A-Z0-9]/i, '_').to_sym] = arg
           when /--?([^\s+=]+)$/
             options[$1.gsub(/[^A-Z0-9]/i, '_').to_sym] = true
           else
