@@ -323,7 +323,7 @@ END
         if (v = ENV[fp.var])
           f = coll[ft]
           facet = Facet.create(ft, 
-                               :path => v.split(Cabar.path_sep), 
+                               :path => Cabar.path_split(v),
                                :owner => self)
           
           if f 
@@ -342,11 +342,11 @@ END
       map { | f | f.key }.
       each do | ft |
         fp = Facet.proto_by_key(ft)
-        if (v = ENV["PRE_#{fp.var}"])
+        if (v = ENV["CABAR_PRE_#{fp.var}"])
           f = coll[ft]
 
           facet = Facet.create(ft, 
-                               :path => v.split(Cabar.path_sep), 
+                               :path => Cabar.path_split(v), 
                                :owner => self)
           
           facet.compose_facet! f if f
