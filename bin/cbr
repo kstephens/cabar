@@ -1,5 +1,22 @@
 #!/usr/bin/env ruby
 
+if CABAR_TRACE_LOG = ENV['CABAR_TRACE_LOG']
+  begin
+    C_CALL_str = 'c-call'.freeze
+    CALL_str = 'call'.freeze
+    LINE_str = 'line'.freeze
+    RETURN_str = 'return'.freeze
+
+    CABAR_TRACE_LOG_fh = File.open(CABAR_TRACE_LOG, "a+")
+    set_trace_func Proc.new() { | event, file, line, meth, binding, klass |
+      # if event == C_CALL == str or event == CALL_str or event == LINE_str or event == RETURN_str
+        clrs = caller[2 .. -1]
+        CABAR_TRACE_LOG_fh.puts "#{event}|#{file}|#{line}|#{meth}|#{klass}|#{clrs && clrs.join('|')}"
+      # end
+    }
+  end
+end
+
 $:.unshift File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib', 'ruby'))
 
 require 'cabar'
