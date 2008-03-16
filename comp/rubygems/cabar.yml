@@ -1,24 +1,28 @@
 <%
-  # Calls ruby to get information about itself.
-  rubygems_info = { }
-  begin
-    require 'rubygems'
-    require 'rubygems/rubygems_version'
-#    require 'gem'
+  # Calls ruby to get information about rubygems.
+  rubygems_info = begin
+    eval `unset GEMPATH; ruby -r rubygems -r rubygems/rubygems_version -e 'x = { :version => Gem::RubyGemsVersion, :GEM_PATH => Gem.path }; puts x.inspect;'`.chomp
+  rescue 
+    nil
+  end
+
+  case rubygems_info
+  when Hash
     rubygems_info[:installed] = true
-    rubygems_info[:version] = Gem::RubyGemsVersion
-  rescue
-    rubygems_info[:installed] = false
-  end	
-  # pp ruby_info
+  else 
+    rubygems_info = { :installed => false }
+  end
+#  require 'pp'	  
+#  pp rubygems_info
  %>
 cabar:
   version: '1.0'
-#  enabled: <%= rubygems_info[:installed].inspect %>
+  enabled: <%= rubygems_info[:installed].inspect %>
   component:
     name: rubygems
     version: v<%= rubygems_info[:version] || '0.1' %>
     description: "Rubygems - Cabar support facets"
+    standard_gem_path: <%= rubygems_info[:GEM_PATH].inspect %>
   plugin: 'cabar.rb'
   requires:
     component:
