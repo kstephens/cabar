@@ -2,8 +2,11 @@ require 'cabar/base'
 
 module Cabar
 
+  ALWAYS_HASH = { :_always => true }.freeze
+  NEVER_HASH = { :_never => true }.freeze
+
   # Represents a constraint by name and/or version.
-  # Could be extended to handle hardward architectures, etc.
+  # Could be extended to handle hardware architectures, etc.
   class Constraint < Base
     attr_accessor :name
     attr_accessor_type :version, Cabar::Version::Requirement
@@ -15,9 +18,9 @@ module Cabar
 
       case x
       when true
-        x = { :_always => true }
+        x = ALWAYS_HASH
       when false
-        x = { :_never => true }
+        x = NEVER_HASH
       when String, Symbol
         x = x.to_s
         x = { :name => x }
@@ -68,7 +71,9 @@ module Cabar
     end
     
 
+    # Lambda taking one argument and returns true.
     TRUE_PROC = lambda { | obj | true }
+    # Lambda taking one argument and returns false.
     FALSE_PROC = lambda { | obj | false }
 
     # Creates a Proc that takes one argument,
