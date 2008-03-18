@@ -3,22 +3,22 @@
 task :default => :dependency_graph
 
 task :dependency_graph do
-  [ [ ], [ :show_unrequired_components] ].each do | opts | 
+  [ [ ], [ :show_facet_names ], [ :show_unrequired_components] ].each do | opts | 
     base_file = "doc/#{([ :dependency_graph ] + opts).join('.')}"
     dot_file = "#{base_file}.dot"
 
-    sh "bin/cbr_env cbr comp dot --show-dependencies --show-facet-names #{opts.map{|o| "--#{o}"}.join(' ')} > #{dot_file}"
+    sh "bin/cbr_env cbr comp dot --show-dependencies #{opts.map{|o| "--#{o}"}.join(' ')} > #{dot_file}"
 
     # [ :dot, :neato, :twopi, :circo, :fdp ].
     [ :dot, :neato ].
       each do | g |
-      sh "#{g} -Tsvg -o #{base_file}.#{g}.svg #{dot_file}"
+      sh "#{g} -Tsvg -o #{dot_file}.#{g}.svg #{dot_file}"
     end
   end
 end
 
 task :clean do
-  sh "rm -f doc/*"
+  sh "rm -f doc/*.dot doc/*.dot.svg"
 end
 
 
