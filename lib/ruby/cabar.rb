@@ -1,4 +1,6 @@
 
+# == Cabar
+#
 # Cabar is a software component backplane.
 # It can be used with Ruby or other software technologies.
 #
@@ -20,6 +22,79 @@
 #
 #     For example, a development repository can override a specific
 #     component version for testing.
+#
+# In a large software system, it becomes important to consider 
+# refactoring it into smaller, testable and deployable parts -- 
+# smaller parts are easier to debug, test, understand and reuse.
+#
+# Refactoring a large system requires determining how parts
+# are interrelated so that they can be torn apart and reconnected
+# via API, protocols and contracts.
+#
+# The breaking apart of components introduces the need for 
+# establishing how components will communicate.  The questions
+# of how to make that communication may not be realized until
+# components are "cleaved" off from a large system.
+#
+# == Example
+#
+# Imagine a large software system as a multi-dimentional "blob".
+# If a certain component can be "sliced" off, the axis of slicing
+# leaves a unique shape, or "facet".  To reconnect to the original
+# system or to reuse the new component requires that communication
+# needs to be made explicit between the component and its consumers.
+#
+# For example: An application named "BOC" (Blob of Code)
+# contains a "configuration" class
+# that reads configuration from files and provides
+# configuration information to the rest of BOC.
+#
+# BOC has a single
+# directory where all the configuration files are located.
+#
+# If the "configuration" class is "sliced" off into a separate component,
+# it will need to know where all the configuration files live.
+#
+# More importantly, if the "configuration" component is going
+# to be reused by other components, it will need to know
+# where those components' configuration files are located.
+#
+# A "facet" created by "slicing" off the "configuration" component
+# could be a configuration search path.  Each component using
+# the "configuration" component would communicate a configuration
+# file directory to the "configuration search path."
+#
+#        --------
+#    ---/        \   ----
+#   (     BOC     \ /    |
+#  /               -     |
+#  |                     |
+#  |                     |
+#  \                     |   
+#   -         --         |
+#    (      _/  \       /
+#     \    /     -------
+#      ---/
+# 
+# After slicing of "config" from "BOC",
+# two components are created:
+# "config" and a top-level component
+# "BOC", and a facet named 'config_path'.
+#
+#
+#                    config_path Facet       
+#        --------        /
+#    ---/        \      /     ----
+#   (     BOC     \    /    _/    |
+#  /             //   /   //      |
+#  |            //   /   //       |
+#  |           //   /   //        |
+#  \          //   /   // config  |   
+#   -         /       -           |
+#    (      _/        \          /
+#     \    /           ----------
+#      ---/
+# 
 #
 module Cabar
   EMPTY_HASH = { }.freeze
