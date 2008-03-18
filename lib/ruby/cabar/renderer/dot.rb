@@ -120,9 +120,9 @@ module Cabar
             #puts "    style=solid;"
             
             render_node a_name, 
-            :shape => :trapezium,
-            :style => any_required ? :solid : :dotted, 
-            :label => a.name, 
+            :shape => :component,
+            :style => [ :rounded, any_required ? :solid : :dotted ], 
+            :label => a.name,
             :tooltip => tooltip
           end
 
@@ -185,7 +185,7 @@ module Cabar
           :style => required?(c) ? :solid : :dotted,
           :URL => 'file://' + c.directory,
         }
-                 
+
         if group_component_versions
           opts[:in_subgraph] = true
         end
@@ -273,8 +273,10 @@ module Cabar
           opts.map do |k, v| 
             unless v.nil? 
               case v
-              when Numeric:
-                  v
+              when Numeric
+                v
+              when Array
+                v = v.compact.join(',').inspect.gsub(/\\\\/, '\\')
               else
                 v = v.to_s.inspect.gsub(/\\\\/, '\\')
               end
