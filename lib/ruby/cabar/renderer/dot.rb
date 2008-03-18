@@ -219,7 +219,7 @@ module Cabar
 
         render_edge c1, c2,
         :label => dot_label(d),
-        :tooltip => "depends on: #{c2.name}/#{c2.version}" + 
+        :tooltip => "#{c1.name}/#{c1.version}: depends on: #{c2.name}/#{c2.version}" + 
           (d.version ? "; requires: #{d.version}" : ''),
         :arrowhead => :normal,
         :style => required?(c1) && required?(c2) ? nil : :dotted
