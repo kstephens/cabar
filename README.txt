@@ -87,8 +87,9 @@ prod/cnu_locale/1.1/cabar.yml : provides.cnu_config_path
 
   cbr-run-test
 
-
 = TO DO:
+
+* Allow common EnvVarPath facets to be specified in cabar.yml.
 
 * Change Facet.key to Facet._key to avoid collision with future use.
 

@@ -6,22 +6,22 @@
 #
 # Features:
 #
-#   Extensibility:
-#     Component "facets" can be added by components to glue components
-#     together in.  Components can add plug-ins to Cabar.
+# * Extensibility:
+# Component "facets" can be added by components to glue components
+# together in.  Components can add plug-ins to Cabar.
 #
-#   Configurability:
-#     User configuration can be used to override configurations
-#     in the components.
+# * Configurability:
+# User configuration can be used to override configurations
+# in the components.
 #
-#   Component Versioning:
-#     Component versions can be specified and checked for conflicts.
+# * Component Versioning:
+# Component versions can be specified and checked for conflicts.
 #
-#   Component Repository Overlays:
-#     Component repositories are searched in a specific order.
+# * Component Repository Overlays:
+# Component repositories are searched in a specific order.
 #
-#     For example, a development repository can override a specific
-#     component version for testing.
+# For example, a development repository can override a specific
+# component version for testing.
 #
 # In a large software system, it becomes important to consider 
 # refactoring it into smaller, testable and deployable parts -- 
@@ -64,6 +64,8 @@
 # the "configuration" component would communicate a configuration
 # file directory to the "configuration search path."
 #
+# Below BOC is represented as a blob:
+#
 #        --------
 #    ---/        \   ----
 #   (     BOC     \ /    |
@@ -76,6 +78,23 @@
 #     \    /     -------
 #      ---/
 # 
+#
+# A configuration component is isolated and sliced
+# from BOC:
+#
+#
+#        --------
+#    ---/        \   ----
+#   (     BOC     \ /    |
+#  /              /-     |
+#  |             //      |
+#  |            //       |
+#  \           //        |   
+#   -         --         |
+#    (      _/  \       /
+#     \    /     -------
+#      ---/
+#
 # After slicing of "config" from "BOC",
 # two components are created:
 # "config" and a top-level component
@@ -95,6 +114,71 @@
 #     \    /           ----------
 #      ---/
 # 
+#
+# The configuration component class is
+# changed -- the hard-coded
+# path to the configuration file directory
+# is replaced with a reference to an
+# environment variable: BOC_CONFIG_PATH.
+#
+# Next, the component specifications must be
+# created.  Cabar uses a simple YAML document
+# to specifiy components.  By default, Cabar expects each
+# component to reside in its own directory structure with
+# a "cabar.yml" file:
+#
+# repo/
+#   boc/
+#     bin/
+#       boc
+#     cabar.yml
+#     conf/
+#       config_files*
+#   boc_config/
+#     cabar.yml
+#
+# repo/boc/cabar.yml:
+#
+#   ---
+#   cabar:
+#     version: v1.0
+#     component:
+#       name: boc
+#     facet:
+#       boc_config_path: true
+#     requires:
+#       component:
+#         boc_config
+#
+# This specifies "boc" as a component that
+# has a boc_config_path configuration file
+# directory to be used by boc_config.
+# 
+# repo/boc_config/cabar.yml:
+#
+#   ---
+#   cabar:
+#     version: v1.0
+#     component:
+#       name: boc_config
+#     plugin: cabar.rb
+#
+# "boc_config" has a cabar plugin, which defines the 
+# 'boc_config_path' facet  
+# repo/boc_config/cabar.rb:
+#
+#   Cabar::Plugin.new do
+#     facet :boc_config_path, 
+#       :var => :BOC_CONFIG_PATH,
+#       :std_path => :conf
+#   end
+#
+# The "cbr" command can set up the environment to
+# tie "boc" and "boc_config" components together:
+#
+#   cbr env - boc
+#
+# "- boc" means require "boc" as a top-level.
 #
 module Cabar
   EMPTY_HASH = { }.freeze
