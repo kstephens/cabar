@@ -8,6 +8,25 @@ require 'erb'
 
 
 module Cabar
+  # Configuration file processor.
+  #
+  # Cabar configuration files are YAML documents that can be overlayed
+  # from multiple yaml files.
+  #
+  # The CABAR_CONFIG environment variable specifies a list of
+  # cabar_config.yml documents that are parsed and overlayed.
+  # The default is "~/.cabar_conf.yml".
+  #
+  # The CABAR_PATH environment variable specifies the list of 
+  # component repositories to search for components.
+  #
+  # Cabar configurations can specify overrides for:
+  #
+  # * component selection
+  # * top-level component requires
+  # * component options.
+  # * plugin configuration.
+  #
   class Configuration < Base
     class Error < Cabar::Error; end
 
@@ -20,13 +39,17 @@ module Cabar
     # The Context object.
     attr_accessor :context
 
+    
     def initialize opts = EMPTY_HASH
       super
-      self.config_file_path      = ENV['CABAR_CONFIG'] || '~/.cabar.yml'
+      self.config_file_path      = ENV['CABAR_CONFIG'] || '~/.cabar_conf.yml'
       self.component_search_path = ENV['CABAR_PATH']   || '.'
     end
     
     # Applies this configuration to the Context.
+    # 
+    # This will select components and require top-level components.
+    #
     def apply_configuration! context
       by = "config@#{config['config_file_path'].inspect}"
       
@@ -60,7 +83,7 @@ module Cabar
 
       # Do plugin configurations.
       # plugin.each do | plugin |
-      #  plugin.apply_context_configuration self
+      #  plugin.apply_configuration self
       # end
     end
     
@@ -87,8 +110,6 @@ module Cabar
       
       opts
     end
-
-
 
     def component_search_path= x 
       case y = x
@@ -121,7 +142,8 @@ module Cabar
       x
     end
     
-    # Returns the configuration Hash loaded from config_file_path.
+    # Returns the configuration Hash overlayed from all YAML documents
+    # listed in config_file_path.
     def config
       @config ||=
         begin
@@ -161,6 +183,7 @@ module Cabar
         end
     end
     
+    # Validates a cabar configuration hash.
     def validate_config_hash cfg
       unless cfg['cabar']['configuration']
         raise Error, "configuration is not a Cabar configuration file"
@@ -177,6 +200,7 @@ module Cabar
     end
 
 
+    # Read a YAML file after processing it as a ERB template.
     def read_config_file file
       cfg = nil
       File.open(file) do | fh |
@@ -191,7 +215,9 @@ module Cabar
     end
 
 
-    def validate_yaml_hash cfg
+    # Validate a cabar Hash.
+    def validate_yaml_hash cfg, supported_version = nil
+      supported_version ||= Cabar.version
       unless Hash === cfg
         raise Error, "is not a Hash"
       end
@@ -202,8 +228,8 @@ module Cabar
         raise Error, "does not have a version"
       end
       v = cfg['version'] = Cabar::Version.create_cabar(v)
-      unless v <= Cabar.version
-        raise Error, "version #{v} is not supported, expected #{Cabar.version}"
+      unless v <= supported_version
+        raise Error, "version #{v} is not supported, expected #{supported_version}"
       end
 
       cfg

@@ -18,7 +18,7 @@ module Cabar
       attr_accessor :show_all
 
       def initialize *args
-        @group_component_versions = true
+        @group_component_versions = false
         @show_dependencies = true
         @show_facets = false
         @show_facet_names = false
@@ -120,7 +120,7 @@ module Cabar
             #puts "    style=solid;"
             
             render_node a_name, 
-            :shape => :box,
+            :shape => :trapezium,
             :style => any_required ? :solid : :dotted, 
             :label => a.name, 
             :tooltip => tooltip
@@ -179,7 +179,7 @@ module Cabar
         # $stderr.puts "render_Component #{c}"
 
         opts = {
-          :shape => :box,
+          :shape => :component,
           :label => dot_label(c),
           :tooltip => (c.description || c.to_s(:short)),
           :style => required?(c) ? :solid : :dotted,
@@ -269,7 +269,19 @@ module Cabar
       def dot_opts opts = nil
         opts ||= EMPTY_HASH
         unless opts.empty?
-          "[ #{opts.map{|k, v| v.nil? ? nil : "#{k}=#{v.to_s.inspect.gsub(/\\\\/, '\\')}"}.compact.join(', ')} ]"
+          '[ ' + 
+          opts.map do |k, v| 
+            unless v.nil? 
+              case v
+              when Numeric:
+                  v
+              else
+                v = v.to_s.inspect.gsub(/\\\\/, '\\')
+              end
+              "#{k}=#{v}"
+            end
+          end.compact.join(', ') +
+          ' ]'
         else
           EMPTY_STRING
         end

@@ -2,13 +2,14 @@ require 'cabar/base'
 
 require 'cabar/configuration'
 require 'cabar/loader'
-require 'cabar/component'
 require 'cabar/facet'
-require 'cabar/renderer'
-require 'cabar/constraint'
 
 
 module Cabar
+  # Manages the set of components available, selected and required.
+  #
+  # Also manages collecting and composing Facets vended from required
+  # components.
   class Context < Base
     # The Cabar::Main object.
     attr_reader :main
@@ -57,27 +58,33 @@ module Cabar
     # Configuration
     #
 
+    # Returns the Cabar::Configuration object.
     def configuration
       @configuration ||= Cabar::Configuration.new(:context => self)
     end
 
+    # Returns the configuration hash.
     def config
       configuration.config
     end
 
+    # Returns the entire configuration Hash,
+    # including the cabar version header).
     def config_raw
       configuration.config_raw
     end
 
+    # Applies the current configuration to this context.
     def apply_configuration!
       configuration.apply_configuration! self
     end
 
+
     ##################################################################
-    # Loading 
+    # Loading Components.
     #
 
-    # Returns the loader.
+    # Returns the component loader.
     def loader
       @loader ||= 
         Cabar::Loader.factory.new(:context => self).
@@ -86,41 +93,70 @@ module Cabar
     end
 
     # Force loading of a component directory.
+    # Used to force cabar to load itself.
     def load_component! directory, opts = nil
       loader.load_component!(directory, opts)
     end
 
+
+    ##################################################################
+    # Available Components
+    #
+
     #
     # Returns a set of all availabe components
-    # found through the component_directories search path.
+    # found through the component directories search path.
     #
     def available_components
       loader.available_components
     end
 
+
     ##################################################################
-    # Selecting
+    # Selecting Components
     #
 
-    # Returns the selected components.
+    # Returns the selected component set after
+    # applying configuration overrides.
+    #
+    # The selected component set is used for resolving
+    # required components.
+    #
+    # If a component is over-constrained or unavailable
+    # it cannot be required, and an error will be thrown.
     def selected_components
       @selected_components ||=
       begin
         @selected_components = 
           Cabar::Component::Set.new available_components.dup
         
+        # Apply the current configuration, such as
+        # component version selection and requiring top-level
+        # components.
         apply_configuration!
 
         @selected_components
       end
     end
 
-    # Selects a specific matching component.
+    # Select a component by constraint.
+    # This reduces the selected_components set.
     def select_component opts, &blk
       s = selected_components.select! opts, &blk
       s
     end
 
+
+    ##################################################################
+    # Resolving/Requiring Components
+    #
+
+    # Returns the component that resolves to the constraint
+    # from the selected_components set.
+    #
+    # If all is true, an Array is returned.
+    # If all is false, the resolved component is returned, iff
+    # there is no amibiguity.
     def resolve_component opts, all = false, &blk
       # puts "resolve #{opts.inspect}, #{all.inspect}"
       c = selected_components.select opts, &blk
@@ -145,6 +181,9 @@ module Cabar
     end
 
     # Requires a specific component and/or version.
+    # Use internally by cabar during dependency
+    # resolution.
+    # Does not add component to top_level_components list.
     def _require_component opts, &blk
       r = resolve_component opts, :all, &blk
       case r.size
@@ -216,10 +255,15 @@ module Cabar
       self
     end
 
+    # True if there are unresolved components.
+    # This can be due to overconstrained components or
+    # components that are unavailable.
     def unresolved_components? 
       ! unresolved_components.empty?
     end
 
+    # Checks unresolved_components list.
+    # If there are any, raise an error.
     def check_unresolved_components
       return self unless unresolved_components? 
 
@@ -268,6 +312,8 @@ END
     end
 
     # Validates all components.
+    # Check for unresolved components.
+    # Then validate each component.
     def validate_components!
       check_unresolved_components
 
@@ -283,18 +329,22 @@ END
     # Facet Management.
     #
 
-    # Returns a list of call facets collected from
-    # all required components.
+    # Returns a Hash of all facets collected and composed
+    # from all required components.
     def facets 
       @facets ||=
         collect_facets.first
     end
 
+    # Returns a Hash of all non-composable facets for each
+    # component.
     def comp_facets
       @comp_facets ||=
         collect_facets.pop
     end
 
+    # Collects and composes all Facets provided in
+    # all required components.
     def collect_facets coll = { }, comp_facet = { }
       # Collect/compose all facets in dependency order.
       required_components.each do | c |
@@ -358,6 +408,8 @@ END
       [ coll, comp_facet ]
     end
 
+    # Renders this context on a Cabar::Renderer,
+    # after validating all components.
     def render r
       validate_components!
       r.render self
