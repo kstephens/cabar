@@ -44,31 +44,35 @@
 # system or to reuse the new component requires that communication
 # needs to be made explicit between the component and its consumers.
 #
-# For example: An application named "BOC" (Blob of Code)
+# An application named "boc" (Blob Of Code)
 # contains a "configuration" class
 # that reads configuration from files and provides
 # configuration information to the rest of BOC.
 #
-# BOC has a single
-# directory where all the configuration files are located.
+# BOC has a single directory where all the configuration files are located,
+# this directory is hard-coded in the configuration class.
 #
-# If the "configuration" class is "sliced" off into a separate component,
+# We are creating a new application in which we want to reuse the
+# "configuration" class.
+#
+# If the "configuration" class is "sliced" off from "boc"
+# into a separate component,
 # it will need to know where all the configuration files live.
 #
 # More importantly, if the "configuration" component is going
 # to be reused by other components, it will need to know
 # where those components' configuration files are located.
 #
-# A "facet" created by "slicing" off the "configuration" component
-# could be a configuration search path.  Each component using
+# A "facet" is created by "slicing" off the "configuration" component.
+# This could be a configuration directory search path.  Each component using
 # the "configuration" component would communicate a configuration
 # file directory to the "configuration search path."
 #
-# Below BOC is represented as a blob:
+# Below "boc" is represented as a blob:
 #
 #        --------
 #    ---/        \   ----
-#   (     BOC     \ /    |
+#   (     boc     \ /    |
 #  /               -     |
 #  |                     |
 #  |                     |
@@ -80,38 +84,38 @@
 # 
 #
 # A configuration component is isolated and sliced
-# from BOC:
+# from "boc":
 #
 #
 #        --------
-#    ---/        \   ----
-#   (     BOC     \ /    |
-#  /              /-     |
-#  |             //      |
-#  |            //       |
-#  \           //        |   
-#   -         --         |
-#    (      _/  \       /
-#     \    /     -------
+#    ---/        \   -----
+#   (     BOC     \ /     |
+#  /              /-      |
+#  |             //       |
+#  |            //        |
+#  \           //         |   
+#   -         --          |
+#    (      _/  \        /
+#     \    /     --------
 #      ---/
 #
-# After slicing of "config" from "BOC",
+# After slicing of "boc_config" from "boc",
 # two components are created:
 # "config" and a top-level component
-# "BOC", and a facet named 'config_path'.
+# "boc", and a facet named "boc_config_path".
 #
 #
-#                    config_path Facet       
+#                    boc_config_path Facet       
 #        --------        /
-#    ---/        \      /     ----
-#   (     BOC     \    /    _/    |
-#  /             //   /   //      |
-#  |            //   /   //       |
-#  |           //   /   //        |
-#  \          //   /   // config  |   
-#   -         /       -           |
-#    (      _/        \          /
-#     \    /           ----------
+#    ---/        \      /     -----
+#   (     BOC     \    /    _/     |
+#  /             //   /   //       |
+#  |            //   /   //        |
+#  |           //   /   //         |
+#  \          //   /   //          |   
+#   -         /       -            |
+#    (      _/        \ boc_config /
+#     \    /           ------------
 #      ---/
 # 
 #
@@ -127,15 +131,15 @@
 # component to reside in its own directory structure with
 # a "cabar.yml" file:
 #
-# repo/
-#   boc/
-#     bin/
-#       boc
-#     cabar.yml
-#     conf/
-#       config_files*
-#   boc_config/
-#     cabar.yml
+#   repo/
+#     boc/
+#       cabar.yml
+#       bin/
+#         boc
+#       conf/
+#         *.yml
+#     boc_config/
+#       cabar.yml
 #
 # repo/boc/cabar.yml:
 #
@@ -145,14 +149,17 @@
 #     component:
 #       name: boc
 #     facet:
+#       bin: true
 #       boc_config_path: true
 #     requires:
 #       component:
 #         boc_config
 #
 # This specifies "boc" as a component that
-# has a boc_config_path configuration file
-# directory to be used by boc_config.
+# has a "bin" directory with programs and
+# a boc_config_path configuration file
+# directory to be used by the "boc_config"
+# component.
 # 
 # repo/boc_config/cabar.yml:
 #
@@ -164,7 +171,8 @@
 #     plugin: cabar.rb
 #
 # "boc_config" has a cabar plugin, which defines the 
-# 'boc_config_path' facet  
+# "boc_config_path" facet.
+#
 # repo/boc_config/cabar.rb:
 #
 #   Cabar::Plugin.new do
@@ -176,9 +184,14 @@
 # The "cbr" command can set up the environment to
 # tie "boc" and "boc_config" components together:
 #
-#   cbr env - boc
+#   > export PATH=cabar/bin:$PATH
+#   > cd repo && cbr env - boc
+#   ...
+#   PATH="repo/boc/bin:..."; export PATH;
+#   BOC_CONFIG_PATH="repo/boc/conf:..."; export BOC_CONFIG_PATH;
 #
-# "- boc" means require "boc" as a top-level.
+# In the command line above: "- boc" means require "boc" as a top-level
+# component.
 #
 module Cabar
   EMPTY_HASH = { }.freeze
