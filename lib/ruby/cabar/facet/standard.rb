@@ -240,6 +240,7 @@ module Cabar
 
     # A Facet that can compose an environment variable
     # from paths in many components.
+    #
     # Used for composing PATH, RUBYLIB, PERL5LIB
     # environment variables to reintegrate modules
     # and programs.

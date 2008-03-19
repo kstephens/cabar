@@ -57,9 +57,8 @@ of component requirements.
 
 * Show plugins:
 
-prod/boc_config/1.0/cabar.rb
-
-prod/boc_locale/1.1/cabar.yml : provides boc_config_path for boc_config component.
+    prod/boc_locale/1.1/cabar.yml
+    prod/boc_config/1.0/cabar.rb
 
 * Show graph:
 
@@ -92,6 +91,7 @@ prod/boc_locale/1.1/cabar.yml : provides boc_config_path for boc_config componen
 
 = TO DO:
 
+* Remove EnvVarPath, extend Path to support environment variables dynamically.
 
 * Allow "- component/version" options to override cabar_config.yml require: definitions and CABAR_TOP_LEVEL env var;  Maybe add --override option?
  
