@@ -322,6 +322,10 @@ private
     end
     
 
+    # Attempt to infer a component's name or version 
+    # if not specified by the component's cabar.yml.
+    # Plugins can register for :infer_component_name action via
+    # add_observer.
     def infer_component_name comps, directory
       # Give plugins a chance.
       notify_observers(:infer_component_name, comps, directory)
