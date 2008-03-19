@@ -7,11 +7,14 @@ require 'forwardable'
 module Cabar
   class Version
 
-    # This maintains an ordered set of object that
+    # This maintains an ordered set of objects that
     # respond to :name and :version.
     #
     # Set is sorted by name in proper order
     # and version in reverse order.
+    #
+    # It responds to most Enumerable methods as expected.
+    #
     class Set < ::Object
       extend Forwardable
       

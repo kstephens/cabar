@@ -196,6 +196,7 @@ module Cabar
       # Notifies all observers on an instance with
       # an action and *args.
       # If action is nil, all observers are notified.
+      # Class observers are notified after instance observers.
       def notify_observers action = nil, *args
         @instance_observed_manager && 
           @instance_observed_manager.notify_observers(self, action, args)

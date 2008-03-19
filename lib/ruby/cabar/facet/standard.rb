@@ -4,11 +4,13 @@ require 'cabar/facet'
 module Cabar
   class Facet
 
-    # This represents group of action commands to run on a component.
+    # This represents group of commands that can be run on a component.
     #
     # action:
     #   name_1: cmd_1
     #   name_2: cmd_2
+    #
+    # run "cbr action list".
     class Action < self
       attr_accessor :action
 
@@ -78,7 +80,12 @@ module Cabar
     end # class
 
 
-    # This represents a list of environment variables.
+    # This represents a set of environment variables.
+    #
+    #   facet:
+    #     env_var:
+    #       NAME1: v1
+    #       NAME2: v2
     class EnvVarGroup < self
       attr_accessor :vars
 
@@ -91,9 +98,8 @@ module Cabar
         self
       end
 
-      # env_var:
-      #   NAME1: v1
-      #   NAME2: v2
+      # Creates individual EnvVar facets for each
+      # key/value pair in the option Hash.
       def attach_component! c
         vars.each do | n, v |
           c.create_facet(:env_var, :var => n, :value => v)
@@ -105,6 +111,8 @@ module Cabar
       false
     end
 
+
+    # A basic environment variable facet.
     class EnvVar < self
       attr_accessor :var
       attr_accessor :value
@@ -146,6 +154,7 @@ module Cabar
     end
 
 
+    # A facet that represents a directory search path.
     class Path < self
       attr_accessor :std_path
       attr_accessor :path
@@ -199,6 +208,11 @@ module Cabar
 
 
     # Represents a component that recursively contains other components.
+    #
+    # Cabar itself uses this Facet, to provide standard
+    # software platform components, e.g.: Ruby, Perl and Rubygems.
+    #
+    # See cabar/comp in the source distribution.
     class Components < Path
       def component_associations
         [ 'provides' ]
@@ -208,6 +222,14 @@ module Cabar
         true
       end
 
+      # Addes its subcomponent directories to
+      # the current Cabar::Loader.component_search_path,
+      # thus forcing its components to become visible.
+      # 
+      # Cabar itself uses this Facet, to provide standard
+      # software platform components, e.g.: Ruby, Perl and Rubygems.
+      #
+      # See cabar/comp in the source distribution.
       def attach_component! c
         super
         # $stderr.puts "adding component search path #{abs_path.inspect}"
@@ -216,6 +238,11 @@ module Cabar
     end # class
 
 
+    # A Facet that can compose an environment variable
+    # from paths in many components.
+    # Used for composing PATH, RUBYLIB, PERL5LIB
+    # environment variables to reintegrate modules
+    # and programs.
     class EnvVarPath < Path
       attr_accessor :var
 

@@ -7,7 +7,7 @@ require 'cabar/observer'
 
 
 module Cabar
-  # Manages the set of components available, selected and required.
+  # Manages sets of available, selected, required and unresolved components.
   #
   # Also manages collecting and composing Facets vended from required
   # components.

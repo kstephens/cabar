@@ -9,6 +9,16 @@ module Cabar
 
     # Set of selected components by name.
     # Each component name has a version set.
+    #
+    # Constraints can be applied to the set.
+    #
+    # This occurs during component version selection
+    # or depenency resolution.
+    #
+    # See Cabar::Context for usages.
+    #
+    # It responds to most Enumerable methods as expected.
+    #
     class Set
       # List of constraints applied to this set.
       attr_reader :selections
@@ -19,6 +29,7 @@ module Cabar
         @selections = { }
       end
       
+      # Forces coersion to an Array.
       def to_a
         s = Cabar::Version::Set.new 
         @set_by_name.values.each do | n_s |
@@ -27,6 +38,7 @@ module Cabar
         s.to_a
       end
       
+      # Returns true if x is in this set.
       def include? x
         to_a.include? x
       end
@@ -35,6 +47,8 @@ module Cabar
         to_a.join *args
       end
 
+      # Returns a Hash that maps component names to
+      # a Cabar::Version::Set for components of that name.
       def set_by_name
         @set_by_name ||=
         begin
@@ -46,6 +60,7 @@ module Cabar
         end
       end
       
+      # Returns the set_by_name Hash.
       def to_hash
         set_by_name
       end
@@ -57,6 +72,7 @@ module Cabar
         end
       end
       
+      # Returns the Version::Set for a component name.
       def set_for_name name
         set_by_name[name] ||=
           @a.select(:name => name)

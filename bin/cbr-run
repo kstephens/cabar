@@ -1,5 +1,17 @@
 #!/usr/bin/env ruby
 
+=begin rdoc
+
+Cabar::Main driver script.
+
+Eqivalent to:
+
+  cbr bin run -- ...
+
+See Cabar for more info.
+
+=end
+
 ARGV[0, 0] = [ 'bin', 'run', '--' ]
 
 load "#{File.dirname($0)}/cbr"

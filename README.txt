@@ -6,26 +6,26 @@ See lib/ruby/cabar.rb for more info.
 
 * Go to cabar/example
 
-  cd cabar/example
+    cd cabar/example
 
 * Show bin/cbr_env.
 
-  bin/cbr_env --env
-  eval `bin/cbr_env --env`
+    bin/cbr_env --env
+    eval `bin/cbr_env --env`
 
 * List available commands.
 
-  cbr help
-  cbr --verbose help comp
+    cbr help
+    cbr --verbose help comp
 
 * List plugins.
 
-  cbr plugin list
+    cbr plugin list
 
 * List available components.
 
-  cbr comp list
-  cbr comp list - c2
+    cbr comp list
+    cbr comp list - c2
 
 * Show directory structure.
 
@@ -33,13 +33,12 @@ See lib/ruby/cabar.rb for more info.
 
 * Show components and facets:
 
-  cbr comp show - c1
+    cbr comp show - c1
 
 * Show component version selection:
 
-  cbr comp run - c2 c2_prog foo bar
-
-  cbr comp run - c2/1.1 c2_prog foo bar
+    cbr comp run - c2 c2_prog foo bar
+    cbr comp run - c2/1.1 c2_prog foo bar
 
 * Cabar configuration cabar_conf.yml.
 
@@ -50,46 +49,55 @@ of component requirements.
 2. Dependencies
 3. Version Defaults
 
-  cbr comp show - c1
+    cbr comp show - c1
 
 * Show facet environment for a component.:
 
-  cbr env - c1
+    cbr env - c1
 
 * Show plugins:
 
-prod/cnu_config/1.0/cabar.rb
+prod/boc_config/1.0/cabar.rb
 
-prod/cnu_locale/1.1/cabar.yml : provides.cnu_config_path
+prod/boc_locale/1.1/cabar.yml : provides boc_config_path for boc_config component.
 
 * Show graph:
 
-  CABAR_PATH=@. cbr comp dot --show-dependencies
-
-  cbr comp dot | dot -Tsvg:cairo -o graph.svg
-
-  cbr comp dot --show-dependencies - c1 | dot -Tsvg:cairo -o graph.svg
-
-  cbr comp dot --show-facets - c1 | dot -Tsvg:cairo -o graph.svg
-
-  cbr comp dot --show-dependencies --show-facets - c1 | dot -Tsvg:cairo -o graph.svg
+    CABAR_PATH=@. cbr comp dot --show-dependencies
+    cbr comp dot | dot -Tsvg:cairo -o graph.svg
+    cbr comp dot --show-dependencies - c1 | dot -Tsvg:cairo -o graph.svg
+    cbr comp dot --show-facets - c1 | dot -Tsvg:cairo -o graph.svg
+    cbr comp dot --show-dependencies --show-facets - c1 | dot -Tsvg:cairo -o graph.svg
 
 * Show in-place run scripts for ruby.
 
-  cbr bin run - c1 c2_prog
+    cbr bin run - c1 c2_prog
 
 * Show cabar as component
 
-  (cd .. && CABAR_PATH=@. bin/cbr comp list)
-  (cd .. && CABAR_PATH=@. bin/cbr run - cabar cbr list) 
+    (cd .. && CABAR_PATH=@. bin/cbr comp list)
+    (cd .. && CABAR_PATH=@. bin/cbr run - cabar cbr list) 
 
 * Show cbr-run on a #! line.
 
-  cbr-run-test
+    cbr-run-test
+
+
+= Known Issues:
+
+* Component cannot define conflicting facets, commands or plugins, none of these are versionable.
+
+* A faulty component's plugin may prevent entire system from working.
+
 
 = TO DO:
 
-* Allow common EnvVarPath facets to be specified in cabar.yml.
+
+* Allow "- component/version" options to override cabar_config.yml require: definitions and CABAR_TOP_LEVEL env var;  Maybe add --override option?
+ 
+* Allow facet prototypes to be defined in cabar.yml.
+
+* Add documentation strings to Facet prototypes.
 
 * Change Facet.key to Facet._key to avoid collision with future use.
 
@@ -97,53 +105,57 @@ prod/cnu_locale/1.1/cabar.yml : provides.cnu_config_path
 
 * Change Facet.context to Facet._context
 
-* Add support to automatically require top_level components.
+* Add support to automatically require top_level components, via
+an attribute on a component in its cabar.yml file.
 
-* From discussion with Jeremy 2008/03/10
-** example directory needs README/docs.
-** Unit test against example directory.
 
-** Create Cabar::Plugin::Builder DSL
-*** Create facets
-*** Create commands for facets
+= From discussion with Jeremy 2008/03/10
 
-** Version control plugins
-*** CABAR_REMOTE_PATH specifies a remote list of repositories:
-**** CABAR_REMOTE_PATH="svn://rubyforge.org/package ; http://foobar.com/cabar ; p4://"
-*** CABAR_REMOTE_DEST specifies where "cabar remote get" will put components.
-cbr remote get -R cnuapp/1.1
-cbr remote list
-cbr remote update 
+* Unit test against example directory.
 
-* Modify cabar config
-** cbr config
-** cbr config set select <component> 1.2
+== Version control plugins
+
+* CABAR_REMOTE_PATH specifies a remote list of repositories:
+* CABAR_REMOTE_PATH="svn://rubyforge.org/package ; http://foobar.com/cabar ; p4://"
+* CABAR_REMOTE_DEST specifies where "cabar remote get" will put components.
+
+    cbr remote get -R cnuapp/1.1
+    cbr remote list
+    cbr remote update 
+
+* Modify cabar config from command line.
+
+    cbr config
+    cbr config set select <component> 1.2
 
 * Need web_service facet
-** cbr bin lsws start
-** cbr bin apache start
 
-* Facets realizations are not scoped.
-** Provide a mechanism to select particular component facets rather than
-entire components
+    cbr bin lsws start
+    cbr bin apache start
 
-* Gem plugin
+* Facets realizations are not scoped. Provide a mechanism to select particular component facets rather than entire components.
 
-** Install gems into a gem platform component.
+== Gem plugin
 
-*** cbr gems install rails - cnu_gems/1.1
+* Install gems into a gem platform component.
 
-* All facets have top-level commands
-** cbr action list
-** cbr action run <action>
-** cbr bin list
-** cbr bin run <cmd> <args> ...
-** cbr lib/ruby doc
+    cbr gems install rails - platform_gems/1.1
+
+* Facets have top-level commands nameds after them:
+
+    cbr action list
+    cbr action run <action>
+    cbr bin list
+    cbr bin run <cmd> <args> ...
+    cbr lib/ruby doc
 
 * action run should be only on top-level components by default.
-** cbr action run test
-** cbr action -R run test
+
+    cbr action -T run test
+    cbr action run test
 
 * runsv facet
-** cbr runsv install <component> ...
+
+    cbr runsv install <component> ...
+
 

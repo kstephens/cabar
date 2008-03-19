@@ -1,3 +1,9 @@
+=begin rdoc
+
+Extensions for Ruby Hash for Cabar.
+
+=end
+
 class ::Hash
   def cabar_merge! h, path = [ ]
     case h

@@ -1,3 +1,9 @@
+=begin rdoc
+
+Extensions for Ruby Array for Cabar.
+
+=end
+
 class ::Array 
   def cabar_uniq_return!
     uniq!

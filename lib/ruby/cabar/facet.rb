@@ -6,7 +6,7 @@ module Cabar
   # A Facet represents the result of slicing off a component
   # from a monolithic software system.
   #
-  # Facets are used to compose components together.
+  # Facets are used to compose components in an extendable manner.
   #
   # Examples:
   #   search paths
