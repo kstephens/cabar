@@ -9,4 +9,5 @@ doc
 example
 lib
 rake_helper.rb
+src
 test
