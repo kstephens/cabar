@@ -236,7 +236,7 @@ module Cabar
         render_edge c, f, :style => :dotted, :arrowhead => :none
       end
 
-      # Renders an node.
+      # Renders a node.
       # If name is not a String, call dot_name() on it.
       def render_node name, opts = nil
         opts ||= EMPTY_HASH
