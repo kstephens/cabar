@@ -258,7 +258,8 @@ private
       [ conf, comps, conf_file ]
     end
 
-    def plugin_installed! plugin
+    # Observer callback for newly installed plugins.
+    def plugin_installed! plugin_manager, plugin
       log "      plugin installed #{plugin.name.inspect} #{plugin.file.inspect}"
       (@plugins ||= [ ]) << plugin
     end
