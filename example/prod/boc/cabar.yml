@@ -1,0 +1,13 @@
+cabar:
+  version: v1.0
+  component:
+    version: '1.0'
+  provides:
+    bin: true
+  requires:
+    component:
+      c2: true
+      c3: true
+      boc_config: true
+      boc_locale: true
+

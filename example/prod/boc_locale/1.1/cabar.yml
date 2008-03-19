@@ -1,11 +1,12 @@
 cabar:
   version: v1.0
-  component: true
+  component:
+    version: v1.1
   plugin: cabar.rb
   provides:
     lib/ruby:
       path: [ lib ]
-    cnu_config_path: true
+    boc_config_path: true
   requires:
     component:
       cnu_config: true

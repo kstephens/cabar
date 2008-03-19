@@ -18,7 +18,7 @@ _export CABAR_PATH "${base}/dev:${base}/prod:${base}/plat:@${base}/.."
 _export CABAR_CONFIG "${base}/cabar_conf.yml"
 
 # Define a default top-level component.
-_export CABAR_TOP_LEVEL 'c1'
+# _export CABAR_TOP_LEVEL 'c1'
 
 cabar_bin="$(cd "$d/../../bin" && /bin/pwd)"
 

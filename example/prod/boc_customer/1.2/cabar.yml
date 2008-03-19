@@ -17,4 +17,6 @@ cabar:
   requires:
     component:
       cnu_locale: '1.1'
+      gems: true
+      ruby: true
 

@@ -1,18 +1,13 @@
 cabar:
   version: v1.0
   configuration:
-# FIXME: support for p4.
-#    p4:
-#      P4
-#      depot_root: //depot/cnu/cabar
     select:
       component:
         ruby:
           version: "<1.9"
         c2: 
           version: <%= (ENV['c2_VERSION'] || '>1.1').inspect %>
-#        non_existent: v9.99
-#    require:
-#      component:
-#        c2: >1.0
+    require:
+      component:
+        boc: true
 

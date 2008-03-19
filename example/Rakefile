@@ -3,8 +3,8 @@
 task :default => :dependency_graph
 
 task :dependency_graph do
-  [ [ ], [ :show_facet_names ], [ :show_unrequired_components] ].each do | opts | 
-    base_file = "doc/#{([ :dependency_graph ] + opts).join('.')}"
+  [ [ ], [ :show_facet_names ], [ :show_unrequired_components ] ].each do | opts | 
+    base_file = "doc/#{([ :cabar ] + opts).join('.')}"
     dot_file = "#{base_file}.dot"
 
     sh "bin/cbr_env cbr comp dot --show-dependencies #{opts.map{|o| "--#{o}"}.join(' ')} > #{dot_file}"

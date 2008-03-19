@@ -1,15 +1,12 @@
 cabar:
   version: v1.0
   component:
-    name: cnu_locale
-    version: v1.1
+    version: '1.0'
   plugin: cabar.rb
   provides:
     lib/ruby:
       path: [ lib ]
-    cnu_config_path: true
   requires:
     component:
-      cnu_config: true
       ruby: true
 
