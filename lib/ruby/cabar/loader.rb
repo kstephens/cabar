@@ -2,10 +2,13 @@ require 'cabar/base'
 
 require 'cabar/configuration'
 require 'cabar/component'
+require 'cabar/observer'
 
 
 module Cabar
   class Loader < Base
+    include Cabar::Observer::Observed
+
     attr_accessor :context
 
     attr_accessor :verbose
@@ -174,6 +177,7 @@ module Cabar
     def add_available_component! c
       @available_components << c
       @component_parse_pending << c
+      notify_observers(:available_component_added!, c)
     end
 
 
@@ -262,6 +266,7 @@ private
     def plugin_installed! plugin_manager, plugin
       log "      plugin installed #{plugin.name.inspect} #{plugin.file.inspect}"
       (@plugins ||= [ ]) << plugin
+      notify_observers(:plugin_installed!, plugin)
     end
 
     def parse_component! directory, conf_file = nil
@@ -316,7 +321,11 @@ private
       raise Error.new("in #{conf_file.inspect}: in #{self.class}", :error => err)
     end
     
+
     def infer_component_name comps, directory
+      # Give plugins a chance.
+      notify_observers(:infer_component_name, comps, directory)
+
       # Infer component name/version from directory name.
       unless comps['name'] && comps['version']
         case directory

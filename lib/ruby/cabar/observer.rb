@@ -3,6 +3,8 @@ module Cabar
   # A better observer module.
   # Supports multiple actions and callback methods per observer.
   # Callbacks can be method names or Procs.
+  # Supports observers of all instances of a class or
+  # single instances.
   module Observer
     class Manager
       attr_accessor :observed
@@ -14,9 +16,9 @@ module Cabar
 
       EMPTY_ARRAY = [ ].freeze
 
-      def initialize(observed = nil)
+      def initialize owner = nil
         super()
-        @observed = observed
+        @owner = owner
         @callback_by_action = { }
         @notifying = { }
       end
@@ -24,7 +26,8 @@ module Cabar
       # Adds an observer for an action.
       # If action is nil, the observer observes all actions.
       # callback can be a Proc or a method Symbol.
-      def add_observer(observer, action = nil, callback = nil)
+      def add_observer observer, action = nil, callback = nil
+        # $stderr.puts "add_observer on #{@owner.class.inspect} #{observer} #{action} #{callback}"
         callback ||= :update 
         callback = [ observer, callback ]
         (@callback_by_action[action] ||= [ ]).push callback
@@ -32,8 +35,8 @@ module Cabar
 
       # Removes observer as a notifee for action.
       # If action is nil, observer is removed for all actions.
-      def delete_observer(observer, action = nil)
-        action ||= [ nil, @observers_by_action.keys ]
+      def delete_observer observer, action = nil
+        action ||= [ @observers_by_action.keys ]
         action = [ action ] unless Array === action
         action.map{|x| @callback_by_action[x]}.each do | callbacks |
           callbacks.reject! do | callback |
@@ -57,10 +60,10 @@ module Cabar
       #
       #  observer.send(callback, observed, *args)
       #
-      # If action is nil, all observers are notified.
+      # If action is nil, observers of all actions are notified.
       #
-      def notify_observers(action, args)
-        action ||= [ nil, @observers_by_action.keys ]
+      def notify_observers observed, action, args
+        action ||= [ @observers_by_action.keys ]
         action = [ action ] unless Array === action
         action = action.dup
         action.push nil # ALL ACTIONS
@@ -77,12 +80,12 @@ module Cabar
             (callback_by_action[action] || EMPTY_ARRAY).each do | callback |
               observer = callback[0]
               callback = callback[1]
-              # $stderr.puts "notify #{observer} #{callback.inspect} #{args.inspect}"
+              # $stderr.puts "notify #{observer} #{observed} #{callback.inspect} #{args.inspect}"
               case callback
               when Proc
-                callback.call(@observed, *args)
+                callback.call(observed, *args)
               else
-                observer.send(callback, @observed, *args)
+                observer.send(callback, observed, *args)
               end
             end
 
@@ -131,27 +134,72 @@ module Cabar
     #   x.name = :bar
     #
     module Observed
-      def add_observer(observer, action = nil, callback = nil)
-        @observed_manager ||= 
+      def self.included(base)
+        super
+        base.extend ClassMethods
+      end
+
+      module ClassMethods
+        # Adds an observer for all instances of a class.
+        def add_observer observer, action = nil, callback = nil, &blk
+          callback ||= blk if block_given?
+          @class_observed_manager ||= 
+            Manager.new(self)
+          @class_observed_manager.add_observer(observer, action, callback)
+        end
+
+        # Removes an observer for all instance of a class for an action.
+        # If action is nil, observer is removed for all actions.
+        def delete_observer observer, action = nil
+          @class_observed_manager && 
+            @class_observed_manager.delete_observer(observer, action)
+        end
+
+        # Removes all observers on all instances of a class.
+        # Observers on specific instances are not affected.
+        def delete_observers
+          @class_observed_manager && 
+            @class_observed_manager.delete_observers
+        end
+
+        # Notifies all observers based on action passing *args.
+        # If action is nil, all observers are notified.
+        def notify_observers observed, action = nil, *args
+          @class_observed_manager && 
+            @class_observed_manager.notify_observers(observed, action, args)
+        end
+      end
+
+      # Adds an observer for a specific action on an instance.
+      # Callback can be a Proc or method Symbol.
+      def add_observer observer, action = nil, callback = nil, &blk
+        callback ||= blk if block_given?
+        @instance_observed_manager ||= 
           Manager.new(self)
-        @observed_manager.add_observer(observer, action, callback)
+        @instance_observed_manager.add_observer(observer, action, callback)
       end
 
-      # Removes an observer for an action.
+      # Removes an observer for an action on an instance.
       # If action is nil, observer is removed for all actions.
-      def delete_observer(observer, action = nil)
-        @observed_manager && @observed_manager.delete_observer(observer, action)
+      def delete_observer observer, action = nil
+        @instance_observed_manager &&
+          @instance_observed_manager.delete_observer(observer, action)
       end
 
-      # Removes all observers.
+      # Removes all observers on an instance.
+      # Observers on the class are still active.
       def delete_observers
-        @observed_manager && @observed_manager.delete_observers
+        @instance_observed_manager && 
+          @instance_observed_manager.delete_observers
       end
 
-      # Notifies all observers based on action passing *args.
+      # Notifies all observers on an instance with
+      # an action and *args.
       # If action is nil, all observers are notified.
       def notify_observers action = nil, *args
-        @observed_manager && @observed_manager.notify_observers(action, args)
+        @instance_observed_manager && 
+          @instance_observed_manager.notify_observers(self, action, args)
+        self.class.notify_observers(self, action, args)
       end
 
     end
