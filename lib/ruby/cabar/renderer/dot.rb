@@ -301,8 +301,10 @@ module Cabar
 
       # Returns true if a Component is required.
       def required? c
-        @required[c.object_id] ||=
-          [ @context.required_component?(c) ].first
+        (
+         @required[c.object_id] ||=
+         [ @context.required_component?(c) ]
+         ).first
       end
 
       # Outputs edges.
@@ -315,6 +317,7 @@ module Cabar
       end
 
       # Returns the dot node or edge name for an object.
+      # Callers should not change opts afterwards.
       def dot_name x, opts = EMPTY_HASH
         @dot_name[[ x, opts ]] ||=
           case x
@@ -343,6 +346,7 @@ module Cabar
 
 
       # Returns the dot node or edge label for an object.
+      # Callers should not change opts afterwards.
       def dot_label x, opts = EMPTY_HASH
         @dot_label[[x, opts]] ||=
           case x
