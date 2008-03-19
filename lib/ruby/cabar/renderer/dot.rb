@@ -44,6 +44,7 @@ module Cabar
         @current_directory = File.expand_path('.') + '/'
       end
 
+      # Renders a Context as a Dot graph.
       def render_Context cntx
         @context = cntx
 
@@ -174,6 +175,7 @@ module Cabar
         puts "}"
       end
 
+      # Renders a Component as a dot node.
       def render_Component c, opts = nil
         opts ||= EMPTY_HASH
         # $stderr.puts "render_Component #{c}"
@@ -193,6 +195,7 @@ module Cabar
         render_node dot_name(c), opts
       end
 
+      # Renders a Facet as a dot node, if show_facets is enabled.
       def render_Facet f
         # $stderr.puts "render_Facet #{f.class}"
         return unless show_facets
@@ -200,6 +203,7 @@ module Cabar
         render_node f, :shape => :hexagon, :label => dot_label(f)
       end
 
+      # Renders a dependency link for a given dependency facet.
       def render_dependency_link d
         return unless show_dependencies
 
@@ -225,12 +229,15 @@ module Cabar
         :style => required?(c1) && required?(c2) ? nil : :dotted
       end
 
+      # Renders a link between a Component and a Facet.
       def render_facet_link c, f
         return if Cabar::Facet::RequiredComponent === f
         return unless show_facet_links
         render_edge c, f, :style => :dotted, :arrowhead => :none
       end
 
+      # Renders an node.
+      # If name is not a String, call dot_name() on it.
       def render_node name, opts = nil
         opts ||= EMPTY_HASH
         name = dot_name(name) unless String === name
@@ -251,6 +258,8 @@ module Cabar
         puts "    #{prefix} #{dot_opts opts} #{suffix};"
       end
 
+      # Renders an edge between two nodes.
+      # If n1 or n2 are not Strings, call dot_name() on them.
       def render_edge n1, n2, opts = nil
         opts ||= EMPTY_HASH
 
@@ -265,7 +274,8 @@ module Cabar
         edge_puts "    #{n1} -> #{n2} #{dot_opts opts};"
       end
 
-      # Options with nil values are not expanded.
+      # Generate string for dot nodes or edges
+      # Nil values are not expanded.
       def dot_opts opts = nil
         opts ||= EMPTY_HASH
         unless opts.empty?
@@ -289,11 +299,13 @@ module Cabar
         end
       end
 
+      # Returns true if a Component is required.
       def required? c
         @required[c.object_id] ||=
           [ @context.required_component?(c) ].first
       end
 
+      # Outputs edges.
       def edge_puts x
         if @edges
           @edges << x.to_s
