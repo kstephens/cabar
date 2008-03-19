@@ -243,6 +243,7 @@ private
 
           save_name = Cabar::Plugin.default_name = name
 
+          # Observe when plugins are installed.
           Cabar::Main.current.plugin_manager.add_observer(self, :plugin_installed, :plugin_installed!)
 
           plugin.each do | file |
@@ -266,7 +267,6 @@ private
     def plugin_installed! plugin_manager, plugin
       log "      plugin installed #{plugin.name.inspect} #{plugin.file.inspect}"
       (@plugins ||= [ ]) << plugin
-      notify_observers(:plugin_installed!, plugin)
     end
 
     def parse_component! directory, conf_file = nil
