@@ -9,11 +9,11 @@ cabar:
     bin: true
     lib: true
     include: true
-    cnu_config_path: true
+    boc_config_path: true
 
   requires:
     component:
-      cnu_config: true
+      boc_config: true
       ruby: true
 
 

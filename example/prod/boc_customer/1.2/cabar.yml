@@ -2,21 +2,20 @@ cabar:
   version: '1.0'
 
   component:
-    name: cnu_customer
     version: '1.2'
 
   provides:
     lib/ruby:
       path: [ lib ]
 
-    cnu_config_path:
+    boc_config_path:
       path: [ conf ]
 
-    cnu_locale_path: true
+    boc_locale_path: true
 
   requires:
     component:
-      cnu_locale: '1.1'
+      boc_locale: '1.1'
       gems: true
       ruby: true
 

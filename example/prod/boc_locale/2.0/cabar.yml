@@ -8,6 +8,6 @@ cabar:
     boc_config_path: true
   requires:
     component:
-      cnu_config: true
+      boc_config: true
       ruby: true
 
