@@ -3,6 +3,7 @@ require 'cabar/base'
 require 'cabar/configuration'
 require 'cabar/loader'
 require 'cabar/facet'
+require 'cabar/observer'
 
 
 module Cabar
@@ -11,6 +12,8 @@ module Cabar
   # Also manages collecting and composing Facets vended from required
   # components.
   class Context < Base
+    include Cabar::Observer::Observed
+
     # The Cabar::Main object.
     attr_reader :main
 
@@ -142,7 +145,12 @@ module Cabar
     # Select a component by constraint.
     # This reduces the selected_components set.
     def select_component opts, &blk
+      notify_observers :before_select_component, opts
+
       s = selected_components.select! opts, &blk
+
+      notify_observers :after_select_component, opts, s
+
       s
     end
 
@@ -175,8 +183,14 @@ module Cabar
     # Adds to top_level_components list.
     def require_component opts, &blk
       return nil unless opts
+
+      notify_observers :before_require_component, opts
+
       c = _require_component opts, &blk
       add_top_level_component! c
+
+      notify_observers :after_require_component, opts, c
+
       c
     end
 
@@ -213,13 +227,17 @@ module Cabar
     def add_top_level_component! c
       unless @top_level_components.include?(c)
         @top_level_components << c
+        notify_observers :add_top_level_component!, c
       end
       c
     end
 
     # Called when a component is required.
     def add_required_component! c
-      @required_components << c
+      unless @required_components.include? c
+        @required_components << c
+        notify_observers :add_required_component!, c
+      end
       c
     end
 
@@ -228,6 +246,8 @@ module Cabar
     # Pass 2: resolve all explicit dependencies after selection has been reduced.
     # Pass 3: require the latest dependencies for non-ambigious selections.
     def resolve_components!
+      notify_observers :before_resolve_components!
+
       required_components.each do | c |
         c.select_component!
       end
@@ -240,6 +260,8 @@ module Cabar
         c.require_component!
       end
 
+      notify_observers :after_resolve_components!
+
       self
     end
     
@@ -251,6 +273,7 @@ module Cabar
     # Called during resolve_compoent!
     def unresolved_component! opts
       opts = opts.to_hash unless Hash === opts
+      notify_observers :unresolved_component!, opts
       (@unresolved_components[opts[:name]] ||= [ ]) << opts
       self
     end
@@ -266,6 +289,8 @@ module Cabar
     # If there are any, raise an error.
     def check_unresolved_components
       return self unless unresolved_components? 
+
+      notify_observers :before_check_unresolved_components
 
       msg = ''
 
@@ -315,11 +340,15 @@ END
     # Check for unresolved components.
     # Then validate each component.
     def validate_components!
+      notify_observers :before_validate_components!
+
       check_unresolved_components
 
       required_components.each do | c |
         c.validate!
       end
+
+      notify_observers :after_validate_components!
       
       self
     end

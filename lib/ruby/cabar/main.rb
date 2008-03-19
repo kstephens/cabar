@@ -4,12 +4,15 @@ require 'cabar/context'
 require 'cabar/plugin'
 require 'cabar/command/manager'
 require 'cabar/command/runner'
+require 'cabar/observer'
 
 
 module Cabar
 
   # Main bin/cbr script object.
   class Main < Base
+    include Cabar::Observer::Observed
+
     # Raw command line arguments from bin/cbr.
     attr_accessor :args
 
@@ -65,7 +68,11 @@ module Cabar
 
     # Interface for bin/cbr.
     def run
+      notify_observers :before_run
+
       command_runner.run
+    ensure
+      notify_observers :after_run
     end
 
     ##################################################################

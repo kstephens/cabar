@@ -3,6 +3,7 @@ require 'cabar/facet'
 require 'cabar/version'
 require 'cabar/observer'
 
+
 module Cabar
   # Represents a Component that can be composed into a system
   # using Facets to describe how to compose it.
