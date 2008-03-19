@@ -1,10 +1,12 @@
 # Rakefile for cabar/example components.
 
-task :default => :dependency_graph
+task :default => :doc_graphs
 
-task :dependency_graph do
-  [ [ ], [ :show_facet_names ], [ :show_unrequired_components ] ].each do | opts | 
-    base_file = "doc/#{([ :cabar ] + opts).join('.')}"
+desc "generates dependency graphs under doc/"
+task :doc_graphs do
+  [ [ ], [ :show_facet_names ], [ :show_unrequired_components ], [ :show_unrequired_components, :group_component_versions ] ].each do | opts | 
+    opts_fn = opts.map{|o| x = [ ]; o.to_s.scan(/(^|_)([a-z])/i){|m| x << $2}; x.join('')}
+    base_file = "doc/#{([ :cabar ] + opts_fn).join('.')}"
     dot_file = "#{base_file}.dot"
 
     sh "bin/cbr_env cbr comp dot --show-dependencies #{opts.map{|o| "--#{o}"}.join(' ')} > #{dot_file}"
@@ -20,5 +22,4 @@ end
 task :clean do
   sh "rm -f doc/*.dot doc/*.dot.svg"
 end
-
 
