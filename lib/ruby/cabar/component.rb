@@ -1,7 +1,7 @@
 require 'cabar/facet'
 
 require 'cabar/version'
-
+require 'cabar/observer'
 
 module Cabar
   # Represents a Component that can be composed into a system
@@ -48,6 +48,8 @@ module Cabar
   # executables and a library of ruby modules.
   #
   class Component < Base
+    include Cabar::Observer::Observed
+
     #attr_accessor :name
     attr_accessor_type :version, Cabar::Version
     #attr_accessor :directory
@@ -146,10 +148,15 @@ module Cabar
       o[:enabled].nil? || o[:enabled]
     end
     
+    # Called when configuration is applied to a Component
+    # from a Facet.
     def append_configuration! conf
+      notify_observers :before_append_configuration!, conf
       conf.each do | k, v |
         configuration[k] = v
       end
+      notify_observers :after_append_configuration!, conf
+      self
     end
     
     def validate!
@@ -272,25 +279,41 @@ module Cabar
     end
     
     def add_dependent! dependent
+      notify_observers :before_add_dependent!, dependent
+
       @dependents << dependent
       context.add_required_component! self
+
+      notify_observers :after_add_dependent!, dependent
+
+      self
     end
     
     # friend
     
+    # Returns true if this Component has a facet by
+    # name or prototype.
     def has_facet? f
       f = f.key if Facet === f
       @facet_by_key.key? f
     end
 
+    # Returns the Facet for this Component by name
+    # or prototype.
     def facet f
       f = f.key if Facet === f
       @facet_by_key[f]
     end
 
+    # Called when a new facet is attached to this component.
     def attach_facet! f
       return f unless f
-      
+
+      notify_observers :before_attach_facet!, f
+
+      # Do not bother with disabled Facets.
+      return unless f.enabled?
+
       # Keep all facets
       unless @facets.include? f
         @facets << f
@@ -304,6 +327,8 @@ module Cabar
           a << f
         end
       end
+
+      notify_observers :after_attach_facet!, f
       
       f
     end
