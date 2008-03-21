@@ -2,28 +2,19 @@
 
 require 'cabar'
 
+require 'cabar/test/name_version'
 
-class NameVersion
-  attr_accessor :name
-  attr_accessor :version
-  def initialize n, v
-    self.name = n
-    self.version = v
-  end
-
-  def version= x
-    @version = Cabar::Version.create_cabar x
-  end
-end
 
 describe Cabar::Version::Set do
+  NameVersion = Cabar::Test::NameVersion
+ 
   before do
     @s = Cabar::Version::Set.new
-    @foo_1_0 = NameVersion.new('foo', '1.0')
-    @foo_1_0_dup = NameVersion.new('foo', '1.0')
-    @foo_1_1 = NameVersion.new('foo', '1.1')
-    @bar_1_0 = NameVersion.new('bar', '1.0')
-    @bar_1_1 = NameVersion.new('bar', '1.1')
+    @foo_1_0 = NameVersion.new(:name => 'foo', :version => '1.0')
+    @foo_1_0_dup = NameVersion.new(:name => 'foo', :version => '1.0')
+    @foo_1_1 = NameVersion.new(:name => 'foo', :version => '1.1')
+    @bar_1_0 = NameVersion.new(:name => 'bar', :version => '1.0')
+    @bar_1_1 = NameVersion.new(:name => 'bar', :version => '1.1')
   end
 
   def add_objects
@@ -41,7 +32,7 @@ describe Cabar::Version::Set do
     # $stderr.puts "@s = #{@s.inspect}"
     s ||= @s.to_a
     # $stderr.puts "s = #{s.inspect}"
-    s.should be_an_instance_of Array
+    s.should be_an_instance_of(Array)
 
     xs = s.select do | x | 
       name === x.name
