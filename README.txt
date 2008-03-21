@@ -91,6 +91,12 @@ of component requirements.
 
 = TO DO:
 
+* Add support for additional constraints:
+
+    'foo/1.2,arch=i386'
+    'name=foo'
+    '/1.3'
+
 * Remove EnvVarPath, extend Path to support environment variables dynamically.
 
 * Allow "- component/version" options to override cabar_config.yml require: definitions and CABAR_TOP_LEVEL env var;  Maybe add --override option?

@@ -66,6 +66,18 @@ end
 
 PKG_VERSION = hoe.version
 
+task :test => :test_specs
+
+desc "Runs all spec test"
+task :test_specs do
+  spec_files = Dir["test/**/*.spec"].sort
+  unless spec_files.empty?
+    ENV['RUBYLIB'] = ($:.dup << 'test/ruby').join(':')
+    sh "spec #{spec_files.join(' ')}"
+  end
+end
+
+
 #################################################################
 # Version file
 #

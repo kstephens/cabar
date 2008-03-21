@@ -33,7 +33,7 @@ module Cabar
       def to_a
         s = Cabar::Version::Set.new 
         @set_by_name.values.each do | n_s |
-          s.push *n_s
+          s.push(*n_s)
         end
         s.to_a
       end
@@ -44,7 +44,7 @@ module Cabar
       end
 
       def join *args
-        to_a.join *args
+        to_a.join(*args)
       end
 
       # Returns a Hash that maps component names to
@@ -110,7 +110,7 @@ module Cabar
             x = opts.dup
             x.name = name
             r = select! x, &blk
-            s.push *r.to_a
+            s.push(*r.to_a)
           end
           s
         end
@@ -131,7 +131,7 @@ module Cabar
             x = opts.dup
             x.name = name
             r = select x, &blk
-            s.push *r.to_a
+            s.push(*r.to_a)
           end
           s
         end

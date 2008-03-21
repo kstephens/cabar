@@ -6,7 +6,14 @@ module Cabar
   NEVER_HASH = { :_never => true }.freeze
 
   # Represents a constraint by name and/or version.
-  # Could be extended to handle hardware architectures, etc.
+  # Can handle basic hardware architectures.
+  #
+  # nil, true, '' ALWAYS MATCH
+  # false         NEVER MATCHES
+  # 'name/version' matches name and version
+  # 'arch=i386'    matches only where arch == 'i386'
+  # 'name*'        matches all name that start with 'name'
+  #
   class Constraint < Base
     attr_accessor :name
     attr_accessor_type :version, Cabar::Version::Requirement
@@ -14,10 +21,10 @@ module Cabar
     # Converts:
     #
     def self.create x
-      return x if self === x
-
       case x
-      when true
+      when self
+        return x
+      when nil, true, ''
         x = ALWAYS_HASH
       when false
         x = NEVER_HASH
@@ -29,13 +36,27 @@ module Cabar
       when Hash
         x
       end
+      
+      # Handle options.
+      if /(^|,)(([a-z_0-9]+=[^,]*(,|$))+)/i.match(x[:name])
+        name_version = $`
+        opts = $2
+        x[:name] = name_version
+        opts.scan(/([a-z_0-9]+)=([^,]+)(,|$)/) do | m |
+          x[$1.to_sym] = $2
+        end
+        # $stderr.puts "x = #{x.inspect}"
+      end
 
       # Handle '<name>/<version>' specifications.
-      if /^([^\/]+)\/([^\/]+)$/.match(x[:name]) || /^([^=]+)=([^=]+)$/.match(x[:name])
+      if /^([^\/]*)\/([^\/]+)$/.match(x[:name]) 
         x = x.dup
         x[:name] = $1
         x[:version] ||= $2
       end
+
+      # Handle ''.
+      x[:name] = nil if x[:name] && x[:name].empty?
 
       self.new x
     end
@@ -51,19 +72,19 @@ module Cabar
     # "nam*" => Regexp.new("^nam.*$")
     #
     def _string_to_matcher x
+      return x unless String === x
       str = x
-      return str unless str
 
-      str = str.to_s
       case str
       when /^\/[^\/]+\/[a-z]*$/
         str = eval str # Yuck: use Regexp.new
       when /[\*\?\[\]]/
         str = str.gsub('*', "\001")
         str = str.gsub('?', "\002")
-        str = str.gsub('.', "\\.")
+        str = str.gsub('.', "\003")
         str = str.gsub("\001", ".*")
         str = str.gsub("\002", ".")
+        str = str.gsub("\003", "\\.")
         str = Regexp.new("^#{str}$") 
       end
       # $stderr.puts "#{x.inspect} => #{str.inspect}"
@@ -107,7 +128,7 @@ module Cabar
       # Remove annotations
       opts.delete(:_by)
 
-      # Handle glob.
+      # Handle name glob.
       opts[:name] = _string_to_matcher opts[:name] if opts[:name]
 
       # Convert non-lambda matchers to
@@ -115,15 +136,15 @@ module Cabar
       opts.each do | slot_name, _slot_matcher |
         slot_matcher = _slot_matcher # close over binding
         
-        # if slot_name == :version && String === slot_matcher
-        #  slot_matcher = Cabar::Version::Requirement.create_cabar slot_matcher
-        # end
-
-        opts[slot_name] = lambda do | slot_val |
+        unless Proc === slot_matcher
+          slot_matcher = _string_to_matcher slot_matcher
+          # $stderr.puts "opts[#{slot_name.inspect}] = #{slot_matcher.inspect} === ???"
+          opts[slot_name] = lambda do | slot_val |
             slot_matcher === slot_val
-        end unless Proc === slot_matcher
+          end 
+        end
       end
-        
+     
       # Create a lambda that ANDs all the slot matchers
       # together.
       func =
@@ -131,6 +152,7 @@ module Cabar
         f = _f # close over binding
         method, match = *slot
         lambda do | obj |
+          # $stderr.puts "  #{match}.call(#{obj}.#{method})"
           f.call(obj) && match.call(obj.send(method))
         end
       end
@@ -140,11 +162,14 @@ module Cabar
       
 
     def to_s
-      opts = ''
+      s = ''
+      s << "#{name}" if name
+      s << "/#{version}" if version
       _options.each do | k, v |
-        opts << ";#{k}=#{v}"
+        s << ',' unless s.empty?
+        s << "#{k}=#{v}"
       end
-      "#{name}/#{version}#{opts}"
+      s
     end
 
     def inspect

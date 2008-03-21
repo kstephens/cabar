@@ -21,16 +21,16 @@ module Cabar
       def_delegators :@a, :empty?, :size, :first, :last, :[], :sort
 
       def each &blk
-        _sort!.each &blk
+        _sort!.each(&blk)
       end
 
       def map &blk
-        _sort!.map &blk
+        _sort!.map(&blk)
       end
       alias :collect :map
 
       def inject x, &blk
-        _sort!.inject x, &blk
+        _sort!.inject(x, &blk)
       end
 
       def initialize list = [ ]
@@ -69,7 +69,7 @@ module Cabar
       end
       
       def join *args
-        to_a.join *args
+        to_a.join(*args)
       end
 
       def include? x

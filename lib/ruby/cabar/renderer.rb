@@ -20,7 +20,7 @@ module Cabar
     end
 
     def puts *args
-      @output.puts *args
+      @output.puts(*args)
     end
 
     # Does multimethod dispatching based on first argument
@@ -120,7 +120,7 @@ module Cabar
 
         if name == 'RUBYLIB' && @env.object_id == ENV.object_id
           $:.clear
-          $:.push *val.split(Cabar.path_sep)
+          $:.push(*Cabar.path_split(val))
           # $stderr.puts "Changed $: => #{$:.inspect}"
         end
       end
