@@ -42,10 +42,14 @@ DOC
     
     cmd :dot, <<"DOC" do
 [ <graph-options> ... ] [ - <component> ]
-Render the components as a dot graph on STDOUT.
+Render the components as a Dot graph on STDOUT.
+See http://www.graphvis.org/ for more information about Dot.
+
+Example Usage:
+
+  cbr comp dot - top_level_component | dot -Tsvg -o graph.svg
 
 Graph Options:
-
 #{Cabar::Renderer::Dot.command_documentation}
 DOC
       select_root cmd_args

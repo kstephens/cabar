@@ -35,6 +35,7 @@ DOC
       command_option :group_component_versions, false, <<'DOC'
 Group component versions in a subgraph.
 DOC
+
       command_option :show_created_from, false, <<'DOC'
 Create links between components and their dot['created_from'] attribute.
 For example:
