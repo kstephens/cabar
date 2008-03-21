@@ -25,6 +25,12 @@ $:.unshift "#{CURRENT_DIR}/lib/ruby"
 
 task :default => [ :test ]
 
+desc "Run tests in example/"
+task :test_example do
+  sh "cd example && rake"
+end
+task :test => :test_example
+
 task :tgz do
   sh "cd .. && tar -czvf cabar.tar.gz cabar"
 end
