@@ -91,11 +91,8 @@ of component requirements.
 
 = TO DO:
 
-* Add support for additional constraints:
-
-    'foo/1.2,arch=i386'
-    'name=foo'
-    '/1.3'
+* Add support for component.status; render component.status =
+* :unimplemented, :in_progress, :complete
 
 * Remove EnvVarPath, extend Path to support environment variables dynamically.
 
@@ -111,8 +108,7 @@ of component requirements.
 
 * Change Facet.context to Facet._context
 
-* Add support to automatically require top_level components, via
-an attribute on a component in its cabar.yml file.
+* Add support to automatically require top_level components, via an attribute on a component in its cabar.yml file.
 
 
 = From discussion with Jeremy 2008/03/10
