@@ -377,6 +377,7 @@ END
     def collect_facets coll = { }, comp_facet = { }
       # Collect/compose all facets in dependency order.
       required_components.each do | c |
+        next unless c.complete?
         c.provides.each do | facet |
           next unless facet.enabled?
           if facet.is_composable? 

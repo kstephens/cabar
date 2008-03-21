@@ -138,6 +138,7 @@ module Cabar
     end
     
     # Returns true if the Component is top-level.
+    # Top-level components are automatcially required at top-level.
     def top_level?
       o = _options
       o[:top_level]
@@ -148,7 +149,18 @@ module Cabar
       o = _options
       o[:enabled].nil? || o[:enabled]
     end
-    
+
+    # Returns true if the Component's status is complete.
+    # This can be used to stub components for future use.
+    #
+    # Incomplete components:
+    # * cannot contribute Facet paths.
+    # * are rendered grey in Dot graphs.
+    #
+    def complete?
+      (x = status).nil? || x == 'complete'
+    end
+
     # Called when configuration is applied to a Component
     # from a Facet.
     def append_configuration! conf

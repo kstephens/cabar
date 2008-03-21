@@ -201,7 +201,7 @@ module Cabar
           :tooltip => tooltip,
           :style => required?(c) ? :solid : :dotted,
           :URL => 'file://' + c.directory,
-          :fillcolor => complete?(c) ? '#ffffff' : '#cccccc',
+#          :fillcolor => complete?(c) ? '#ffffff' : '#cccccc',
           :fontcolor => complete?(c) ? '#000000' : '#888888',
           :color     => complete?(c) ? '#000000' : '#888888',
         }
@@ -236,7 +236,8 @@ module Cabar
           render_edge c1, dot_name(c2, :version => false),
           :tooltip => "depended from: #{c1.name}/#{c1.version}",
           :style => :dotted, 
-          :arrowhead => :open
+          :arrowhead => :open,
+          :color => complete?(c2) ? '#000000' : '#888888'
         end
 
         render_edge c1, c2,
