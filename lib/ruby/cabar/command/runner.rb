@@ -56,6 +56,8 @@ module Cabar
             options[$1.gsub(/[^A-Z0-9]/i, '_').to_sym] = arg
           when /--?([^\s+=]+)$/
             options[$1.gsub(/[^A-Z0-9]/i, '_').to_sym] = true
+          when /\+\+?([^\s+=]+)$/
+            options[$1.gsub(/[^A-Z0-9]/i, '_').to_sym] = false
           else
             # Check for command.
             # puts "cmd_path = #{state.cmd_path.inspect}"
