@@ -244,7 +244,8 @@ module Cabar
         :tooltip => "#{c1.name}/#{c1.version}: depends on: #{c2.name}/#{c2.version}" + 
           (d.version ? "; requires: #{d.version}" : ''),
         :arrowhead => :normal,
-        :style => required?(c1) && required?(c2) ? nil : :dotted
+        :style => required?(c1) && required?(c2) ? nil : :dotted,
+        :color => complete?(c1) && complete?(c2) ? '#000000' : '#888888'
       end
 
       # Renders a link between a Component and a Facet.
