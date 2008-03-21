@@ -93,7 +93,7 @@ class Cabar::Command
   # Selects the root component.
   def select_root args
     # Require the root component.
-    root_component = context.require_component search_opts(args, ENV['CABAR_TOP_LEVEL'])
+    @root_component = context.require_component search_opts(args, ENV['CABAR_TOP_LEVEL'])
     
     # Resolve configuration.
     context.resolve_components!
@@ -102,7 +102,7 @@ class Cabar::Command
     context.validate_components!
     
     # Return the root component.
-    root_component
+    @root_component
   end
   
   

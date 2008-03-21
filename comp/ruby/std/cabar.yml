@@ -18,6 +18,7 @@ cabar:
   provides:
     bin:
       abs_path: [ <%= ruby_info[:bin].inspect %> ]
+      list_only: [ :ruby, :erb, :irb, :rdoc, :ri, :testrb ]
     lib/ruby:
       abs_path: <%= ruby_info[:load_path].inspect %>
     lib/perl:

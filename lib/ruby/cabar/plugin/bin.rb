@@ -29,21 +29,28 @@ DOC
 [ - <component> ] [ <prog> ] 
 Lists all bin programs.
 DOC
-      select_root cmd_args
+      root_component = select_root cmd_args
       prog = cmd_args.shift || '*'
       
       components = 
-        case 
+        case
+        when root_component
+          [ root_component ]
         when cmd_opts[:R]
           context.required_components
         else
-          context.selected_components
+          context.available_components
         end
       
       print_header :bin
       components.to_a.each do | c |
         if f = c.facet('bin')
-          cmds = f.abs_path.map{|x| "#{x}/#{prog}"}.map{|x| Dir[x]}.flatten.sort.select{|x| File.executable? x}
+          list_only = f.list_only.map{|x| x.to_s}
+          cmds = f.abs_path.
+            map { |x| "#{x}/#{prog}"}.
+            map { |x| Dir[x]}.flatten.sort.
+            select { |x| ! list_only  or list_only.include?(File.basename(x)) }.
+            select { |x| File.executable? x}
           unless cmds.empty?
             puts "    #{c.to_s}: "
             cmds.each do | f |

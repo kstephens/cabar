@@ -23,6 +23,36 @@ cabar:
   provides:
     bin:
       abs_path: [ <%= perl_info[:bin].inspect %> ]
+      list_only: # from dpkg -L perl | grep /usr/bin
+      - :pod2html
+      - :pod2latex
+      - :pod2man
+      - :pod2text
+      - :pod2usage
+      - :podchecker
+      - :podselect
+      - :c2ph
+      - :cpan
+      - :dprofpp
+      - :enc2xs
+      - :h2ph
+      - :h2xs
+      - :instmodsh
+      - :libnetcfg
+      - :perlbug
+      - :perlcc
+      - :perlivp
+      - :piconv
+      - :pl2pm
+      - :prove
+      - :splain
+      - :xsubpp
+      - :find2perl
+      - :s2p
+      - :pstruct
+      - :psed
+      - :perldoc
+
     lib/perl:
       abs_path: <%= perl_info[:load_path].inspect %>
     lib/ruby:
