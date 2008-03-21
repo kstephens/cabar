@@ -8,37 +8,83 @@ module Cabar
     # Renders as a dot graph.
     # See http://www.graphviz.org/
     class Dot < self
+      @@command_doc = ''
+      def self.command_documentation
+        @@command_documentation
+      end
+
+      @@option_defaults = { }
+      def self.command_option name, default, doc
+        @@option_defaults[name] = default
+        (@@command_documentation ||= '') << "
+  --#{name.to_s.gsub('_', '-')} (default #{default.inspect})
+#{doc}
+"
+        attr_accessor name
+      end
+
       # Options:
-      attr_accessor :show_dependencies
-      attr_accessor :link_component_versions
-      attr_accessor :group_component_versions
-      attr_accessor :show_facets
-      attr_accessor :show_facet_names
-      attr_accessor :show_facet_links
-      attr_accessor :show_unrequired_components
-      attr_accessor :show_all
+      command_option :show_dependencies, true, <<'DOC'
+Show dependency edges between components.
+DOC
+      command_option :link_component_versions, false, <<'DOC'
+Create links between a node for a component name and each component version.
+Also creates links between component versions and a component node.
+DOC
+
+      command_option :group_component_versions, false, <<'DOC'
+Group component versions in a subgraph.
+DOC
+      command_option :show_created_from, false, <<'DOC'
+Create links between components and their dot['created_from'] attribute.
+For example:
+  foo/cabar.yml:
+    cabar:
+      component:
+        name: foo
+        version: v1.2
+        dot:
+          created_from: 'bar/1.3'
+
+Will render a <<created-from>> link from foo/1.2 to bar/1.3.
+
+DOC
+
+      command_option :show_facets, false, <<'DOC'
+Create facets as hexagons.
+DOC
+
+      command_option :show_facet_names, false, <<'DOC'
+Show facet names as "<- facet" in the component nodes.
+DOC
+
+      command_option :show_facet_links, false, <<'DOC'
+Create edges between Facets and all components that have them.
+DOC
+
+      command_option :show_unrequired_components, false, <<'DOC'
+Show unrequired components (components available but not required)
+as dotted nodes.
+DOC
+
+      command_option :show_all, false, <<'DOC'
+Enables *everything*
+DOC
+
+      attr_reader :context
 
       def initialize *args
-        @link_component_versions = false
-        @group_component_versions = false
-        @show_dependencies = true
-        @show_facets = false
-        @show_facet_names = false
-        @show_facet_links = false
-        @show_unrequired_components = false
+        @@option_defaults.each do | k, v |
+          instance_variable_set("@#{k}", @show_all || v)
+        end
 
         super
 
         @show_facet_links &&= @show_facets
         if @show_all
-          @link_component_versions =
-          @group_component_versions =
-          @show_dependencies =
-          @show_facets =
-          @show_facet_names =
-          @show_facet_links =
-          @show_unrequired_components =
-            true
+          @@option_defaults.each do | k, v |
+            instance_variable_set("@#{k}", true)
+          end
         end
 
         @dot_name = { }
@@ -211,6 +257,8 @@ module Cabar
         end
 
         render_node dot_name(c), opts
+
+        render_created_from_link c
       end
 
       # Renders a Facet as a dot node, if show_facets is enabled.
@@ -218,7 +266,9 @@ module Cabar
         # $stderr.puts "render_Facet #{f.class}"
         return unless show_facets
         return if Cabar::Facet::RequiredComponent === f
-        render_node f, :shape => :hexagon, :label => dot_label(f)
+        render_node f, 
+          :shape => :hexagon, 
+          :label => dot_label(f)
       end
 
       # Renders a dependency link for a given dependency facet.
@@ -234,19 +284,19 @@ module Cabar
 
         if link_component_versions
           render_edge c1, dot_name(c2, :version => false),
-          :tooltip => "depended from: #{c1.name}/#{c1.version}",
-          :style => :dotted, 
-          :arrowhead => :open,
-          :color => complete?(c2) ? '#000000' : '#888888'
+            :tooltip => "depended from: #{c1.name}/#{c1.version}",
+            :style => :dotted, 
+            :arrowhead => :open,
+            :color => complete?(c2) ? '#000000' : '#888888'
         end
 
         render_edge c1, c2,
-        :label => dot_label(d),
-        :tooltip => "#{c1.name}/#{c1.version}: depends on: #{c2.name}/#{c2.version}" + 
-          (d.version ? "; requires: #{d.version}" : ''),
-        :arrowhead => :normal,
-        :style => required?(c1) && required?(c2) ? nil : :dotted,
-        :color => complete?(c1) && complete?(c2) ? '#000000' : '#888888'
+          :label => dot_label(d),
+          :tooltip => "#{c1.name}/#{c1.version}: depends on: #{c2.name}/#{c2.version}" + 
+            (d.version ? "; requires: #{d.version}" : ''),
+          :arrowhead => :vee,
+          :style => required?(c1) && required?(c2) ? nil : :dotted,
+          :color => complete?(c1) && complete?(c2) ? '#000000' : '#888888'
       end
 
       # Renders a link between a Component and a Facet.
@@ -254,6 +304,39 @@ module Cabar
         return if Cabar::Facet::RequiredComponent === f
         return unless show_facet_links
         render_edge c, f, :style => :dotted, :arrowhead => :none
+      end
+
+      def render_created_from_link c1
+        return unless show_created_from
+
+        d = c1.dot
+        # $stderr.puts "c = #{c1} c.dot => #{c.dot.inspect}"
+        return unless d
+
+        created_from = d['created_from']
+        return unless created_from
+
+        # $stderr.puts "c1 = #{c1}"
+        # $stderr.puts "  created_from = #{created_from.inspect}"
+
+        created_from = context.selected_components[created_from]
+        # $stderr.puts "  created_from = #{created_from.inspect}"
+
+        return unless created_from
+        return if created_from.empty?
+        c2 = created_from.first
+        # $stderr.puts "  c2 = #{created_from.inspect}"
+
+        return unless @components.include? c2
+
+        color = complete?(c1) && complete?(c2) ? '#000000' : '#888888'
+        render_edge c1, c2, 
+        :style => :dotted,
+        :arrow_head => :ovee,
+        :color => color,
+        :fontcolor => color,
+        :label => "<<created-from>>",
+        :tooltip => "#{c1.to_s(:short)} created from #{c2.to_s(:short)}"
       end
 
       # Renders a node.
@@ -319,6 +402,11 @@ module Cabar
         end
       end
 
+      # Return true if a Component is top-level.
+      def top_level? c
+        @context.top_level_component? c
+      end
+
       # Returns true if a Component is required.
       def required? c
         (
@@ -327,8 +415,9 @@ module Cabar
          ).first
       end
 
+      # Returns true if a Component is complete.
       def complete? c
-        c.status == nil || c.status == 'complete'
+        c.complete?
       end
 
       # Outputs edges.

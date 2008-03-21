@@ -241,6 +241,11 @@ module Cabar
       c
     end
 
+    # Returns true if a Component is top-level.
+    def top_level_component? c
+      @top_level_components.include? c
+    end
+
     # Called to resolve all component dependencies:
     # Pass 1: select all components dependencies.
     # Pass 2: resolve all explicit dependencies after selection has been reduced.

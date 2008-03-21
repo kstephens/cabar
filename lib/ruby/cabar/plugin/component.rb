@@ -40,9 +40,13 @@ DOC
                       )
     end
     
-    cmd :dot, <<'DOC' do
-[ - <component> ]
+    cmd :dot, <<"DOC" do
+[ <graph-options> ... ] [ - <component> ]
 Render the components as a dot graph on STDOUT.
+
+Graph Options:
+
+#{Cabar::Renderer::Dot.command_documentation}
 DOC
       select_root cmd_args
       

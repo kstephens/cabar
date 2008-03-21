@@ -78,10 +78,15 @@ module Cabar
           @a.select(:name => name)
       end
 
-      # Returns a set of components by name.
-      def [](name)
-        return name unless name
-        set_for_name name.to_s
+      # Returns a set of components by name or contrstaint.
+      def [](constraint)
+        return constraint unless constraint
+        case constraint
+        when String, Symbol
+          set_for_name constraint.to_s
+        else
+          @s.select(constraint)
+        end
       end
 
       
