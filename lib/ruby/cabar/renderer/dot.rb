@@ -10,6 +10,7 @@ module Cabar
     class Dot < self
       # Options:
       attr_accessor :show_dependencies
+      attr_accessor :link_component_versions
       attr_accessor :group_component_versions
       attr_accessor :show_facets
       attr_accessor :show_facet_names
@@ -18,6 +19,7 @@ module Cabar
       attr_accessor :show_all
 
       def initialize *args
+        @link_component_versions = false
         @group_component_versions = false
         @show_dependencies = true
         @show_facets = false
@@ -29,6 +31,7 @@ module Cabar
 
         @show_facet_links &&= @show_facets
         if @show_all
+          @link_component_versions =
           @group_component_versions =
           @show_dependencies =
           @show_facets =
@@ -84,6 +87,7 @@ module Cabar
         puts "  overlap=false;"
         puts "  splines=true;"
         puts "  truecolor=true;"
+        puts "  clusterrank=local;"
 
         puts ""
         puts "  // component version grouping"
@@ -116,21 +120,26 @@ module Cabar
             puts ""
             puts "// #{a_name} #{a.name}"
             puts "  subgraph #{dot_name a, :subgraph => true} {"
-            puts "    label=#{a.name.inspect};"
+            puts "    label=#{''.inspect};"
+            #puts "    style=rounded;"
+            #puts "    label=#{a.name.inspect};"
             #puts "    label=#{a.name.inspect};"
             #puts "    color=black;"
             #puts "    style=solid;"
             
-            render_node a_name, 
-            :shape => :component,
-            :style => [ :rounded, any_required ? :solid : :dotted ], 
-            :label => a.name,
-            :tooltip => tooltip
+            if link_component_versions
+              render_node a_name, 
+              :shape => :component,
+              :style => [ :rounded, any_required ? :solid : :dotted ], 
+              :label => a.name,
+              :tooltip => tooltip
+            end
           end
 
           versions.each do | c_v |
             render c_v
-            if group_component_versions
+
+            if link_component_versions
               render_edge a_name, c_v, 
               :style => :dotted, 
               :arrowhead => :none,
@@ -223,7 +232,7 @@ module Cabar
           @components.include?(c1) &&
           @components.include?(c2)
 
-        if group_component_versions
+        if link_component_versions
           render_edge c1, dot_name(c2, :version => false),
           :tooltip => "depended from: #{c1.name}/#{c1.version}",
           :style => :dotted, 
@@ -338,7 +347,7 @@ module Cabar
             prefix = EMPTY_STRING
             if opts[:subgraph]
               opts[:version] = false
-              prefix = "s"
+              prefix = "cluster_"
             end
 
             prefix +
