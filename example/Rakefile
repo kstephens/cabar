@@ -20,6 +20,6 @@ task :doc_graphs do
 end
 
 task :clean do
-  sh "rm -f doc/*.dot doc/*.dot.svg"
+  sh "rm -f doc/*.dot doc/*.svg"
 end
 

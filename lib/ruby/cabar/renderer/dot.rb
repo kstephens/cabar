@@ -83,6 +83,7 @@ module Cabar
         puts "digraph cabar {"
         puts "  overlap=false;"
         puts "  splines=true;"
+        puts "  truecolor=true;"
 
         puts ""
         puts "  // component version grouping"
@@ -180,12 +181,20 @@ module Cabar
         opts ||= EMPTY_HASH
         # $stderr.puts "render_Component #{c}"
 
+        tooltip = (c.description || c.to_s(:short))
+        unless complete?(c)
+          tooltip << "; status: #{c.status}"
+        end
+
         opts = {
           :shape => :component,
           :label => dot_label(c),
-          :tooltip => (c.description || c.to_s(:short)),
+          :tooltip => tooltip,
           :style => required?(c) ? :solid : :dotted,
           :URL => 'file://' + c.directory,
+          :fillcolor => complete?(c) ? '#ffffff' : '#cccccc',
+          :fontcolor => complete?(c) ? '#000000' : '#888888',
+          :color     => complete?(c) ? '#000000' : '#888888',
         }
 
         if group_component_versions
@@ -305,6 +314,10 @@ module Cabar
          @required[c.object_id] ||=
          [ @context.required_component?(c) ]
          ).first
+      end
+
+      def complete? c
+        c.status == nil || c.status == 'complete'
       end
 
       # Outputs edges.

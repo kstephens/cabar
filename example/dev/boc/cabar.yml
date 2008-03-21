@@ -6,6 +6,7 @@ cabar:
     bin: true
   requires:
     component:
+      todo: true
       c1: true
       c2: true
       c3: true
