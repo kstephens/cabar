@@ -154,7 +154,8 @@ module Cabar
     # This can be used to stub components for future use.
     #
     # Incomplete components:
-    # * cannot contribute Facet paths.
+    # * cannot contribute Facet composition,  e.g. do not
+    # add bin/ directories to PATH.
     # * are rendered grey in Dot graphs.
     #
     def complete?
@@ -194,6 +195,10 @@ module Cabar
     
     # friend
 
+    # Called to give some facets an opportunity to add functionality
+    # before other Componets are fully parsed from configuration.
+    # E.g.: the 'components' Facet changes component_search_path to
+    # allow recursive components.
     def parse_configuration_early! conf = self._config
       (conf['facet'] || conf['provides'] || conf['provide'] || EMPTY_HASH).each do | k, opts |
         f = create_facet k, opts, :early => true

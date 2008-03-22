@@ -10,9 +10,10 @@ _vars="$_vars $_n"
 d="$(dirname "$0")"
 d="$(cd "$d" && /bin/pwd)"
 base="$(cd "$d/.." && /bin/pwd)"
+repo="$base/repo"
 
 # Overlay dev(eloper), prod(uction), plat(form) and cabar itself.
-_export CABAR_PATH "${base}/dev:${base}/prod:${base}/plat:@${base}/.."
+_export CABAR_PATH "${repo}/dev:${repo}/prod:${repo}/plat:@${repo}/.."
 
 # Parse a config file.
 _export CABAR_CONFIG "${base}/cabar_conf.yml"
@@ -26,6 +27,21 @@ _export PATH "$d:$cabar_bin:$PATH"
 
 case "$1"
 in
+  --help)
+  cat <<HELP
+$0 - setup basic env vars for cbr.
+
+  $0 --env 
+
+Print environment variables set on STDOUT
+
+  $0 <cmd> <args> ...
+
+Run <cmd> under environment for cbr.
+Example: $0 cbr comp list
+
+HELP
+  ;;
   --env)
     for _n in $_vars
     do
