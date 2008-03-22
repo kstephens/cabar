@@ -26,26 +26,36 @@ DOC
     end # cmd
     
     cmd [ :list, :ls ], <<'DOC' do
-[ - <component> ] [ <prog> ] 
+[ <options> ] [ - <component> ] [ <prog> ] 
 Lists all bin programs.
+
+Options:
+
+  -r  Selects required components
+  -a  Selects available components
+  Defaults to selecting the default top-level component.
 DOC
       root_component = select_root cmd_args
       prog = cmd_args.shift || '*'
       
       components = 
         case
-        when root_component
-          [ root_component ]
-        when cmd_opts[:R]
+        when cmd_opts[:r]
+          $stderr.puts "required_components"
           context.required_components
-        else
+        when cmd_opts[:a]
+          $stderr.puts "available_components"
           context.available_components
+        when root_component
+          $stderr.puts "root_component => #{root_component}"
+          [ root_component ]
         end
       
       print_header :bin
       components.to_a.each do | c |
         if f = c.facet('bin')
-          list_only = f.list_only.map{|x| x.to_s}
+          list_only = f.list_only
+          list_only &&= list_only.map{|x| x.to_s}
           cmds = f.abs_path.
             map { |x| "#{x}/#{prog}"}.
             map { |x| Dir[x]}.flatten.sort.

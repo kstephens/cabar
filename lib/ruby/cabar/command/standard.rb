@@ -91,9 +91,9 @@ class Cabar::Command
   
   
   # Selects the root component.
-  def select_root args
+  def select_root args, select_default = ENV['CABAR_TOP_LEVEL']
     # Require the root component.
-    @root_component = context.require_component search_opts(args, ENV['CABAR_TOP_LEVEL'])
+    @root_component = context.require_component search_opts(args, select_default)
     
     # Resolve configuration.
     context.resolve_components!
