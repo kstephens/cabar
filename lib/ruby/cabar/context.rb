@@ -360,6 +360,9 @@ END
 
 
     # Returns an Array of all a Component's dependencies.
+    # Forces resolution of components.
+    #
+    # FIXME: This should use a topological sort.
     def component_dependencies c
       resolve_components!
 
@@ -374,7 +377,7 @@ END
         # puts "c = #{c}"
         unless set.include? c
           set << c
-          stack.push(*c.requires.map{|f| f.resolved_component})
+          stack.push(*c.dependencies)
         end
       end
 
