@@ -4,16 +4,12 @@ cabar:
   component:
     name: gems
     version: '1.0'
-
-  plugin: cabar.rb
+    description: 'Local gems repository'
 
   provides:
-    lib/ruby:
-      path: [ lib ]
-    gems: true
+    rubygems: true
 
   requires:
     component:
-      ruby: true
       rubygems: true
 
