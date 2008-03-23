@@ -43,25 +43,19 @@ Installs "rails" gem into "my_gems_component/gems".
 DOC
       root = select_root cmd_args
 
-      gem_home = ENV['GEM_HOME']
-      gem_path = ENV['GEM_PATH']
-
-      print_gem_env "Before setup_environment!"
-
-      # Render environment vars.
-      setup_environment!
+      opts = setup_gem_environment!
 
       print_gem_env "After setup_environment!"
 
       get_gems_facets(root).each do | c, facet |
         begin
           ENV['GEM_HOME'] = facet.abs_path.first
-          ENV['GEM_PATH'] = Cabar.path_join(facet.abs_path, gem_path)
+          ENV['GEM_PATH'] = Cabar.path_join(facet.abs_path, opts[:gem_path], ENV['GEM_PATH'])
           print_gem_env 'For gem'
           system('gem', *cmd_args)
         ensure
-          ENV['GEM_HOME'] = gem_home
-          ENV['GEM_PATH'] = gem_path
+          ENV['GEM_HOME'] = opts[:gem_home]
+          ENV['GEM_PATH'] = opts[:gem_path]
         end
       end
     end
@@ -76,21 +70,38 @@ Example:
 DOC
       root = select_root cmd_args
 
-      root = select_root cmd_args
+      setup_gem_environment!
 
-      gem_home = ENV['GEM_HOME']
-      gem_path = ENV['GEM_PATH']
-
-      print_gem_env "Before setup_environment!"
-
-      # Render environment vars.
-      setup_environment!
-
-      print_gem_env "After setup_environment!"
+      print_gem_env
     end
 
 
     class Cabar::Command
+      def setup_gem_environment! opts = { }
+        opts[:gem_home] = ENV['GEM_HOME']
+        opts[:gem_path] = ENV['GEM_PATH']
+        
+        print_gem_env "Before setup_environment!"
+
+        ENV.delete('GEM_PATH') if ENV['GEM_PATH'] && ENV['GEM_PATH'].empty?
+        ENV.delete('GEM_HOME') if ENV['GEM_HOME'] && ENV['GEM_HOME'].empty?
+
+        unless ENV['GEM_PATH'] && ENV['GEM_HOME']
+          require 'rubygems'
+          ENV['GEM_PATH'] ||= Cabar.path_join(Gem.path)
+          ENV['GEM_HOME'] ||= Cabar.path_split(ENV['GEM_PATH']).first
+        end
+
+        print_gem_env "After GEM_PATH, GEM_HOME default."
+
+        # Render environment vars.
+        setup_environment!
+        
+        print_gem_env "After setup_environment!"
+        
+        opts
+      end
+
       def print_gem_env header = nil
         puts "\n#{header}:" if header
         [ :RUBYLIB, :GEM_HOME, :GEM_PATH ].each do | v |
