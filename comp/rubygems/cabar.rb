@@ -33,10 +33,10 @@ DOC
 
     cmd :gem , <<'DOC' do
 [ - <gems-component> ] <<gem-cmd-args>> 
-Run gem using a gems component environment
+Run gem using a gems component environment.
 
 Example:
-  cbr gems gem install - my_gems_component rails
+  cbr gems gem - my_gems_component install rails
 
 Installs "rails" gem into "my_gems_component/gems".
 
@@ -64,6 +64,29 @@ DOC
           ENV['GEM_PATH'] = gem_path
         end
       end
+    end
+
+    cmd :env , <<'DOC' do
+[ - <gems-component> ] <<gem-cmd-args>> 
+Print the gem environment.
+
+Example:
+  cbr gems env - my_gems_component
+
+DOC
+      root = select_root cmd_args
+
+      root = select_root cmd_args
+
+      gem_home = ENV['GEM_HOME']
+      gem_path = ENV['GEM_PATH']
+
+      print_gem_env "Before setup_environment!"
+
+      # Render environment vars.
+      setup_environment!
+
+      print_gem_env "After setup_environment!"
     end
 
 
