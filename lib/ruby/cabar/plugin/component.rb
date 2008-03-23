@@ -60,6 +60,16 @@ DOC
       r.render(context)
     end
     
+    cmd :dependencies, <<'DOC' do
+[ <cmd-opts???> ] [ - <component> ]
+Lists the dependencies for a selected component.
+DOC
+      root = select_root cmd_args
+
+      yaml_renderer.
+        render(context.component_dependencies(root).to_a)
+    end
+
     cmd :show, <<'DOC' do
 [ <cmd-opts???> ] [ - <component> ]
 Lists the current settings for a selected component.

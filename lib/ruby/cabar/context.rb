@@ -359,6 +359,29 @@ END
     end
 
 
+    # Returns an Array of all a Component's dependencies.
+    def component_dependencies c
+      resolve_components!
+
+      validate_components!
+
+      stack = [ c ]
+      set = [ ]
+
+      until stack.empty?
+        c = stack.pop
+        next if c.nil?
+        # puts "c = #{c}"
+        unless set.include? c
+          set << c
+          stack.push(*c.requires.map{|f| f.resolved_component})
+        end
+      end
+
+      set
+    end
+
+
     ###########################################################
     # Facet Management.
     #
