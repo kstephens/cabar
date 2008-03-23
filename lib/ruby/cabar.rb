@@ -305,10 +305,19 @@ module Cabar
   def self.path_split path, sep = nil
     sep ||= path_sep
     path = path.split(sep)
-    path.reject{|x| x.empty?}
+    path.reject{|x| x.nil? || x.empty?}
     path
   end
   
+  # Joins directory elements into a path.
+  # Removes any nil or empty elements.
+  def self.path_join *args
+    sep = path_sep
+    path = args.flatten.reject{|x| x.nil? || x.empty?}
+    path = path.uniq.join(path_sep)
+    path
+  end
+
   # Expand all the elements in a path,
   # while leaving '@' prefixes.
   def self.path_expand p, dir = nil

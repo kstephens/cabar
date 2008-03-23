@@ -21,10 +21,11 @@ DOC
 Lists all available components.
 DOC
       yaml_renderer.
-        render_components(context.
-                          available_components.
-                          select(search_opts(cmd_args))
-                          )
+        render(context.
+               available_components.
+               select(search_opts(cmd_args)).
+               to_a
+               )
     end
 
     cmd :facet, <<'DOC' do
@@ -66,9 +67,9 @@ DOC
       select_root cmd_args
       
       yaml_renderer.
-        render_components(context.required_components)
+        render(context.required_components.to_a)
       yaml_renderer.
-        render_facets(context.facets.values)
+        render(context.facets.values.to_a)
     end
     
   end # cmd_group

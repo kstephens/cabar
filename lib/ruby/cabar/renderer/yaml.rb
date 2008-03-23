@@ -23,7 +23,7 @@ module Cabar
         puts Cabar.yaml_header
       end
 
-      def render_components comps, opts = EMPTY_HASH
+      def render_Array_Component comps, opts = EMPTY_HASH
         render_header
         puts "  component: "
         comps.
@@ -37,7 +37,7 @@ module Cabar
         end
       end
       
-      def render_facets facets, opts = EMPTY_HASH
+      def render_Array_Facet facets, opts = EMPTY_HASH
         x = opts[:indent]
         x ||= ''
         render_header
@@ -62,7 +62,7 @@ module Cabar
           puts "    requires:      [ #{c.requires.map{|x| "#{x.name}/#{x.version}".inspect}.sort.join(', ')} ]"
           puts "    configuration: #{c.configuration.inspect}" if ! c.configuration.empty?
           puts "    plugins:       #{c.plugins.map{|p| p.name}.inspect}" if ! c.plugins.empty?
-          render_facets c.facets, :indent => '  ' if _options[:show_facet]
+          render_Array_Facet c.facets, :indent => '  ' if _options[:show_facet]
           puts ""
         else
           puts "  - #{[ c.name, c.version.to_s, c.directory ].inspect}"

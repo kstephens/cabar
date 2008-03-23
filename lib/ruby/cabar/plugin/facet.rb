@@ -15,7 +15,7 @@ Cabar::Plugin.new :name => 'cabar/facet' do
 List avaliable facets.
 DOC
       facets = Cabar::Facet.prototypes
-      yaml_renderer.render_facets facets, nil, :prototype => true
+      yaml_renderer.render(facets.to_a, :prototype => true)
     end
   end # cmd_group
 

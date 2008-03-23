@@ -64,6 +64,12 @@ module Cabar
     end
 
     # Returns all the valid abbreviations for this command.
+    #
+    # The abbreiations are generated from the shortest
+    # unique prefixes of all the command's names and aliases
+    # from all commands at the same level.
+    #
+    # See Ruby Abbrev.
     def abbreviations
       if @manager
         # Get abbreviations for all commands.
