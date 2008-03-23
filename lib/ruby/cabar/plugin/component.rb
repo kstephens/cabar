@@ -24,7 +24,7 @@ DOC
         render(context.
                available_components.
                select(search_opts(cmd_args)).
-               to_a
+               to_a, :sort => true
                )
     end
 
@@ -77,7 +77,7 @@ DOC
       select_root cmd_args
       
       yaml_renderer.
-        render(context.required_components.to_a)
+        render(context.required_components.to_a, :sort => true)
       yaml_renderer.
         render(context.facets.values.to_a)
     end

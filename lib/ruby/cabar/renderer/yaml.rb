@@ -26,13 +26,18 @@ module Cabar
       def render_Array_Component comps, opts = EMPTY_HASH
         render_header
         puts "  component: "
-        comps.
-        sort { | a, b | 
-          (x = a.name <=> b.name) != 0 ? x :
-          (x = b.version <=> a.version) != 0 ? x :
+
+        if opts[:sort]
+          comps = 
+            comps.
+            sort { | a, b | 
+            (x = a.name <=> b.name) != 0 ? x :
+            (x = b.version <=> a.version) != 0 ? x :
           0
-        }.
-        each do | c |
+          }
+        end
+
+        comps.each do | c |
           render c, opts
         end
       end
