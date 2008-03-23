@@ -67,7 +67,7 @@ module Cabar
     # All the provides Facets.
     attr_reader :provides
     
-    # All the requires components.
+    # All the RequiredComponent Facets.
     attr_reader :requires
     
     # Computed
@@ -307,6 +307,21 @@ module Cabar
       self
     end
     
+    # Returns all the immediate Component dependencies.
+    #
+    # Assumes dependencies have been resolved.
+    # See Context#resolve_components!
+    #
+    # See Context#component_dependencies for a recursive
+    # dependency set.
+    def dependencies recursive = nil
+      if recursive
+        context.component_dependencies self
+      else
+        requires.map { |f| f.resolved_component }
+      end
+    end
+
     # friend
     
     # Returns true if this Component has a facet by
