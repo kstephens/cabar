@@ -5,6 +5,8 @@ require 'cabar/context'
 
 module Cabar
   # Manages a selection of Components based on command line options.
+  #
+  # Provide default standard cbr Command options.
   class Selection < Base
     # The Context object.
     attr_accessor :context
@@ -12,11 +14,22 @@ module Cabar
     # Command option Hash parsed by Command::Runner.
     attr_accessor :cmd_opts
 
+    # Option: "- <<component-constraint>>"
     attr_accessor :select_constraint
+    
+    # Option: -T
     attr_accessor :select_top_level
+
+    # Option: -A
     attr_accessor :select_available
+
+    # Option: -R
     attr_accessor :select_required
-    attr_accessor :select_recursive
+
+    # Option: -D
+    attr_accessor :select_dependencies
+
+    # The required Component from select_constraint.
     attr_accessor :selected_component
 
     def initialize *args
@@ -25,7 +38,7 @@ module Cabar
         @select_top_level =
         @select_available =
         @select_required =
-        @select_recursive = false
+        @select_dependencies = false
       super
     end
 
@@ -46,20 +59,20 @@ module Cabar
         @select_required = false
       end
 
-      if x = cmd_opts[:a]
+      if x = cmd_opts[:A]
         @select_available = x
         @select_required = false
         @select_top_level = false
       end
 
-      if x = cmd_opts[:r]
+      if x = cmd_opts[:R]
         @select_required = x
         @select_available = false
         @select_top_level = false
       end
 
-      if x = cmd_opts[:R]
-        @select_recursive = x
+      if x = cmd_opts[:D]
+        @select_dependencies = x
       end
 
       self
@@ -136,7 +149,7 @@ module Cabar
             end
             result = result.to_a
             
-            if @select_recursive
+            if @select_dependencies
               result = context.component_dependencies(result)
             else
               result = Component.sort(result)

@@ -67,7 +67,7 @@ DOC
 Lists the dependencies for a selected component.
 DOC
       selection.select_required = true
-      selection.select_recursive = true
+      selection.select_dependencies = true
       selection.to_a
 
       yaml_renderer.
@@ -76,7 +76,7 @@ DOC
 
     cmd :show, <<'DOC' do
 [ <cmd-opts???> ]
-Lists the current settings for a selected component.
+Lists the current settings for required components.
 DOC
       selection.select_required = true
       selection.to_a
