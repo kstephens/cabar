@@ -1,14 +1,14 @@
 = Introduction
 
-See lib/ruby/cabar.rb for more info.
+See lib/ruby/cabar.rb or http://cabar.rubyforge.org/ for more info.
 
-= Cabar Demo
+= Quick Cabar Demo
 
 * Go to cabar/example
 
     cd cabar/example
 
-* Show bin/cbr_env.
+* See bin/cbr_env.
 
     bin/cbr_env --env
     eval `bin/cbr_env --env`
