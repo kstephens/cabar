@@ -368,7 +368,8 @@ END
 
       validate_components!
 
-      stack = [ c ]
+      c = [ c ] unless Array === c
+      stack = c
       set = [ ]
       deps = { }
 
