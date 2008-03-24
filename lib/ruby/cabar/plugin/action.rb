@@ -9,8 +9,96 @@ Cabar::Plugin.new :name => 'cabar/action' do
   # action facet
   #
 
+  # This represents group of commands that can be run on a component.
+  #
+  # action:
+  #   name_1: cmd_1
+  #   name_2: cmd_2
+  #
+  # See "cbr action list".
+  class Cabar::Facet::Action < Cabar::Facet
+    attr_accessor :action
+    
+    def component_associations
+      [ 'provides' ]
+    end
+    
+    def is_composable?
+      false
+    end
+    
+    def _reformat_options! opts
+      opts = { :action => opts }
+      opts
+    end
+    
+    def compose_facet! f
+      @action.cabar_merge! f.action
+    end
+    
+    def can_do_action? action
+      @action.key? action.to_s
+    end
+    
+    def execute_action! action, args, opts = EMPTY_HASH
+      expr = @action[action.to_s] || raise("cannot find action #{action.inspect}")
+      puts "component #{component}:"
+      puts "action: #{action.inspect}: #{expr.inspect}"
+      
+      result = nil
+      if opts[:dry_run]
+        result = true
+      end
+      
+      case expr
+      when Proc
+        unless opts[:dry_run]
+          result = expr.call(*args)
+        end
+        
+      when String
+        str = expr.dup
+        error_ok = str.sub!(/^\s*-/, '')
+        # puts "error_ok: #{error_ok.inspect}"
+        
+        Dir.chdir(component.directory) do 
+          # FIXME.
+          str = '"' + str + '"'
+          str = component.instance_eval do
+            eval str 
+          end
+          
+          puts "+ #{str}"
+          unless opts[:dry_run]
+            result = system(str)
+          end
+        end
+        
+        puts "result: #{result.inspect}"
+        puts "\n"
+        
+        unless error_ok
+          raise "action: failed #{result.inspect}" unless result
+        end
+      end
+      
+      result
+    end
+    
+    def to_a
+      super +
+        [
+         [ :action, action ],
+        ]
+    end
+  end # class
+  
   facet :action, 
         :class => Cabar::Facet::Action
+
+  ##################################################################
+  # action facet
+  #
 
   cmd_group :action, <<'DOC' do
 Actions are commands that can be run on a component:
