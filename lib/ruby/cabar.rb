@@ -330,7 +330,9 @@ module Cabar
   def self.path_join *args
     sep = path_sep
     path = args.flatten.reject{|x| x.nil? || x.empty?}
-    path = path.uniq.join(path_sep)
+    path = path.uniq.join(sep)
+    path = path_split(path, sep)
+    path = path.uniq.join(sep)
     path
   end
 
