@@ -38,7 +38,12 @@ module Cabar
       if x = cmd_opts[:_]
         cmd_opts.delete(:_)
         @select_constraint = x
-        @select_top_level = false
+      end
+
+      if x = cmd_opts[:T]
+        @select_top_level = true
+        @select_available = false
+        @select_required = false
       end
 
       if x = cmd_opts[:a]
@@ -104,7 +109,7 @@ module Cabar
           when @select_required
             s_o = component_constraint
 
-            if s_o && ! @select_top_level
+            if s_o
               @selected_component = context.require_component s_o
             else
               context.apply_configuration_requires!
@@ -117,8 +122,13 @@ module Cabar
             context.validate_components!
             
             # Get the required components.
-            result = context.component_dependencies(context.required_components.to_a)
-
+            if @select_top_level
+              result = context.
+                top_level_components.to_a
+            else
+              result = context.
+                component_dependencies(context.required_components.to_a)
+            end
           when @select_available
             result = context.available_components
             if component_constraint

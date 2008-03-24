@@ -6,7 +6,10 @@ cabar:
   provides:
     lib/ruby:
       path: [ lib ]
+    action:
+      test: 'rake test'
   requires:
     component:
+      cabar: true
       ruby: true
 

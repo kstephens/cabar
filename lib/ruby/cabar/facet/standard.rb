@@ -35,22 +35,28 @@ module Cabar
         @action.key? action.to_s
       end
 
-      def execute_action! action, args
+      def execute_action! action, args, opts = EMPTY_HASH
         expr = @action[action.to_s] || raise("cannot find action #{action.inspect}")
         puts "component #{component}:"
         puts "action: #{action.inspect}: #{expr.inspect}"
 
+        result = nil
+        if opts[:dry_run]
+          result = true
+        end
+
         case expr
         when Proc
-          result = expr.call(*args)
+          unless opts[:dry_run]
+            result = expr.call(*args)
+          end
 
         when String
           str = expr.dup
           error_ok = str.sub!(/^\s*-/, '')
           # puts "error_ok: #{error_ok.inspect}"
           
-          result =
-            Dir.chdir(component.directory) do 
+          Dir.chdir(component.directory) do 
             # FIXME.
             str = '"' + str + '"'
             str = component.instance_eval do
@@ -58,10 +64,13 @@ module Cabar
             end
             
             puts "+ #{str}"
-            system(str)
+            unless opts[:dry_run]
+              result = system(str)
+            end
           end
           
           puts "result: #{result.inspect}"
+          puts "\n"
 
           unless error_ok
             raise "action: failed #{result.inspect}" unless result

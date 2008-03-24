@@ -35,10 +35,14 @@
     cbr remote list
     cbr remote update 
 
+== Configuration 
+
 * Modify cabar config from command line.
 
     cbr config
     cbr config set select <component> 1.2
+
+== Web Servic Facet
 
 * Need web_service facet
 
@@ -46,14 +50,6 @@
     cbr bin apache start
 
 * Facets realizations are not scoped. Provide a mechanism to select particular component facets rather than entire components.
-
-* Facets have top-level commands nameds after them:
-
-    cbr action list
-    cbr action run <action>
-    cbr bin list
-    cbr bin run <cmd> <args> ...
-    cbr lib/ruby doc
 
 * action run should be only on top-level components by default.
 
