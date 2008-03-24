@@ -28,13 +28,7 @@ module Cabar
         puts "  component: "
 
         if opts[:sort]
-          comps = 
-            comps.
-            sort { | a, b | 
-            (x = a.name <=> b.name) != 0 ? x :
-            (x = b.version <=> a.version) != 0 ? x :
-          0
-          }
+          comps = Component.sort comps
         end
 
         comps.each do | c |

@@ -88,6 +88,21 @@ module Cabar
     attr_accessor :_config
     
 
+    # Sorts a collection of Components by name then by reverse version.
+    def self.sort comps
+      comps.
+        sort do | a, b | 
+        case
+        when (x = a.name <=> b.name) != 0 
+          x
+        when (x = b.version <=> a.version) != 0
+          x
+        else
+          0
+        end
+      end
+    end
+
     def self.current
       @@current
     end
