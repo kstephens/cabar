@@ -288,10 +288,10 @@
 # * Explicitly in the component's cabar.yml file.
 # * Implicitly as part of the component's directory name.
 #
-# If the component's name or version is not specified cabar.yml file it can be inferred
-# from by matching on:
+# If the component's name or version is not specified cabar.yml file it can be inferred from matching:
 #
 # * <<name>>/<<version>>/cabar.yml
+# * <<name>>-<<version>>/cabar.yml
 # * <<name>>/cabar.yml
 #
 # == Requiring components

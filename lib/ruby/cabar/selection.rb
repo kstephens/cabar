@@ -91,7 +91,7 @@ module Cabar
           @select_required = true if @select_top_level
           @select_available = true unless @select_required || @select_top_level
 
-          if @verbose
+          if @verbose # || true
             $stderr.puts "to_a:"
             $stderr.puts "  @select_top_level = #{@select_top_level}"
             $stderr.puts "  @select_available = #{@select_available}"
@@ -122,8 +122,7 @@ module Cabar
           when @select_available
             result = context.available_components
             if component_constraint
-              result.
-              select(component_constraint)
+              result = result.select(component_constraint)
             end
             result = result.to_a
             
