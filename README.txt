@@ -1,6 +1,14 @@
 = Introduction
 
-See lib/ruby/cabar.rb or http://cabar.rubyforge.org/ for more info.
+Cabar is an extensible software component backplane for
+managing software components.
+It can be used with Ruby or other software technologies.
+
+For more info see:
+ 
+* http://cabar.rubyforge.org/classes/Cabar.html
+* http://cabar.rubyforge.org
+* lib/ruby/cabar.rb
 
 = Quick Cabar Demo
 
