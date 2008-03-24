@@ -61,8 +61,10 @@ DOC
           puts "  #{x}#{'%-10s' % ':desc:'}   #{cmd.description.inspect}"
         end
         
-        unless (a = cmd.aliases_and_abbreviations).empty?
-          puts "  #{x}#{'%-10s' % ':alias:'}  #{a.sort.inspect}"
+        if verbose
+          unless (a = cmd.aliases_and_abbreviations).empty?
+            puts "  #{x}#{'%-10s' % ':alias:'}  #{a.sort.inspect}"
+          end
         end
       end
 
