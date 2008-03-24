@@ -44,7 +44,7 @@ DOC
           end
           puts _.inspect
         rescue Exception => err
-          puts err.inspect
+          $stderr.puts "#{err.inspect}\n  #{err.backtrace.join("  \n")}"
         end
       end
     end

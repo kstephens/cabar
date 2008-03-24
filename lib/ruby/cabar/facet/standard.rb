@@ -95,18 +95,19 @@ module Cabar
       end
 
       def inferred?
-        # result = 
-          abs_path.all? { | x | File.exist? x }
-        # $stderr.puts "inferred? #{abs_path.inspect} => #{result}"
-        # result
+        p = abs_path
+        p.all? { | x | File.exist? x }
       end
 
       def path
-        @path ||= default_path
+        @path ||= 
+          default_path
       end
 
       def abs_path
-        @abs_path ||= path.map { | x | File.expand_path(x, component.base_directory) }
+        @abs_path ||= 
+          owner &&
+          path.map { | x | File.expand_path(x, owner.base_directory) }
       end
 
       def compose_facet! facet

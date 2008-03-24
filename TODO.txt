@@ -6,6 +6,8 @@
 
 = TO DO:
 
+* Change Context#required_components to an ordered Version::Set.
+
 * Remove EnvVarPath, extend Path to support environment variables dynamically.
 
 * Allow facet prototypes to be defined in cabar.yml.
