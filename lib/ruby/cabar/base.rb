@@ -47,14 +47,6 @@ END
       new_opts
     end
 
-    def _normalize_version v
-      case v
-      when String
-        v = v.to_str.sub(/^v/i, '')
-      end
-      v
-    end
-
     # Sets @_options with elements from opts.
     # Any setter that match keys are called
     # and the key is deleted from @_options.
