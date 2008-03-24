@@ -1,15 +1,20 @@
 
 # = Cabar
 #
-# Cabar is an extensible software component backplane.
+# Cabar is an extensible software component backplane for
+# managing software components.
 # It can be used with Ruby or other software technologies.
 #
-# == Features:
+# == Licensing
+#
+# See LICENSE.txt
+#
+# == Features
 #
 # * Extensibility:
 # Component Facets can be declared in components to glue components
-# back together in.  Components can add plug-ins to Cabar.  Plugins can
-# add facets, commands or observe internals.
+# back together.  Components can add plug-ins to Cabar.  Plugins can
+# add facets, commands or observe the internals of Cabar.
 #
 # * Configurability:
 # User configuration can be used to override configurations
@@ -20,7 +25,6 @@
 #
 # * Component Repository Overlays:
 # Component repositories are searched in a specific order.
-#
 # For example, a development repository can override a specific
 # component version for testing.
 #
@@ -335,6 +339,23 @@
 # explicit selection, requiring or component interdependency.
 # * Selecting the latest version of a component, if the remaining selected
 # component versions is not singular.
+#
+# == Component Constraints
+#
+# Component constraints can be specified using the following patterns:
+#
+# * "name" - any version of a component named "name".
+# * "name* - any version of a component with a name starting with "name".
+# * "name/1.2" - The 1.2 version of component "name".
+# * "name/>1.2" - Any version of component "name" greater than ">1.2".
+#
+# Unless a component has a dependency on a specific version, e.g.: because of
+# required API or feature set, component dependencies are usually unversioned 
+# or at most, version limits.
+#
+# It's recommended that dependency constraints should be as open as possible,
+# to allow component versions to be varied at the system configuration level,
+# usually in a CABAR_CONFIG file or with the CABAR_SELECT environment variable.
 #
 # == Component Plug-ins
 #

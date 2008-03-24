@@ -89,44 +89,6 @@ class Cabar::Command
     raise Error, "cannot execute #{args.inspect}"
   end
   
-  
-  # Selects the root component.
-  def select_root args, select_default = ENV['CABAR_TOP_LEVEL']
-    # Require the root component.
-    @root_component = context.require_component search_opts(args, select_default)
-    
-    # Resolve configuration.
-    context.resolve_components!
-    
-    # Validate configuration.
-    context.validate_components!
-    
-    # Return the root component.
-    @root_component
-  end
-  
-  
-  # Get a Constraint object for the cmd_arguments and options.
-  def search_opts args, default = nil
-    name = nil
-    if args.first == '-'
-      args.shift
-      # Get options.
-      name = args.shift
-    end
-    version = cmd_opts[:version]
-    
-    search_opts = { }
-    search_opts[:name] = name if name
-    search_opts[:name] ||= default if default
-    
-    search_opts[:version] = version if version
-    
-    search_opts = Cabar::Constraint.create(search_opts)
-    
-    search_opts
-  end
-  
 end # class
 
 

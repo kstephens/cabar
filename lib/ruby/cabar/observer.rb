@@ -121,7 +121,7 @@ module Cabar
     #     end
     #     def observer obj
     #       obj.add_observer(self, :name_changing)
-    #       obj.add_observer(self, Proc.new do | observer, name |
+    #       obj.add_observer(self, Proc.new do | observer, new_name |
     #         puts "#{observed.inspect} name changed to #{new_name.inspect}
     #       end
     #     end
