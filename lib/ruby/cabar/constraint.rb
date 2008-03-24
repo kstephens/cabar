@@ -71,7 +71,7 @@ module Cabar
     # "/name/" => Regexp.new(name)
     # "nam*" => Regexp.new("^nam.*$")
     #
-    def _string_to_matcher x
+    def self.string_to_matcher x
       return x unless String === x
       str = x
 
@@ -129,7 +129,7 @@ module Cabar
       opts.delete(:_by)
 
       # Handle name glob.
-      opts[:name] = _string_to_matcher opts[:name] if opts[:name]
+      opts[:name] = Constraint.string_to_matcher opts[:name] if opts[:name]
 
       # Convert non-lambda matchers to
       # lambdas that take 
@@ -137,7 +137,7 @@ module Cabar
         slot_matcher = _slot_matcher # close over binding
         
         unless Proc === slot_matcher
-          slot_matcher = _string_to_matcher slot_matcher
+          slot_matcher = Constraint.string_to_matcher slot_matcher
           # $stderr.puts "opts[#{slot_name.inspect}] = #{slot_matcher.inspect} === ???"
           opts[slot_name] = lambda do | slot_val |
             slot_matcher === slot_val
