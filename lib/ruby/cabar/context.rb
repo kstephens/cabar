@@ -4,6 +4,7 @@ require 'cabar/configuration'
 require 'cabar/loader'
 require 'cabar/facet'
 require 'cabar/observer'
+require 'cabar/sort'
 
 
 module Cabar
@@ -13,6 +14,7 @@ module Cabar
   # components.
   class Context < Base
     include Cabar::Observer::Observed
+    include Cabar::Sort
 
     # The Cabar::Main object.
     attr_reader :main
@@ -361,8 +363,6 @@ END
 
     # Returns an Array of all a Component's dependencies.
     # Forces resolution of components.
-    #
-    # FIXME: This should use a topological sort.
     def component_dependencies c
       resolve_components!
 
@@ -370,6 +370,7 @@ END
 
       stack = [ c ]
       set = [ ]
+      deps = { }
 
       until stack.empty?
         c = stack.pop
@@ -377,9 +378,15 @@ END
         # puts "c = #{c}"
         unless set.include? c
           set << c
-          stack.push(*c.dependencies)
+          d = (deps[c] ||= c.dependencies)
+          stack.push(*d)
         end
       end
+
+      # puts "set = #{set.inspect}"
+      set = topographic_sort(set, :dependents => lambda { |c| deps[c] || EMPTY_ARRAY })
+      # puts "set sort_topo = #{set.inspect}"
+
 
       set
     end
