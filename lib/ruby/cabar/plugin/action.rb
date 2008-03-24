@@ -14,7 +14,7 @@ Cabar::Plugin.new :name => 'cabar/action' do
 
     cmd :list, <<'DOC' do
 [ <action> ] 
-List actions available on all required components
+List actions available on all components.
 DOC
       selection.select_available = true
       selection.to_a

@@ -10,7 +10,7 @@ module Cabar
     #   name_1: cmd_1
     #   name_2: cmd_2
     #
-    # run "cbr action list".
+    # See "cbr action list".
     class Action < self
       attr_accessor :action
 
