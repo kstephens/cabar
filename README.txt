@@ -4,11 +4,13 @@ See lib/ruby/cabar.rb or http://cabar.rubyforge.org/ for more info.
 
 = Quick Cabar Demo
 
-* Go to cabar/example
+* Go to cabar/example.
 
     > cd cabar/example
 
-* See bin/cbr_env.
+* Using bin/cbr_env.
+
+Sets up basic CABAR_* environment variables for cbr command:
 
     > bin/cbr_env --env
     > eval `bin/cbr_env --env`
@@ -27,7 +29,7 @@ See lib/ruby/cabar.rb or http://cabar.rubyforge.org/ for more info.
     > cbr comp list
     > cbr comp list - c2
 
-* Show directory structure.
+* Directory structure.
 
     > find . -type d
 
@@ -35,11 +37,11 @@ See lib/ruby/cabar.rb or http://cabar.rubyforge.org/ for more info.
 
     > find . -type f -name 'cabar.yml'
 
-* Show components and facets:
+* Components and facets:
 
     > cbr comp show - c1
 
-* Show component version selection:
+* Component version selection:
 
     > cbr comp run - c2 c2_prog foo bar
     > cbr comp run - c2/1.1 c2_prog foo bar
@@ -55,7 +57,7 @@ of component requirements.
 
     > cbr comp show - c1
 
-* Show facet environment for a component:
+* Facet environment for a component:
 
     > cbr env - c1
 
@@ -74,7 +76,7 @@ of component requirements.
     > rake
     > ls doc
 
-* See in-place run scripts for ruby.
+* In-place run scripts for ruby.
 
     > cbr bin run - c1 c2_prog
 
