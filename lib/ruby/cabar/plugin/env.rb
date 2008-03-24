@@ -17,8 +17,8 @@ DOC
 Lists the environment variables for a selected component
 as a sourceable /bin/sh script.
 DOC
-
-    select_root cmd_args
+    selection.select_required = true
+    selection.to_a
     
     r = Cabar::Renderer::ShellScript.new cmd_opts
     
