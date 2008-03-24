@@ -20,11 +20,11 @@ DOC
 [ --verbose ] [ - <component> ]
 Lists all available components.
 DOC
+      selection.select_available = true
+
       yaml_renderer.
-        render(context.
-               available_components.
-               select(search_opts(cmd_args)).
-               to_a, :sort => true
+        render(selection.to_a,
+               :sort => true
                )
     end
 
@@ -32,13 +32,14 @@ DOC
 [ - <component> ]
 Show the facets for the top-level component.
 DOC
-      select_root cmd_args
-      
+      selection.select_required = true
+      selection.to_a
+
       yaml_renderer.
-        render_facets(context.
-                      facets.
-                      values
-                      )
+        render(context.
+               facets.
+               values
+               )
     end
     
     cmd :dot, <<"DOC" do
@@ -48,12 +49,13 @@ See http://www.graphvis.org/ for more information about Dot.
 
 Example Usage:
 
-  cbr comp dot - top_level_component | dot -Tsvg -o graph.svg
+  cbr comp dot | dot -Tsvg -o graph.svg
 
 Graph Options:
 #{Cabar::Renderer::Dot.command_documentation}
 DOC
-      select_root cmd_args
+      selection.select_required = true
+      selection.to_a
       
       r = Cabar::Renderer::Dot.new cmd_opts
       
@@ -64,18 +66,21 @@ DOC
 [ <cmd-opts???> ] [ - <component> ]
 Lists the dependencies for a selected component.
 DOC
-      root = select_root cmd_args
+      selection.select_required = true
+      selection.select_recursive = true
+      selection.to_a
 
       yaml_renderer.
-        render(context.component_dependencies(root).to_a)
+        render(selection.to_a)
     end
 
     cmd :show, <<'DOC' do
 [ <cmd-opts???> ] [ - <component> ]
 Lists the current settings for a selected component.
 DOC
-      select_root cmd_args
-      
+      selection.select_required = true
+      selection.to_a
+
       yaml_renderer.
         render(context.required_components.to_a, :sort => true)
       yaml_renderer.

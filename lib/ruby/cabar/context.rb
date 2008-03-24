@@ -84,6 +84,22 @@ module Cabar
       configuration.apply_configuration! self
     end
 
+    # Applies the component requires configuration to this context.
+    # This will try CABAR_TOP_LEVEL environment variable
+    # first.
+    # If not defined, apply the configuration file's
+    # component require contraint options.
+    def apply_configuration_requires!
+      if (x = ENV['CABAR_TOP_LEVEL']) && ! x.empty?
+        x = x.split(/\s+|\s*,\s*/)
+        x.each do | constraint |
+          require_component constraint
+        end
+      else
+        configuration.apply_configuration_requires! self
+      end
+    end
+
 
     ##################################################################
     # Loading Components.
@@ -274,7 +290,7 @@ module Cabar
     
     # Returns true if component was required.
     def required_component? c
-      required_components.include? c
+      @required_components.include? c
     end
 
     # Called during resolve_compoent!
@@ -294,6 +310,8 @@ module Cabar
 
     # Checks unresolved_components list.
     # If there are any, raise an error.
+    # 
+    # TODO: Make this use the yaml error formatter.
     def check_unresolved_components
       return self unless unresolved_components? 
 
@@ -368,9 +386,15 @@ END
 
       validate_components!
 
-      c = [ c ] unless Array === c
-      stack = c
+      # If Array is given, dup it because we
+      # are mutate it as a stack, otherwise create
+      # new Array stack with c.
+      stack = Array === c ? c.dup : [ c ]
+      
+      # Set of all dependencies of c.
       set = [ ]
+
+      # Cache of dependencies of each Component.
       deps = { }
 
       until stack.empty?
@@ -415,7 +439,7 @@ END
     # all required components.
     def collect_facets coll = { }, comp_facet = { }
       # Collect/compose all facets in dependency order.
-      required_components.each do | c |
+      @required_components.each do | c |
         next unless c.complete?
         c.provides.each do | facet |
           next unless facet.enabled?

@@ -46,9 +46,7 @@ module Cabar
       self.component_search_path = ENV['CABAR_PATH']   || '.'
     end
     
-    # Applies this configuration to the Context.
-    # 
-    # This will select components and require top-level components.
+    # Applies the component selection configuration to the Context.
     #
     def apply_configuration! context
       by = "config@#{config['config_file_path'].inspect}"
@@ -67,6 +65,17 @@ module Cabar
         context.select_component opts
       end
 
+
+      # Do plugin configurations.
+      # plugin.each do | plugin |
+      #  plugin.apply_configuration self
+      # end
+    end
+
+    # Applies the compnent requires configuration to the Context.
+    def apply_configuration_requires! context
+      by = "config@#{config['config_file_path'].inspect}"
+
       # Apply component requires.
       cfg = config
       cfg &&= cfg['require']
@@ -80,11 +89,6 @@ module Cabar
         
         context.require_component opts
       end
-
-      # Do plugin configurations.
-      # plugin.each do | plugin |
-      #  plugin.apply_configuration self
-      # end
     end
     
     DISABLED_HASH = { :enabled => false }.freeze

@@ -1,6 +1,8 @@
 require 'cabar/base'
 
 require 'cabar/error'
+require 'cabar/selection'
+
 require 'abbrev'
 
 module Cabar
@@ -69,7 +71,7 @@ module Cabar
     # unique prefixes of all the command's names and aliases
     # from all commands at the same level.
     #
-    # See Ruby Abbrev.
+    # See Ruby Core abbrev.rb.
     def abbreviations
       if @manager
         # Get abbreviations for all commands.
@@ -153,6 +155,13 @@ module Cabar
     # Returns true if this command is a top-level command.
     def top_level_command?
       ! @supercommand
+    end
+
+    # Returns a Selection object for the command.
+    def selection
+      @selection ||= 
+        Cabar::Selection.factory.
+        new(:context => @main.context, :cmd_opts => cmd_opts)
     end
 
     # Defer to @main.

@@ -280,6 +280,13 @@
 #
 # == Renderers
 #
+# == Rubygems plugin
+#
+#  Install gems into a rubygems platform component.
+#
+#    cbr gems gem install rails - platform_gems/1.1
+#    cbr gems gem list - platform_gems/1.1.
+#
 module Cabar
   EMPTY_HASH = { }.freeze
   EMPTY_ARRAY = [ ].freeze
