@@ -42,3 +42,14 @@ task :make_manifest => :make_p4ignore
 task :make_p4ignore do
   sh "ls -d * | sort > .p4ignore"
 end
+
+desc "Generates example docs"
+task :docs_example => :docs do
+  sh "cd example && rake doc_graphs"
+  sh "rm -rf doc/example/doc"
+  sh "mkdir -p doc/example"
+  sh "cp -rp example/doc doc/example/doc"
+  sh "find doc -type d -name .svn | xargs rm -rf" 
+end
+
+task :publish_docs => :docs_example

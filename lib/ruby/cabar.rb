@@ -50,8 +50,9 @@
 # open-ended for extension.
 #
 # Imagine a large software system as a multi-dimentional "blob".
-# If a certain component can be "sliced" off of a software "blob",
-# the axis of slicing leaves a unique surface, or Facet.
+# If a component can be "sliced" off of a software "blob",
+# the axis of slicing leaves a unique surface, or Facet, between
+# the component and the remaining software system.
 #
 # To reconnect to the original
 # system or to reuse the new component requires that communication
@@ -272,6 +273,8 @@
 # "cbr comp dot" generates dependency graphs to be rendered by
 # the Dot graph toolkit.
 #
+# Graphs generated from the example directory are located here: http://cabar.rubyforge.org/example/doc
+# 
 # See example/Rakefile for examples on generating component graphs using cbr. 
 #
 # == Component Versioning
@@ -282,10 +285,16 @@
 #
 # == Rubygems plugin
 #
-#  Install gems into a rubygems platform component.
+# The rubygems plugin component, located under cabar/comp support
+# the collection of rubygems into a cabar component.  The 'rubygems'
+# facet can generate GEM_PATH directories for components with
+# the 'rubygems'.  By default the gems component expects gems to
+# installed in a 'gems' subdirectory under the component directory.
+#
+# == Installing gems into a rubygems platform component
 #
 #    cbr gems gem install rails - platform_gems/1.1
-#    cbr gems gem list - platform_gems/1.1.
+#    cbr gems gem list - platform_gems/1.1
 #
 module Cabar
   EMPTY_HASH = { }.freeze
