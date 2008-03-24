@@ -6,9 +6,11 @@ cabar:
     version: '1.0'
     description: 'Local gems repository'
 
-  provides:
+  facet:
     rubygems: true
-
+    action:
+      build_env: "env | egrep -e '^(RUBYLIB|GEM_PATH|GEM_HOME)='"
+      build: "cbr - #{name} gems gem install rails -y"
   requires:
     component:
       rubygems: true
