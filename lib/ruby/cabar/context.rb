@@ -90,8 +90,8 @@ module Cabar
     # If not defined, apply the configuration file's
     # component require contraint options.
     def apply_configuration_requires!
-      if (x = ENV['CABAR_TOP_LEVEL']) && ! x.empty?
-        x = x.split(/\s+|\s*,\s*/)
+      if (x = ENV['CABAR_REQUIRE']) && ! x.empty?
+        x = x.split(/\s+/)
         x.each do | constraint |
           require_component constraint
         end

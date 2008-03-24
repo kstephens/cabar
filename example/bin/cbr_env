@@ -18,9 +18,12 @@ _export CABAR_PATH "${repo}/dev:${repo}/prod:${repo}/plat:@${repo}/.."
 # Parse a config file.
 _export CABAR_CONFIG "${base}/cabar_conf.yml"
 
-# Define a default top-level component.
-# _export CABAR_TOP_LEVEL 'c1'
+# Require a top-level component.
+# _export CABAR_REQUIRE 'c1'
 
+# Select components
+# _export CABAR_SELECT 'c1/1.2 ruby/>1.8'
+#
 cabar_bin="$(cd "$d/../../bin" && /bin/pwd)"
 
 _export PATH "$d:$cabar_bin:$PATH"

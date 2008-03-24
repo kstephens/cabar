@@ -11,8 +11,6 @@ to standardize argument parsing and selection generation.
 
 * Remove EnvVarPath, extend Path to support environment variables dynamically.
 
-* Allow "- component/version" options to override cabar_config.yml require: definitions and CABAR_TOP_LEVEL env var;  Maybe add --override option?
- 
 * Allow facet prototypes to be defined in cabar.yml.
 
 * Add documentation strings to Facet prototypes.
