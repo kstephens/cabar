@@ -9,13 +9,10 @@ Cabar::Plugin.new :name => 'cabar/action' do
   # action facet
   #
 
-  facet :action, :class => Cabar::Facet::Action
-  cmd_group :action do
+  facet :action, 
+        :class => Cabar::Facet::Action
 
-    cmd :list, <<'DOC' do
-[ <action> ] 
-List actions available on all components.
-
+  cmd_group :action, <<'DOC' do
 Actions are commands that can be run on a component:
 
 Defined by:
@@ -24,6 +21,11 @@ Defined by:
     action:
       name_1: cmd_1
       name_2: cmd_2
+DOC
+
+    cmd :list, <<'DOC' do
+[ <action> ] 
+List actions available on all components.
 
 DOC
       selection.select_available = true

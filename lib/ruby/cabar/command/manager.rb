@@ -116,12 +116,15 @@ module Cabar
       
       # Define a command group.
       def define_command_group name, opts = nil, &blk
+        opts = { :documentation => opts } if String === opts
         opts ||= { }
         cmd = create_command! name, opts, nil
         cmd.instance_eval &blk if block_given?
         cmd.documentation = <<"DOC"
 [ #{cmd.subcommands.commands.map{|x| x.name}.sort.join(' | ')} ] ...
 * '#{cmd.name_full}' command group.
+
+#{cmd.documentation}
 DOC
         register_command! cmd
         cmd
