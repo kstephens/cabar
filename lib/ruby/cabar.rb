@@ -288,7 +288,7 @@
 # * Explicitly in the component's cabar.yml file.
 # * Implicitly as part of the component's directory name.
 #
-# If the component's name or version is not specified cabar.yml file it can be inferred from matching:
+# If the component's name or version is not specified in its cabar.yml file it can be inferred from matching:
 #
 # * <<name>>/<<version>>/cabar.yml
 # * <<name>>-<<version>>/cabar.yml
@@ -360,7 +360,7 @@
 #   cabar:
 #     version: '1.0'
 #     component:
-#       name: gems
+#       name: platform_gems
 #       version: '1.0'
 #       description: 'Local gems repository'
 #     provides:
