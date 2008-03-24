@@ -16,7 +16,7 @@ Cabar::Plugin.new :name => 'cabar/action' do
 [ - <component> ] [ <action> ] 
 List actions available on all required components
 DOC
-      select_root cmd_args
+      selection.select_available = true
       action = cmd_args.shift
 
       print_header :component
@@ -34,8 +34,8 @@ DOC
 <action> [ - <component> ] <args> ...
 Executes an action on all required components.
 DOC
+      selection.select_available = true
       action = cmd_args.shift || raise(ArgumentError, "expected action name")
-      comp = select_root cmd_args
       puts "comp = #{comp}"
        
       # Render environment vars.
@@ -43,7 +43,7 @@ DOC
       # puts ENV['RUBYLIB']
 
       get_actions(action).each do | c, f |
-        if comp && comp != c
+        if selection.selected_component && selection.selected_component != c
           next
         end
         f.execute_action! action, cmd_args.dup
@@ -55,8 +55,7 @@ DOC
       def get_actions action = nil
         actions = [ ]
         
-        context.
-          required_components.each do | c |
+        selection.to_a.each do | c |
           # puts "c.facets = #{c.facets.inspect}"
           c.facets.each do | f |
             if f.key == 'action' &&

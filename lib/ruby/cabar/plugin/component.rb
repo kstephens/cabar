@@ -17,7 +17,7 @@ DOC
   
   cmd_group [ :component, :comp, :c ] do
     cmd :list, <<'DOC' do
-[ --verbose ] [ - <component> ]
+[ --verbose ] 
 Lists all available components.
 DOC
       selection.select_available = true
@@ -29,7 +29,7 @@ DOC
     end
 
     cmd :facet, <<'DOC' do
-[ - <component> ]
+
 Show the facets for the top-level component.
 DOC
       selection.select_required = true
@@ -43,7 +43,7 @@ DOC
     end
     
     cmd :dot, <<"DOC" do
-[ <graph-options> ... ] [ - <component> ]
+[ <graph-options> ... ]
 Render the components as a Dot graph on STDOUT.
 See http://www.graphvis.org/ for more information about Dot.
 
@@ -63,7 +63,7 @@ DOC
     end
     
     cmd :dependencies, <<'DOC' do
-[ <cmd-opts???> ] [ - <component> ]
+[ <cmd-opts???> ]
 Lists the dependencies for a selected component.
 DOC
       selection.select_required = true
@@ -75,7 +75,7 @@ DOC
     end
 
     cmd :show, <<'DOC' do
-[ <cmd-opts???> ] [ - <component> ]
+[ <cmd-opts???> ]
 Lists the current settings for a selected component.
 DOC
       selection.select_required = true

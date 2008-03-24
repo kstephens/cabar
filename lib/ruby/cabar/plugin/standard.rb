@@ -30,7 +30,8 @@ DOC
 [ - <component> ]
 Starts an interactive shell on Cabar::Context.
 DOC
-      select_root cmd_args 
+      selection.select_required = true
+      selection.to_a
       
       require 'readline'
       prompt = "  #{File.basename($0)} >> "

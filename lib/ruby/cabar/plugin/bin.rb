@@ -13,21 +13,19 @@ Cabar::Plugin.new :name => 'cabar/bin' do
 
   cmd_group :bin do
     cmd [ :run, :exec ], <<'DOC' do
-[ - <component> ] <prog> <prog-args> ....
+<prog> <prog-args> ....
 Runs <prog> in the environment of the top-level component.
 DOC
       selection.select_required = true
       selection.to_a
       
-      r = Cabar::Renderer::InMemory.new cmd_opts
-      
-      context.render r
+      setup_environment!
       
       exec_program *cmd_args
     end # cmd
     
     cmd [ :list, :ls ], <<'DOC' do
-[ - <component> ] [ <prog> ] 
+[ <prog> ] 
 Lists all bin programs.
 
 <prog> defaults to '*'

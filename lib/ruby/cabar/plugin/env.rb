@@ -13,7 +13,7 @@ DOC
 
   facet :env,     :class => Cabar::Facet::EnvVarGroup
   cmd :env, <<'DOC' do
-[ - <component> ]
+
 Lists the environment variables for a selected component
 as a sourceable /bin/sh script.
 DOC

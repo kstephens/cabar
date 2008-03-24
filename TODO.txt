@@ -6,9 +6,6 @@
 
 = TO DO:
 
-* Deprecate select_root in default commands, use new Selection object
-to standardize argument parsing and selection generation.
-
 * Remove EnvVarPath, extend Path to support environment variables dynamically.
 
 * Allow facet prototypes to be defined in cabar.yml.
