@@ -6,19 +6,27 @@
 
 = TO DO:
 
-* Change Context#required_components to an ordered Version::Set.
+* Add support for -S (select ) option.
+
+* Add support for CABAR_SELECT environment variable.
+
+* Make Cabar::Base a mixin instead of an abstract base class.
+
+* Change Context#required_components to an unordered Version::Set.
 
 * Remove EnvVarPath, extend Path to support environment variables dynamically.
 
-* Allow facet prototypes to be defined in cabar.yml.
+* Allow simple facet prototypes to be defined in cabar.yml.
 
 * Add documentation strings to Facet prototypes.
 
 * Change Facet.key to Facet._key to avoid collision with future use.
 
-* Change Facet.owner to Facet._owner
+* Change Facet.owner to Facet._owner.
 
-* Change Facet.context to Facet._context
+* Change Facet.component to Facet._component.
+
+* Change Facet.context to Facet._context.
 
 * Add support to automatically require top_level components, via an attribute on a component in its cabar.yml file.
 
