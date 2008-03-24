@@ -51,8 +51,15 @@ module Cabar
   class Component < Base
     include Cabar::Observer::Observed
 
-    #attr_accessor :name
+    # The name of this component.
+    attr_accessor :name
+
+    # The type of component, defaults to 'cabar'
+    attr_accessor :component_type
+
+    # The component version.
     attr_accessor_type :version, Cabar::Version
+
     #attr_accessor :directory
     attr_accessor :base_directory
     
@@ -116,7 +123,12 @@ module Cabar
     end
 
     
+    # The CABAR type.
+    CABAR = 'cabar'.freeze
+
     def initialize *args
+      @component_type = CABAR
+
       @plugins = [ ]
       super
       

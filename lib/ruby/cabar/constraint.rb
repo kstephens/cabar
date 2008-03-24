@@ -37,6 +37,12 @@ module Cabar
         x
       end
       
+      # Handle '<type>:<name>'
+      if /^([^:]+):(.*)$/.match(x[:name])
+        x[:component_type] = $1
+        x[:name] = $2
+      end
+
       # Handle options.
       if /(^|,)(([a-z_0-9]+=[^,]*(,|$))+)/i.match(x[:name])
         name_version = $`
@@ -152,7 +158,7 @@ module Cabar
         f = _f # close over binding
         method, match = *slot
         lambda do | obj |
-          # $stderr.puts "  #{match}.call(#{obj}.#{method})"
+          # $stderr.puts "  #{match}.call(#{obj}.#{method} => #{obj.send(method)})"
           f.call(obj) && match.call(obj.send(method))
         end
       end
@@ -163,9 +169,14 @@ module Cabar
 
     def to_s
       s = ''
+      o = _options.dup
+      if x = o[:component_type]
+        s << "#{o[:type]}:" unless x == Component::CABAR
+        o.delete(:component_type)
+      end
       s << "#{name}" if name
       s << "/#{version}" if version
-      _options.each do | k, v |
+      o.each do | k, v |
         s << ',' unless s.empty?
         s << "#{k}=#{v}"
       end

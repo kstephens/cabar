@@ -63,6 +63,10 @@ describe Cabar::Constraint do
     constraint_count 'name=foo', 3
   end
 
+  it 'should match "cabar:name=foo"' do
+    constraint_count 'cabar:name=foo', 3
+  end
+
   it 'should match "foo*,arch=i386"' do
     constraint_count "foo*,arch=i386", 0
   end

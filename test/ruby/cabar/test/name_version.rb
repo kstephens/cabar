@@ -7,6 +7,7 @@ module Cabar::Test; end
 class Cabar::Test::NameVersion
   attr_accessor :name
   attr_accessor :version
+  attr_accessor :component_type
   attr_accessor :_opts
 
   def version= x
@@ -14,6 +15,7 @@ class Cabar::Test::NameVersion
   end
 
   def initialize opts = EMPTY_HASH
+    @component_type = Cabar::Component::CABAR
     opts.each do | k, v |
       s = "#{k}="
       if respond_to? s
