@@ -278,10 +278,11 @@
 #
 # == Visualization of Components
 #
-# "cbr comp dot" generates dependency graphs to be rendered by
-# the Dot graph toolkit.
+# "cbr comp dot" generates component dependency graphs in the Dot
+# lanugage for rendering with
+# the Graphviz ( http://www.graphvis.org/ ) graph visualization toolkit.
 #
-# Graphs generated from the example directory are located here: http://cabar.rubyforge.org/example/doc
+# Graphs generated from the example directory are here: http://cabar.rubyforge.org/example/doc
 # 
 # See example/Rakefile for examples on generating component graphs using cbr. 
 #
