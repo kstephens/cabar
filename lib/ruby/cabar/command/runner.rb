@@ -48,16 +48,18 @@ module Cabar
           when '--'
             state.cmd_args = args
             args = EMPTY_HASH
+          when '-'
+            options[_to_sym(EMPTY_STRING)] = args.shift
           when /^--?([^\s=]+)=(.+)$/
-            options[$1.gsub(/[^A-Z0-9]/i, '_').to_sym] = $2
+            options[_to_sym($1)] = $2
           when /^--?([^\s=]+)=$/
             arg = args.shift
             arg = arg.dup rescue arg
-            options[$1.gsub(/[^A-Z0-9]/i, '_').to_sym] = arg
+            options[_to_sym($1)] = arg
           when /--?([^\s+=]+)$/
-            options[$1.gsub(/[^A-Z0-9]/i, '_').to_sym] = true
+            options[_to_sym($1)] = true
           when /\+\+?([^\s+=]+)$/
-            options[$1.gsub(/[^A-Z0-9]/i, '_').to_sym] = false
+            options[_to_sym($1)] = false
           else
             # Check for command.
             # puts "cmd_path = #{state.cmd_path.inspect}"
@@ -88,6 +90,11 @@ module Cabar
       end
       
       
+      def _to_sym x
+        x == EMPTY_STRING ? :_ : x.gsub(/[^A-Z0-9]/i, '_').to_sym
+      end
+
+
       # Executes the selected Command.
       def run
         cmd = self.cmd
