@@ -169,9 +169,13 @@
 # === Component Specification
 #
 # Next, the component specifications must be
-# created.  Cabar uses a simple YAML document
-# to specify components.  By default, Cabar expects each
-# component to reside in component repositories.
+# created.  Cabar uses a simple YAML document format
+# for component specification.
+#
+# Cabar expects each component to reside in a component repository.
+# A component repository is simply a directory containing subdirectories
+# that have "cabar.yml" files, searched by "*/cabar.yml" and "*/*/cabar.yml"
+# in each component repository directory.
 #
 # Component repositories are specified by the CABAR_PATH environment
 # variable.
@@ -248,7 +252,7 @@
 #
 # === The cbr Command
 #
-# To get a list of commands from cbr, run:
+# To get a list of commands availale in cbr, run:
 #
 #   > cbr help
 #   > cbr help --verbose
@@ -277,13 +281,68 @@
 # 
 # See example/Rakefile for examples on generating component graphs using cbr. 
 #
-# == Component Versioning
+# == Specifying component name and version
 #
-# == Component Plugins
+# A component's name and versions are specified in two ways:
 #
-# == Renderers
+# * Explicitly in the component's cabar.yml file.
+# * Implicitly as part of the component's directory name.
 #
-# == Rubygems plugin
+# If the component's name or version is not specified cabar.yml file it can be inferred
+# from by matching on:
+#
+# * <<name>>/<<version>>/cabar.yml
+# * <<name>>/cabar.yml
+#
+# == Requiring components
+#
+# To use a component in a environment, it must be "required" by the following mtethods, in order of precedence:
+#
+# * "- <<component-constraint>>" cbr command line option.
+# * CABAR_REQUIRE environment variable.
+# * require: component: section in a cabar_conf.yml file.
+# 
+# The "- <<component-constraint>>" command line option forces cbr to require
+# a top-level component.  This option can occur anywhere before the end of the
+# cbr command path.  This overrides any component requires specified in a cabar_conf.yml file or the CABAR_TOP_LEVEL environment variable.
+#
+# For example: 
+#
+#    > cbr comp dep
+#
+# Will show the default top-level component's dependencies.
+#
+#    > cbr comp dep - rubygems
+#
+# Will show only the "rubygems" component's dependencies.
+#
+# == Selecting components
+#
+# Cabar will find all available components residing in the component repositories specified in CABAR_PATH.  Component with the same name and version earlier in the CABAR_PATH are selected first, others are ignored.
+#
+# The set of available component versions is reduced by "selecting" versions based on constraints, in order of precedence:
+#
+# * "-S <<component-constraint>>" cbr command line option. (NOT IMPLEMENTED)
+# * CABAR_SELECT environment variable.  (NOT IMPLEMENTED)
+# * select: component: section in a cabar_conf.yml file.
+#
+# == Component Resolution
+#
+# Resolution of component version occurs in 3 phases.
+#
+# * Determine all available components.
+# * Reducing the available component set into selected components by
+# explicit selection, requiring or component interdependency.
+# * Selecting the latest version of a component, if the remaining selected
+# component versions is not singular.
+#
+# == Component Plug-ins
+#
+# List of available plugins:
+#
+#    > cbr plugin list
+#
+# == Rubygems Plug-in
 #
 # The rubygems plugin component, located under cabar/comp support
 # the collection of rubygems into a cabar component.  The 'rubygems'
@@ -291,10 +350,38 @@
 # the 'rubygems'.  By default the gems component expects gems to
 # installed in a 'gems' subdirectory under the component directory.
 #
+# == Creating rubygems component
+#
+# Example: Create a directory name "platform_gems" somewhere under a
+# CABAR_PATH repository.
+#
+# Create repo/platform_gems/cabar.yml:
+#
+#   cabar:
+#     version: '1.0'
+#     component:
+#       name: gems
+#       version: '1.0'
+#       description: 'Local gems repository'
+#     provides:
+#       rubygems: true
+#     requires:
+#       component:
+#         rubygems: true
+#
 # == Installing gems into a rubygems platform component
 #
-#    cbr gems gem install rails - platform_gems/1.1
-#    cbr gems gem list - platform_gems/1.1
+#    > export CABAR_PATH=repo
+#    > cbr - platform_gems gems gem install rails 
+#    > cbr - platform_gems gems gem list 
+#
+# == Requiring a rubygems platform component
+#
+# TODO
+#
+# == Renderers
+#
+# TODO
 #
 module Cabar
   EMPTY_HASH = { }.freeze
