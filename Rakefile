@@ -17,6 +17,7 @@ http://cabar.rubyforge.org/files/README_txt.html
 
 }
 PKG_lib_ruby_dir = 'lib/ruby'
+PKG_manifest_reject = %r{example/.*/gems/.*/gems|example/doc}
 
 ######################################################################
 
