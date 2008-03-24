@@ -95,22 +95,28 @@ DOC
       end
 
       # Renders a Context as a Dot graph.
-      def render_Context cntx
-        @context = cntx
+      def render_Context context
+        @context = context
 
         # Get list of all components.
 
         available_components = 
-          cntx.
+          context.
           available_components.to_a.
           sort { |a, b| a.name <=> b.name }
 
         components = available_components
+
+        # $stderr.puts "components = #{components.inspect}"
+        # $stderr.puts "r_components = #{context.required_components.inspect}"
+
         unless show_unrequired_components
           components = components.select do | c |
-            @context.required_component? c
+            required? c
           end
         end
+
+        # $stderr.puts "components = #{components.inspect}"
 
         @components = components
 
@@ -168,12 +174,8 @@ DOC
             puts "// #{a_name} #{a.name}"
             puts "  subgraph #{dot_name a, :subgraph => true} {"
             puts "    label=#{''.inspect};"
-            #puts "    style=rounded;"
-            #puts "    label=#{a.name.inspect};"
-            #puts "    label=#{a.name.inspect};"
-            #puts "    color=black;"
-            #puts "    style=solid;"
-            
+            puts "    style=#{any_required ? :solid : :dotted};"
+
             if link_component_versions
               render_node a_name, 
               :shape => :component,
