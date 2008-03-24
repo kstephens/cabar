@@ -15,6 +15,16 @@ Cabar::Plugin.new :name => 'cabar/action' do
     cmd :list, <<'DOC' do
 [ <action> ] 
 List actions available on all components.
+
+Actions are commands that can be run on a component:
+
+Defined by:
+
+  facet:
+    action:
+      name_1: cmd_1
+      name_2: cmd_2
+
 DOC
       selection.select_available = true
       selection.to_a
@@ -27,6 +37,7 @@ DOC
         puts "    #{c.to_s(:short)}: "
         puts "      action:"
         facet.action.each do | k, v |
+          next if action && ! (action === k)
           puts "        #{k}: #{v.inspect}"
         end
       end
