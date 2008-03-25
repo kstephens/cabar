@@ -12,7 +12,7 @@ DOC
   # Ruby library facet
   #
 
-  facet 'lib/ruby', :var => :RUBYLIB, :inferrable => true
+  facet 'lib/ruby', :env_var => :RUBYLIB, :inferrable => true
 
 end # plugin
 

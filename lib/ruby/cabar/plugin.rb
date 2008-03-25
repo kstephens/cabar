@@ -1,7 +1,7 @@
 require 'cabar/base'
 
 require 'cabar/context'
-require 'cabar/facet/standard' # Cabar::Facet::EnvVarPath
+require 'cabar/facet/standard' # Cabar::Facet::Path
 require 'cabar/main'
 require 'cabar/observer'
 
@@ -158,7 +158,7 @@ module Cabar
         opts ||= { }
 
         opts[:key] = name
-        opts[:class] ||= Facet::EnvVarPath
+        opts[:class] ||= Facet::Path
         cls = opts[:class]
         opts.delete(:class)
         opts[:_defined_in] = @plugin

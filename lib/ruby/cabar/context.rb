@@ -455,7 +455,7 @@ END
         end
       end
 
-      # Select all EnvVarPath facets.
+      # Select all Path facets.
       # Append the current environment paths to the end.
       Facet.
       prototypes.
@@ -463,7 +463,7 @@ END
       map { | f | f.key }.
       each do | ft |
         fp = Facet.proto_by_key(ft)
-        if (v = ENV[fp.var])
+        if (v = ENV[fp.env_var])
           f = coll[ft]
           facet = Facet.create(ft, 
                                :path => Cabar.path_split(v),
@@ -477,7 +477,7 @@ END
         end
       end
 
-      # Select all EnvVarPath facets.
+      # Select all Path facets.
       # Append the current environment paths to the end.
       Facet.
       prototypes.
@@ -485,7 +485,7 @@ END
       map { | f | f.key }.
       each do | ft |
         fp = Facet.proto_by_key(ft)
-        if (v = ENV["CABAR_PRE_#{fp.var}"])
+        if (v = ENV["CABAR_PRE_#{fp.env_var}"])
           f = coll[ft]
 
           facet = Facet.create(ft, 

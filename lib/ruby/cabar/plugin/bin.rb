@@ -9,7 +9,7 @@ Cabar::Plugin.new :name => 'cabar/bin' do
   # bin facet
   #
 
-  facet :bin,     :var => :PATH, :inferrable => true
+  facet :bin, :env_var => :PATH, :inferrable => true
 
   cmd_group :bin do
     cmd [ :run, :exec ], <<'DOC' do

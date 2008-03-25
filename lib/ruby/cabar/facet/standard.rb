@@ -26,7 +26,7 @@ module Cabar
       # key/value pair in the option Hash.
       def attach_component! c
         vars.each do | n, v |
-          c.create_facet(:env_var, :var => n, :value => v)
+          c.create_facet(:env_var, :env_var => n, :value => v)
         end
       end
     end # class
@@ -38,11 +38,19 @@ module Cabar
 
     # A basic environment variable facet.
     class EnvVar < self
-      attr_accessor :var
+      attr_accessor :env_var
+
       attr_accessor :value
 
+      def var
+        raise ArgumentError
+      end
       def var= x
-        @var = x && x.to_s
+        raise ArgumentError
+      end
+
+      def env_var= x
+        @env_var = x && x.to_s
         x
       end
 
@@ -50,8 +58,9 @@ module Cabar
         true
       end
 
+      COMPONENT_ASSOCATIONS = [ 'environment'.freeze ].freeze
       def component_associations
-        [ 'environment' ]
+        COMPONENT_ASSOCATIONS
       end
 
       def compose_facet! facet
@@ -59,19 +68,19 @@ module Cabar
         if @value == nil || @value == value
           @value = value 
         else
-          raise "EnvVar #{var.inspect} already set #{@value.inspect}"
+          raise "EnvVar #{env_var.inspect} already set #{@value.inspect}"
         end
         self
       end
 
       def render r
-        r.setenv(var, value)
+        r.setenv(env_var, value)
       end
 
       def to_a
         super +
           [
-           [ :var, var ],
+           [ :env_var, env_var ],
            [ :value, value ],
           ]
       end
@@ -79,10 +88,45 @@ module Cabar
 
 
     # A facet that represents a directory search path.
+    #
+    # If env_var is set,
+    # it can be compose an environment variable
+    # from paths in many components.
+    #
+    # Used for composing PATH, RUBYLIB, PERL5LIB
+    # environment variables to reintegrate modules
+    # and programs.
     class Path < self
       attr_accessor :std_path
       attr_accessor :path
       attr_accessor :abs_path
+      attr_accessor :env_var
+
+      def var
+        raise ArgumentError
+      end
+      def var= x
+        raise ArgumentError
+      end
+
+      COMPONENT_ASSOCIATIONS = [ 'provides' ].freeze
+      COMPONENT_ASSOCIATIONS_ENV_VAR = [ 'provides', 'environment' ].freeze
+      def component_associations
+        if is_env_var?
+          COMPONENT_ASSOCIATIONS_ENV_VAR
+        else
+          COMPONENT_ASSOCIATIONS
+        end
+      end
+
+      def env_var= x
+        @env_var = x && x.to_s
+        x
+      end
+
+      def is_env_var?
+        @env_var
+      end
 
       def deepen_dup!
         super
@@ -110,13 +154,21 @@ module Cabar
           path.map { | x | File.expand_path(x, owner.base_directory) }
       end
 
+      def render r
+        r.setenv(env_var, abs_path.uniq.join(r.path_sep))
+      end
+
+      def value
+        abs_path.uniq.join(Cabar.path_sep)
+      end
+
       def compose_facet! facet
         @abs_path = (abs_path + facet.abs_path).uniq
         self
       end
 
       def to_s
-        "#<#{self.class} #{key.inspect} #{abs_path.inspect}>"
+        "#<#{self.class} #{key.inspect} #{env_var.inspect} #{abs_path.inspect}>"
       end
 
       def inspect
@@ -125,6 +177,7 @@ module Cabar
  
       def to_a
         x = super
+        x.puts [ :env_var, env_var ] if @env_var
         x.push [ :path, path ]
         x.push [ :abs_path, abs_path ]
         x
@@ -162,48 +215,9 @@ module Cabar
       end
     end # class
 
-
-    # A Facet that can compose an environment variable
-    # from paths in many components.
-    #
-    # Used for composing PATH, RUBYLIB, PERL5LIB
-    # environment variables to reintegrate modules
-    # and programs.
-    class EnvVarPath < Path
-      attr_accessor :var
-
-      def var= x
-        @var = x && x.to_s
-        x
-      end
-
-      def is_env_var?
-        true
-      end
-
-      def component_associations
-        [ 'provides', 'environment' ]
-      end
-
-      def value
-        abs_path.uniq.join(', ')
-      end
-
-      def render r
-        r.setenv(var, abs_path.uniq.join(r.path_sep))
-      end
-
-      def to_a
-        x = super
-        x[2, 0] = [ [ :var, var ] ]
-        x
-      end
-    end
-
   end # class
 
 end # module
-
 
 
 require 'cabar/facet/required_component'

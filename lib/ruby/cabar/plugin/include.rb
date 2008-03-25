@@ -11,7 +11,7 @@ DOC
   # C include facet
   #
 
-  facet :include, :var => :INCLUDE_PATH
+  facet :include, :env_var => :INCLUDE_PATH
 
 end # plugin
 

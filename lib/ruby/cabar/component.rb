@@ -287,7 +287,7 @@ module Cabar
         end
         
         (conf['environment'] || EMPTY_HASH).each do | k, v |
-          opts = { :var => k, :value => v }
+          opts = { :env_var => k, :value => v }
           f = create_facet :env_var, opts
         end
 

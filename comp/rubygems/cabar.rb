@@ -5,7 +5,7 @@ DOC
 
   facet :rubygems, 
         :path => [ 'gems' ], 
-        :var => :GEM_PATH
+        :env_var => :GEM_PATH
 
   cmd_group [ :rubygems, :gems ] do
 

@@ -12,7 +12,7 @@ DOC
   # Perl library facet
   #
 
-  facet 'lib/perl', :var => :PERL5LIB, :inferrable => true
+  facet 'lib/perl', :env_var => :PERL5LIB, :inferrable => true
 
 end # plugin
 
