@@ -177,7 +177,7 @@ module Cabar
  
       def to_a
         x = super
-        x.puts [ :env_var, env_var ] if @env_var
+        x.push [ :env_var, env_var ] if env_var
         x.push [ :path, path ]
         x.push [ :abs_path, abs_path ]
         x
