@@ -38,12 +38,6 @@ end
 
 require "#{CURRENT_DIR}/rake_helper.rb"
 
-task :make_manifest => :make_p4ignore
-
-task :make_p4ignore do
-  sh "ls -d * | sort > .p4ignore"
-end
-
 desc "Generates example docs"
 task :docs_example => :docs do
   sh "cd example && rake doc_graphs"
