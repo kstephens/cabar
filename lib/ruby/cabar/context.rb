@@ -425,21 +425,30 @@ END
     # from all required components.
     def facets 
       @facets ||=
-        collect_facets.first
+        collected_facets.first
     end
 
     # Returns a Hash of all non-composable facets for each
     # component.
     def comp_facets
       @comp_facets ||=
-        collect_facets.pop
+        collected_facets[1]
+    end
+
+
+    def collected_facets
+      @collected_facets ||=
+        collect_facets
     end
 
     # Collects and composes all Facets provided in
-    # all required components.
+    # all required components in dependencency order.
+    #
+    # Dependency order allows top-level components Facets to
+    # occur before depended components in PATH, RUBYLIB, and
+    # other search path oriented environment variables.
     def collect_facets coll = { }, comp_facet = { }
-      # Collect/compose all facets in dependency order.
-      @required_components.each do | c |
+      component_dependencies(@required_components.to_a).each do | c |
         next unless c.complete?
         c.provides.each do | facet |
           next unless facet.enabled?
