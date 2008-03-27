@@ -171,20 +171,22 @@ end
 
 desc "p4 edit, svn update, p4 submit"
 task :p4_submit do
+  m = ENV['m'] || "From #{ENV['USER']}@#{ENV['HOST']}"
   sh "p4 edit ..."
   sh "xargs p4 add < Manifest.txt"
-  sh "p4 edit ..."
   sh "svn update"
+  sh "svn ci -m #{m.inspect}"
   # sh "p4 revert -a ..."
-  sh "p4 submit -r ..."
+  sh "p4 submit #{ENV['c'] ? "-c #{ENV['c']}" : ''} ..."
+  sh "p4 edit ..."
 end
 
 
 desc "p4 edit, svn ci"
 task :svn_ci do
-  msg = ENV['msg'] || "From #{ENV['USER']}@#{ENV['HOST']}"
+  m = ENV['m'] || "From #{ENV['USER']}@#{ENV['HOST']}"
   sh "p4 edit ..."
-  sh "svn ci -m #{msg.inspect}"
+  sh "svn ci -m #{m.inspect}"
   sh "p4 revert -a ..."
 end
 
