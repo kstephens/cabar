@@ -86,6 +86,7 @@ lib/ruby/cabar/renderer.rb
 lib/ruby/cabar/renderer/dot.rb
 lib/ruby/cabar/renderer/env_var.rb
 lib/ruby/cabar/renderer/yaml.rb
+lib/ruby/cabar/run_time.rb
 lib/ruby/cabar/selection.rb
 lib/ruby/cabar/sort.rb
 lib/ruby/cabar/version.rb
