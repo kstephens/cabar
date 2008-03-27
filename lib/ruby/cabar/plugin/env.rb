@@ -14,7 +14,7 @@ DOC
   facet :env,     :class => Cabar::Facet::EnvVarGroup
   cmd :env, <<'DOC' do
 
-Lists the environment variables for a selected component
+Lists the environment variables for required components
 as a sourceable /bin/sh script.
 DOC
     selection.select_required = true
