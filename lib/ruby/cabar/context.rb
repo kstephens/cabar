@@ -1,5 +1,16 @@
 require 'cabar/base'
 
+require 'cabar/version'
+require 'cabar/version/requirement'
+require 'cabar/version/set'
+require 'cabar/context'
+require 'cabar/renderer'
+require 'cabar/facet'
+require 'cabar/facet/standard'
+require 'cabar/relationship'
+require 'cabar/component'
+require 'cabar/component/set'
+
 require 'cabar/configuration'
 require 'cabar/loader'
 require 'cabar/facet'
@@ -376,6 +387,17 @@ END
       notify_observers :after_validate_components!
       
       self
+    end
+
+
+    # Returns an Array of all required Components in
+    # dependency order.
+    def required_component_dependencies
+      resolve_components!
+
+      validate_components!
+
+      component_dependencies required_components.to_a
     end
 
 
