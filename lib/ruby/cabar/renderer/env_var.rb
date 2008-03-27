@@ -20,21 +20,25 @@ module Cabar
         Cabar.path_sep
       end
 
-      # Renders a Context object.
+      # Renders a Context object,
+      # Using the Context's current required_components_dependencies.
+      #
       def render_Context x
         comment "Cabar config"
+
+        comps = x.required_component_dependencies
         
         self.env_var_prefix = "CABAR_"
-        setenv "top_level_component", x.top_level_components.map{ | c | c.name }.join(" ")
+        setenv "TOP_LEVEL_COMPONENTS", x.top_level_components.map{ | c | c.name }.join(" ")
         
-        setenv "required_components", x.required_components.map{ | c | c.name }.join(" ")
-        x.required_components.each do | c |
+        setenv "REQUIRED_COMPONENTS", comps.map{ | c | c.name }.join(" ")
+        comps.each do | c |
           comment nil
           comment "Cabar component #{c.name}"
           self.env_var_prefix = "CABAR_#{c.name}_"
-          setenv :version, c.version
-          setenv :directory, c.directory
-          setenv :base_directory, c.base_directory
+          setenv :VERSION, c.version
+          setenv :DIRECTORY, c.directory
+          setenv :BASE_DIRECTORY, c.base_directory
           c.provides.each do | facet |
             comment nil
             comment "facet #{facet.key.to_s.inspect}"
@@ -77,7 +81,7 @@ module Cabar
         name = name.to_s
         val = val.to_s
         if env_var_prefix == ''
-          _setenv "CABAR__#{name}", val
+          _setenv "CABAR_THIS_#{name}", val
         end
         _setenv "#{env_var_prefix}#{name}", val
       end
@@ -105,11 +109,12 @@ module Cabar
         end
       end
 
+      # Note renders RUBYLIB directly into $:.
       def _setenv name, val 
         if verbose
           $stderr.puts "# #{$0} setenv #{name.inspect} #{val.inspect}"
         end
-        if (v = @env[name]) && ! @env[save_name = "CABAR___#{name}"]
+        if (v = @env[name]) && ! @env[save_name = "CABAR_BEFORE_#{name}"]
           @env[save_name] = v
         end
         @env[name] = val
