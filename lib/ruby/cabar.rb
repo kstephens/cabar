@@ -494,15 +494,5 @@ require 'cabar/hash'
 
 require 'cabar/base'
 require 'cabar/error'
-require 'cabar/version'
-require 'cabar/version/requirement'
-require 'cabar/version/set'
-require 'cabar/context'
-require 'cabar/renderer'
-require 'cabar/facet'
-require 'cabar/facet/standard'
-require 'cabar/relationship'
-require 'cabar/component'
-require 'cabar/component/set'
 
 
