@@ -205,6 +205,44 @@
 #       lib/ruby/
 #         boc_config.rb
 #
+# === The boc_config Component
+#
+# repo/boc_config/cabar.yml:
+#
+#   ---
+#   cabar:
+#     version: v1.0
+#     component:
+#       name: boc_config
+#     plugin: cabar.rb
+#     facet:
+#       lib/ruby: true
+#     requires:
+#       component:
+#         ruby: true
+#         
+#
+# "boc_config" has a cabar plugin, which defines the 
+# "boc_config_path" facet and the actual Ruby code
+# of the component: lib/ruby/boc_config.rb.
+#
+# === The boc_config_path Facet
+#
+# repo/boc_config/cabar.rb:
+#
+#   Cabar::Plugin.new do
+#     facet :boc_config_path, 
+#       :env_var => :BOC_CONFIG_PATH,
+#       :std_path => 'conf'
+#   end
+#
+# The 'boc_config_path' Facet will use 'conf' as the default
+# directory.  The Facet will collect all the configuration directories
+# of the components using the 'boc_config_path' facet into 
+# the BOC_CONFIG_PATH environment variable.
+#
+# === The boc Component
+#
 # repo/boc/cabar.yml:
 #
 #   ---
@@ -223,37 +261,10 @@
 #
 # This specifies "boc" as a component that
 # has a "bin" directory with programs and
-# a boc_config_path configuration file
-# directory to be used by the "boc_config"
-# component.
+# a configuration file directory named 'conf',
+# by default to be used by the "boc_config"
+# component to locate "boc" configuration files.
 # 
-# repo/boc_config/cabar.yml:
-#
-#   ---
-#   cabar:
-#     version: v1.0
-#     component:
-#       name: boc_config
-#     plugin: cabar.rb
-#     facet:
-#       lib/ruby: true
-#     requires:
-#       component:
-#         ruby: true
-#         
-#
-# "boc_config" has a cabar plugin, which defines the 
-# "boc_config_path" facet and the actual Ruby code
-# of the component: lib/ruby/boc_config.rb
-#
-# repo/boc_config/cabar.rb:
-#
-#   Cabar::Plugin.new do
-#     facet :boc_config_path, 
-#       :env_var => :BOC_CONFIG_PATH,
-#       :std_path => 'conf'
-#   end
-#
 # === The cbr Command
 #
 # To get a list of commands availale in cbr, run:
