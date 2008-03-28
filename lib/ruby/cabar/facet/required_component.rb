@@ -73,6 +73,13 @@ module Cabar
         @resolved_component = c
         c.add_dependent! self.owner
         c.append_configuration! self.configuration
+
+        # This is very ugly.
+        c.context.available_components.each do | comp |
+          comp.facets.each do | facet |
+            facet.component_dependency_resolved!
+          end
+        end
       end
       
       

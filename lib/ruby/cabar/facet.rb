@@ -40,6 +40,7 @@ module Cabar
 
     # The Context object.
     attr_accessor :context
+
     # The configuration hash.
     attr_accessor :configuration
 
@@ -224,6 +225,11 @@ module Cabar
     #
     # Subclasses may override this.
     def require_component!
+    end
+
+    # Called when a component owning this facet
+    # has resolved component dependency.
+    def component_dependency_resolved!
     end
 
     # Used for YAML formatting and general inspection.

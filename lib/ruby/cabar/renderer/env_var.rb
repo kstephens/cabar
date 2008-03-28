@@ -57,7 +57,7 @@ module Cabar
         
         x.facets.values.each do | facet |
           comment nil
-          comment "facet #{facet.key.inspect}"
+          comment "facet #{facet.key.inspect} owner #{facet.owner}"
           facet.render self
         end
       end
@@ -81,7 +81,7 @@ module Cabar
         name = name.to_s
         val = val.to_s
         if env_var_prefix == ''
-          _setenv "CABAR_THIS_#{name}", val
+          _setenv "CABAR_ENV_#{name}", val
         end
         _setenv "#{env_var_prefix}#{name}", val
       end

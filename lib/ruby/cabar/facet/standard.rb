@@ -97,17 +97,26 @@ module Cabar
     # environment variables to reintegrate modules
     # and programs.
     class Path < self
+      # The standard path for instances of this Facet prototype.
+      # Defaults to the Facet's key.
       attr_accessor :std_path
+
+      # The array of paths relative to the Component's base_directory.
       attr_accessor :path
+     
+      # The absolute path names for each element in path.
       attr_accessor :abs_path
+
+      # The environment variable associated with this Facet.
+      # If set, is_env_var? is true and
+      # this Facet is composable in Context#compose_facets.
       attr_accessor :env_var
 
-      def var
-        raise ArgumentError
-      end
-      def var= x
-        raise ArgumentError
-      end
+      # If set, the generated abs_path will
+      # have [ x, "#{x}/#{arch_dir}" ] for
+      # each element x in path.
+      attr_accessor :arch_dir
+
 
       COMPONENT_ASSOCIATIONS = [ 'provides' ].freeze
       COMPONENT_ASSOCIATIONS_ENV_VAR = [ 'provides', 'environment' ].freeze
@@ -148,14 +157,49 @@ module Cabar
           default_path
       end
 
-      def abs_path
-        @abs_path ||= 
-          owner &&
-          path.map { | x | File.expand_path(x, owner.base_directory) }
+      def arch_dir_value
+        case @arch_dir
+        when Proc
+          @arch_dir.call(self)
+        else
+          @arch_dir
+        end
       end
 
+      def uncache_abs_path!
+        @abs_path = nil
+      end
+
+      def abs_path
+        @abs_path ||= 
+        owner &&
+        begin
+          @abs_path = [ ] # recursion lock.
+          x = path.map { | dir | File.expand_path(dir, owner.base_directory) }
+          arch_dir = arch_dir_value
+          if arch_dir
+            # arch_dir = [ arch_dir ] unless Array === arch_dir
+            x.map! do | dir |
+              if File.directory?(dir_arch = File.join(dir, arch_dir))
+                dir = [ dir, dir_arch ]
+                # $stderr.puts "  arch_dir: dir = #{dir.inspect}"
+              end
+              dir
+            end
+            x.flatten!
+            # $stderr.puts "  arch_dir: x = #{x.inspect}"
+          end
+
+          @abs_path = x
+        end
+      end
+
+      # FIXME: This should be refactored to the render as
+      # render_Path.
       def render r
-        r.setenv(env_var, abs_path.uniq.join(r.path_sep))
+        if is_env_var?
+          r.setenv(env_var, abs_path.uniq.join(r.path_sep))
+        end
       end
 
       def value
@@ -163,7 +207,12 @@ module Cabar
       end
 
       def compose_facet! facet
+        # At this time: arch_path usage in abs_path should be resolvable.
+        # facet.uncache_abs_path!
         @abs_path = (abs_path + facet.abs_path).uniq
+        #if @key == 'cnu_config_path'
+        #  $stderr.puts "compose_facet! #{@key.inspect}\n  owner = #{@owner}\n  abs_path = #{@abs_path.inspect}"
+        #end
         self
       end
 

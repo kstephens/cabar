@@ -1,8 +1,8 @@
 <%
   # Calls ruby to get information about itself.
   # Plugin info about ruby into a "ruby" component via eRB below.
-  ruby_info = eval `ruby -e 'x = { :version => RUBY_VERSION, :patchlevel => (RUBY_PATCHLEVEL rescue 0), :load_path => $: }; puts x.inspect;'`.chomp
-  ruby_info[:prog] = `which ruby`.chomp
+  ruby_info = eval `ruby -r rbconfig -e 'x = { :version => RUBY_VERSION, :patchlevel => (RUBY_PATCHLEVEL rescue 0), :load_path => $:, :ruby_arch => Config::CONFIG["arch"] }; puts x.inspect;'`.chomp
+  ruby_info[:prog] = File.expand_path(`which ruby`.chomp)
   ruby_info[:available] = ! ruby_info[:prog].to_s.empty?
   ruby_info[:bin] = File.dirname(ruby_info[:prog])
   # pp ruby_info
@@ -15,6 +15,8 @@ cabar:
     description: "Ruby - <%= ruby_info[:prog] %>"
     enabled: <%= ruby_info[:available].inspect %>
     base_directory: <%= File.dirname(ruby_info[:bin]).inspect %>
+    ruby: 
+      arch: <%= ruby_info[:ruby_arch].inspect %>
   provides:
     bin:
       abs_path: [ <%= ruby_info[:bin].inspect %> ]

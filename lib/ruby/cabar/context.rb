@@ -447,7 +447,7 @@ END
     # from all required components.
     def facets 
       @facets ||=
-        collected_facets.first
+        collected_facets[0]
     end
 
     # Returns a Hash of all non-composable facets for each
@@ -459,7 +459,7 @@ END
 
 
     def collected_facets
-      @collected_facets ||=
+#      @collected_facets ||=
         collect_facets
     end
 
@@ -470,27 +470,37 @@ END
     # occur before depended components in PATH, RUBYLIB, and
     # other search path oriented environment variables.
     def collect_facets coll = { }, comp_facet = { }
-      component_dependencies(@required_components.to_a).each do | c |
+      component_dependencies(required_components.to_a).each do | c |
         next unless c.complete?
+        # $stderr.puts "  collect_facets c = #{c}"
         c.provides.each do | facet |
           next unless facet.enabled?
+          f = nil
           if facet.is_composable? 
             if f = coll[facet.key]
               f.compose_facet! facet
+              f
             else
-              coll[facet.key] = facet.dup
+              f = coll[facet.key] = facet.dup
             end
           else
             (comp_facet[c] ||= [ ]) << facet
+            f = facet
           end
+          #if f.key == 'cnu_config_path'
+          #  $stderr.puts "    f = #{f}\n  owner = #{f.owner}"
+          #end
         end
       end
 
       # Select all Path facets.
       # Append the current environment paths to the end.
-      Facet.
-      prototypes.
-      select { | f | f.is_env_var? }.
+      env_var_facets =
+        Facet.
+        prototypes.
+        select { | f | f.is_env_var? }
+
+      env_var_facets.
       map { | f | f.key }.
       each do | ft |
         fp = Facet.proto_by_key(ft)
@@ -498,6 +508,7 @@ END
           f = coll[ft]
           facet = Facet.create(ft, 
                                :path => Cabar.path_split(v),
+                               :context => self,
                                :owner => self)
           
           if f 
@@ -510,9 +521,7 @@ END
 
       # Select all Path facets.
       # Append the current environment paths to the end.
-      Facet.
-      prototypes.
-      select { | f | f.is_env_var? }.
+      env_var_facets.
       map { | f | f.key }.
       each do | ft |
         fp = Facet.proto_by_key(ft)
@@ -520,7 +529,8 @@ END
           f = coll[ft]
 
           facet = Facet.create(ft, 
-                               :path => Cabar.path_split(v), 
+                               :path => Cabar.path_split(v),
+                               :context => self,
                                :owner => self)
           
           facet.compose_facet! f if f
