@@ -1,11 +1,11 @@
 # -*- ruby -*-
 
-require 'cabar/version/debian'
+require 'cabar/version'
 
 
-describe Cabar::Version::Debian::Part do
+describe Cabar::Version::Part do
   def create x
-    Cabar::Version::Debian::Part.create x
+    Cabar::Version::Part.create x
   end
 
   it 'should handle nil, false' do
@@ -68,9 +68,9 @@ describe Cabar::Version::Debian::Part do
 end
 
 
-describe Cabar::Version::Debian do
+describe Cabar::Version do
   def create x
-    Cabar::Version::Debian.create x
+    Cabar::Version.create x
   end
 
   it 'should handle nil, false' do

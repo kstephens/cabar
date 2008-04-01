@@ -6,9 +6,6 @@
 
 = TO DO:
 
-* Use Debian version strings as they are a superset of Gem version
-  strings.
-
 * Fix dirty Hoe test runs.
 
 * Add basic run-time support for component introspection.

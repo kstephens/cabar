@@ -1,74 +1,153 @@
-# This file is an modified version of rubygems/version.rb
-# With it module namespace changed.
-# 
-#--
-# Copyright 2006 by Chad Fowler, Rich Kilmer, Jim Weirich and others.
-# All rights reserved.
-# See LICENSE.txt for permissions.
-#++
-
 require 'cabar'
 
-##
-# The Version class processes string versions into comparable values
-class Cabar::Version
 
+module Cabar
+
+##
+# Component Version String.
+#
+# Based on Debian version string semantics.
+#
+# See http://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-Version
+#
+class Version
   include Comparable
 
-  attr_reader :ints
-
+  # The input string.
   attr_reader :version
 
-  ##
-  # Checks if version string is valid format
+  # This is a single (generally small) unsigned integer. It may be omitted, in which case zero is assumed. If it is omitted then the upstream_version may not contain any colons.
   #
-  # str:: [String] the version string
-  # return:: [Boolean] true if the string format is correct, otherwise false
+  # It is provided to allow mistakes in the version numbers of older versions of a package, and also a package's previous version numbering schemes, to be left behind.
   #
+  attr_reader :epoch
+
+  # This is the main part of the version number. It is usually the version number of the original ("upstream") package from which the .deb file has been made, if this is applicable. Usually this will be in the same format as that specified by the upstream author(s); however, it may need to be reformatted to fit into the package management system's format and comparison scheme.
+  #
+  # The comparison behavior of the package management system with respect to the upstream_version is described below. The upstream_version portion of the version number is mandatory.
+  #
+  # The upstream_version may contain only alphanumerics[32] and the characters . + - : ~ (full stop, plus, hyphen, colon, tilde) and should start with a digit. If there is no debian_revision then hyphens are not allowed; if there is no epoch then colons are not allowed.
+  #
+  attr_reader :upstream_version
+
+  # This part of the version number specifies the version of the Debian package based on the upstream version. It may contain only alphanumerics and the characters + . ~ (plus, full stop, tilde) and is compared in the same way as the upstream_version is.
+  #
+  # It is optional; if it isn't present then the upstream_version may not contain a hyphen. This format represents the case where a piece of software was written specifically to be turned into a Debian package, and so there is only one "debianisation" of it and therefore no revision indication is required.
+  #
+  # It is conventional to restart the debian_revision at 1 each time the upstream_version is increased.
+  #
+  # The package management system will break the version number apart at the last hyphen in the string (if there is one) to determine the upstream_version and debian_revision. The absence of a debian_revision compares earlier than the presence of one (but note that the debian_revision is the least significant part of the version number).
+  #
+  attr_reader :debian_revision
+
+  # Matches the epoch.
+  EPOCH_RX            = '\d+'.freeze
+
+  # Matches the upstream_version.
+  UPSTREAM_VERSION_RX = '[0-9][0-9A-Za-z\.\+\-\:\~]*'.freeze
+
+  # Matches the debain_revision.
+  DEBIAN_REVISION_RX  = '[0-9][0-9A-Za-z\.\+\:\~]*'.freeze
+
+  # Matches a Debian version string.
+  VERSION_RX = /\A(?:(#{EPOCH_RX}):)?(#{UPSTREAM_VERSION_RX}?)(?:-(#{DEBIAN_REVISION_RX}))?\Z/
+
+  # True if version is a correctly formatted version string.
   def self.correct?(version)
     case version
-    when Integer, /\A\s*(\d+(\.\d+)*)*\s*\z/ then true
-    else false
+    when Integer, VERSION_RX
+      true
+    else 
+      false
     end
   end
 
-  ##
-  # Factory method to create a Version object.  Input may be a Version or a
-  # String.  Intended to simplify client code.
-  #
-  #   ver1 = Version.create('1.3.17')   # -> (Version object)
-  #   ver2 = Version.create(ver1)       # -> (ver1)
-  #   ver3 = Version.create(nil)        # -> nil
-  #
-  def self.create(input)
-    if input.respond_to? :version then
-      input
-    elsif input.nil? then
-      nil
+
+  def hash # :nodoc:
+    to_a.inject(0) { |hash_code, n| hash_code + n.hash }
+  end
+
+
+  # Creates new instance.
+  def self.create(x)
+    return x unless x
+    case 
+    when self === x
+      x
+    when x.respond_to?(:version)
+      create x.version
     else
-      new input
+      new x
     end
   end
 
-  ##
-  # Constructs a version from the supplied string
-  #
-  # version:: [String] The version string.  Format is digit.digit...
-  #
+
   def initialize(version)
-    raise ArgumentError, "Malformed version number string #{version}" unless
+    raise ArgumentError, "Malformed version number string #{version.inspect}" unless
       self.class.correct?(version)
 
     self.version = version
   end
 
-  def inspect # :nodoc:
+
+  def inspect 
     "#<#{self.class} #{@version.inspect}>"
   end
 
-  # Dump only the raw version string, not the complete object
+
+  # Decompose the @version string into epoch, upstream_version and debian_revision.
+  def normalize!
+    if VERSION_RX.match(@version)
+      # $stderr.puts "@version = #{@version.inspect}"
+      # $stderr.puts "$1 = #{$1.inspect}"
+      # $stderr.puts "$2 = #{$2.inspect}"
+      # $stderr.puts "$3 = #{$3.inspect}"
+
+      @epoch = ($1 ? $1.to_i : 0)
+      @upstream_version = Part.create($2)
+      @debian_revision = Part.create($3 || EMPTY_STRING)
+    end
+    self
+  end
+
+  # Compares by epoch, upstream_version, debian_revision.
+  def <=> x
+    case
+    when (r = epoch <=> x.epoch) != 0
+      r
+    when (r = upstream_version <=> x.upstream_version) != 0
+      r
+    when (r = debian_revision <=> x.debian_revision) != 0
+      r
+    else
+      0
+    end
+  end
+
+  alias eql? == # :nodoc:
+  
+  # Returns the original version String.
+  def to_s
+    @version
+  end
+
+  # Returns the epoch, upstream_version and debian_revision.
+  def to_a
+    [ @epoch, @upstream_version, @debian_revision ]
+  end
+
+  def version=(version)
+    version = version.to_s.strip.freeze
+    if @version != version
+      @version = version
+      normalize!
+    end
+    version
+  end
+
+  # Dump only the raw version string, not the complete object.
   def marshal_dump
-    [@version]
+    [ @version ]
   end
 
   # Load custom marshal format
@@ -76,96 +155,83 @@ class Cabar::Version
     self.version = array[0]
   end
 
-  # Strip ignored trailing zeros.
-  def normalize
-    @ints = build_array_from_version_string
-
-    return if @ints.length == 1
-
-    @ints.pop while @ints.last == 0
-
-    @ints = [0] if @ints.empty?
-  end
-
-  ##
-  # Returns the text representation of the version
-  #
-  # return:: [String] version as string
-  #
-  def to_s
-    @version
-  end
-
-  ##
-  # Convert version to integer array
-  #
-  # return:: [Array] list of integers
-  #
-  def to_ints
-    normalize unless @ints
-    @ints
-  end
-
   def to_yaml_properties
-    ['@version']
-  end
-
-  def version=(version)
-    @version = version.to_s.strip
-    normalize
+    [ '@version' ]
   end
 
   def yaml_initialize(tag, values)
     self.version = values['version']
   end
 
-  ##
-  # Compares two versions
-  #
-  # other:: [Version or .ints] other version to compare to
-  # return:: [Fixnum] -1, 0, 1
-  #
-  def <=>(other)
-    return 1 unless other
-    @ints <=> other.ints
-  end
-
-  alias eql? == # :nodoc:
-
-  def hash # :nodoc:
-    to_ints.inject { |hash_code, n| hash_code + n }
-  end
-
-  # Return a new version object where the next to the last revision
-  # number is one greater. (e.g.  5.3.1 => 5.4)
-  def bump
-    ints = build_array_from_version_string
-    ints.pop if ints.size > 1
-    ints[-1] += 1
-    self.class.new(ints.join("."))
-  end
-
-  def build_array_from_version_string
-    @version.to_s.scan(/\d+/).map { |s| s.to_i }
-  end
-  private :build_array_from_version_string
-
-  #:stopdoc:
-
-  # require 'rubygems/requirement'
-
-  # Gem::Requirement's original definition is nested in Version.
-  # Although an inappropriate place, current gems specs reference the nested
-  # class name explicitly.  To remain compatible with old software loading
-  # gemspecs, we leave a copy of original definition in Version, but define an
-  # alias Gem::Requirement for use everywhere else.
-
-  # Requirement = ::Gem::Requirement
-
-  # :startdoc:
-
 
   ################################################
+
+  # Represents the comparable parts of Debian version
+  # upstream_version and debian_revision.
+  #
+  class Part
+    include Comparable
+    
+    def to_s
+      @to_s
+    end
+
+    def to_a
+      @to_a
+    end
+
+    def <=> x
+      @to_a <=> x.to_a
+    end
+
+    def hash
+      @to_a.hash
+    end
+
+    def self.create x
+      case x
+      when self
+        x
+      when String
+        new x
+      when Integer
+        new x
+      when Array
+        new x
+      when false, nil
+        x
+      else
+        raise ArgumentError, "Bad format for #{self} #{x.inspect}"
+      end
+    end
+
+    MIN_NUMBER = -99999
+
+    def initialize x
+      case x
+      when Array
+        @to_s = x.join('').freeze
+        @to_a = x.dup.freeze
+      when Integer
+        @to_s = x.to_s.freeze
+        @to_a = [ '', x ].freeze
+      when String
+        @to_s = x.dup.freeze
+        @to_a = [ ]
+        x.scan(/([^0-9]*)([0-9]*)/) do | x |
+          unless $1.empty? && $2.empty?
+            @to_a << $1.freeze
+            @to_a << ($2.empty? ? MIN_NUMBER : $2.to_i)
+          end
+        end
+        @to_a.freeze
+      else
+        raise ArgumentError, "Unexpected format for #{self.class} #{x.inspect}"
+      end
+    end
+  end # class
+
+  ########################################################
 
   def self.create_cabar x
     # $stderr.puts "V = #{x.inspect}"
@@ -175,9 +241,12 @@ class Cabar::Version
     when Cabar::Version::Requirement
       Cabar::Version.create(x.to_s)
     else
-      warn "Do not use float #{x} for version" if Float === x
+      warn "Do not use Float #{x.inspect} for version" if Float === x
       Cabar::Version.create(x.to_s.sub(/^v/i, ''))
     end
   end
-end
+end # class
+
+end # module
+
 
