@@ -1,6 +1,9 @@
 # -*- ruby -*-
 
 require 'cabar'
+require 'cabar/component'
+require 'cabar/version'
+
 
 module Cabar::Test; end
 

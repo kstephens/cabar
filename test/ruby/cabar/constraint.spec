@@ -1,6 +1,6 @@
 # -*- ruby -*-
 
-require 'cabar'
+require 'cabar/constraint'
 
 require 'cabar/test/name_version'
 

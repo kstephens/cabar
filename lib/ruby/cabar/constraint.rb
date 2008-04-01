@@ -1,5 +1,9 @@
 require 'cabar/base'
 
+require 'cabar/version'
+require 'cabar/version/requirement'
+
+
 module Cabar
 
   ALWAYS_HASH = { :_always => true }.freeze
