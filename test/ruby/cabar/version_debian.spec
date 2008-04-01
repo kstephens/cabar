@@ -2,8 +2,6 @@
 
 require 'cabar/version/debian'
 
-require 'cabar/test/name_version'
-
 
 describe Cabar::Version::Debian::Part do
   def create x
@@ -19,6 +17,8 @@ describe Cabar::Version::Debian::Part do
     x = create(5)
     x.should_not == nil
     x.to_a.should === [ '', 5 ]
+    y = create(4)
+    y.should < x
   end
 
   it 'should handle Array' do
@@ -37,7 +37,6 @@ describe Cabar::Version::Debian::Part do
     y = create('1.2.3')
     x.should == y
   end
-
 
   it 'should compare as equal' do
     v1 = '01.2.3'
@@ -82,6 +81,8 @@ describe Cabar::Version::Debian do
   it 'should handle Integer' do
     x = create(5)
     x.should_not == nil
+    y = create(4)
+    y.should < x
   end
 
 
