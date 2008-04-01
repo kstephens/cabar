@@ -91,7 +91,6 @@ lib/ruby/cabar/run_time.rb
 lib/ruby/cabar/selection.rb
 lib/ruby/cabar/sort.rb
 lib/ruby/cabar/version.rb
-lib/ruby/cabar/version/debian.rb
 lib/ruby/cabar/version/requirement.rb
 lib/ruby/cabar/version/set.rb
 rake_helper.rb
