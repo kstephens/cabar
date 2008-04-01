@@ -1,19 +1,13 @@
-# This file is an modified version of rubygems/version.rb
-# With it module namespace changed.
-# 
-#--
-# Copyright 2006 by Chad Fowler, Rich Kilmer, Jim Weirich and others.
-# All rights reserved.
-# See LICENSE.txt for permissions.
-#++
-
 require 'cabar'
 
-##
-# Implement Debian pacakage version scheme.
-# See http://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-Version
+
 module Cabar
 
+##
+# Debian version string.
+#
+# See http://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-Version
+#
 class Version::Debian
   include Comparable
 
@@ -58,6 +52,7 @@ class Version::Debian
     end
   end
 
+  # Compares by epoch, upstream_version, debian_revision.
   def <=> x
     case
     when (r = epoch <=> x.epoch) != 0
@@ -71,6 +66,7 @@ class Version::Debian
     end
   end
 
+  # Creates new instance.
   def self.create(x)
     return x unless x
     case 
@@ -85,7 +81,7 @@ class Version::Debian
 
 
   def initialize(version)
-    raise ArgumentError, "Malformed version number string #{version}" unless
+    raise ArgumentError, "Malformed version number string #{version.inspect}" unless
       self.class.correct?(version)
 
     self.version = version
@@ -95,9 +91,9 @@ class Version::Debian
     "#<#{self.class} #{@version.inspect}>"
   end
 
-  # Dump only the raw version string, not the complete object
+  # Dump only the raw version string, not the complete object.
   def marshal_dump
-    [@version]
+    [ @version ]
   end
 
   # Load custom marshal format
@@ -105,7 +101,7 @@ class Version::Debian
     self.version = array[0]
   end
 
-  # 
+  # Decompose the @version string into epoch, upstream_version and debian_revision.
   def normalize!
     if VERSION_RX.match(@version)
       # $stderr.puts "@version = #{@version.inspect}"
@@ -132,7 +128,7 @@ class Version::Debian
   end
 
   def to_yaml_properties
-    ['@version']
+    [ '@version' ]
   end
 
   def version=(version)
@@ -231,7 +227,7 @@ class Version::Debian
     when Cabar::Version::Requirement
       Cabar::Version.create(x.to_s)
     else
-      warn "Do not use float #{x} for version" if Float === x
+      warn "Do not use Float #{x.inspect} for version" if Float === x
       Cabar::Version::Debian.create(x.to_s.sub(/^v/i, ''))
     end
   end
