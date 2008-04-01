@@ -6,6 +6,10 @@
 
 = TO DO:
 
+* Fix dirty Hoe test runs.
+
+* Add basic run-time support for component introspection.
+
 * Add support for -S (select ) option.
 
 * Add support for CABAR_SELECT environment variable.
@@ -56,8 +60,9 @@
 
 * Need web_service facet
 
-    cbr bin lsws start
+    cbr bin lshttpd start
     cbr bin apache start
+    cbr action run httpd/start (???)
 
 * Facets realizations are not scoped. Provide a mechanism to select particular component facets rather than entire components.
 
