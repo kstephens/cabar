@@ -28,25 +28,38 @@ DOC
       arch
     }
 
+
   cmd_group :ruby do
-    cmd :rdoc, <<'DOC' do
-Generate rdoc documentation for any components containing 'lib/ruby' facets.
+    cmd :rdoc, <<"DOC" do
+[ --rdoc-directory=<dir> ]
+Generate rdoc documentation for components with lib/ruby facet.
+
+Facet/command options:
+
+* rdoc_directory: defaults to "gen/rdoc".
+* rdoc_generate: if false, rdoc is not run on the component's lib/ruby paths.
 DOC
+      #'emacs
 
       selection.select_required = true
       selection.to_a.each do | c |
         next unless f = c.facet('lib/ruby')
         next if f.rdoc_generate == false
-        puts "component #{c}:"
 
-        rdoc_dest = f.rdoc_directory || "gen/rdoc"
+        # Options
+        rdoc_dest = cmd_opts[:rdoc_directory] || f.rdoc_directory || "gen/rdoc"
         rdoc_dest = File.expand_path(rdoc_dest, c.directory)
+        cmd = cmd_opts[:rdoc_command] || f.rdoc_command || "rdoc --all --show-hash --inline-source --line-numbers "
 
-        cmd = "rdoc --all --show-hash --inline-source --line-numbers --title '#{c.name} #{c.version}' #{cmd_opts.map{|x| x.inspect}.join(' ')} -o #{rdoc_dest.inspect} #{f.abs_path.map{|x| x.inspect}.join(' ')}"
+        # Command line.
+        cmd = "#{cmd}--title '#{c.name} #{c.version}' #{cmd_opts.map{|x| x.inspect}.join(' ')} -o #{rdoc_dest.inspect} #{f.abs_path.map{|x| x.inspect}.join(' ')}"
 
+        # Output.
+        puts "component #{c}:"
         puts "  rdoc_directory: #{rdoc_dest.inspect}"
         puts "  rdoc_command: #{cmd.inspect}"
 
+        # Execute.
         system cmd
       end
     end
