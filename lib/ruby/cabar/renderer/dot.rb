@@ -51,6 +51,18 @@ Will render a <<created-from>> link from foo/1.2 to bar/1.3.
 
 DOC
 
+      command_option :show_component_name, true, <<'DOC'
+Show the component name.
+DOC
+
+      command_option :show_component_version, true, <<'DOC'
+Show the component version.
+DOC
+
+      command_option :show_component_directory, false, <<'DOC'
+Show the component directory.
+DOC
+
       command_option :show_facets, false, <<'DOC'
 Create facets as hexagons.
 DOC
@@ -239,7 +251,7 @@ DOC
         opts ||= EMPTY_HASH
         # $stderr.puts "render_Component #{c}"
 
-        tooltip = (c.description || c.to_s(:short))
+        tooltip = "#{c.to_s(:short)}: #{c.description}"
         unless complete?(c)
           tooltip << "; status: #{c.status}"
         end
@@ -287,7 +299,7 @@ DOC
 
         if link_component_versions
           render_edge c1, dot_name(c2, :version => false),
-            :tooltip => "depended from: #{c1.name}/#{c1.version}",
+            :tooltip => "depended by: #{c1.name}/#{c1.version}",
             :style => :dotted, 
             :arrowhead => :open,
             :color => complete?(c2) ? '#000000' : '#888888'
@@ -295,7 +307,7 @@ DOC
 
         render_edge c1, c2,
           :label => dot_label(d),
-          :tooltip => "#{c1.name}/#{c1.version}: depends on: #{c2.name}/#{c2.version}" + 
+          :tooltip => "#{c1.name}/#{c1.version} depends on #{c2.name}/#{c2.version}" + 
             (d.version ? "; requires: #{d.version}" : ''),
           :arrowhead => :vee,
           :style => required?(c1) && required?(c2) ? nil : :dotted,
@@ -470,11 +482,21 @@ DOC
             # * name and version
             # * directory
             # * facets (optional)
-            dir = x.directory.sub(/^#{@current_directory}/, './')
             str = ''
-            str << "#{x.name}"
-            str << "/#{x.version}" if opts[:version] != false
-            str << "\n#{dir}"
+
+            if show_component_name
+              str << "#{x.name}"
+            end
+
+            if show_component_version
+              str << "/#{x.version}" if opts[:version] != false
+            end
+
+            if show_component_directory
+              dir = x.directory.sub(/^#{@current_directory}/, './')
+              str << "\n#{dir}"
+            end
+
             if show_facet_names && opts[:show_facet_names] != false
               str << "\n"
               # <- <<exported facet name>>
