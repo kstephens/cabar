@@ -55,7 +55,6 @@ lib/ruby/cabar/command/runner.rb
 lib/ruby/cabar/command/standard.rb
 lib/ruby/cabar/command/state.rb
 lib/ruby/cabar/component.rb
-lib/ruby/cabar/component/debian.rb
 lib/ruby/cabar/component/set.rb
 lib/ruby/cabar/configuration.rb
 lib/ruby/cabar/constraint.rb
@@ -73,6 +72,7 @@ lib/ruby/cabar/plugin/action.rb
 lib/ruby/cabar/plugin/bin.rb
 lib/ruby/cabar/plugin/component.rb
 lib/ruby/cabar/plugin/config.rb
+lib/ruby/cabar/plugin/debian.rb
 lib/ruby/cabar/plugin/env.rb
 lib/ruby/cabar/plugin/facet.rb
 lib/ruby/cabar/plugin/help.rb
@@ -90,6 +90,7 @@ lib/ruby/cabar/renderer/yaml.rb
 lib/ruby/cabar/run_time.rb
 lib/ruby/cabar/selection.rb
 lib/ruby/cabar/sort.rb
+lib/ruby/cabar/test/name_version.rb
 lib/ruby/cabar/version.rb
 lib/ruby/cabar/version/requirement.rb
 lib/ruby/cabar/version/set.rb
@@ -97,6 +98,6 @@ rake_helper.rb
 src/doc/component_arch_v2.dia
 test/ruby/cabar/constraint.spec
 test/ruby/cabar/sort.spec
-test/ruby/cabar/test/name_version.rb
 test/ruby/cabar/version_debian.spec
 test/ruby/cabar/version_set.spec
+test/ruby/dummy.rb
