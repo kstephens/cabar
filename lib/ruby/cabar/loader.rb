@@ -6,6 +6,12 @@ require 'cabar/observer'
 
 
 module Cabar
+  # Loads components based on component search path (CABAR_PATH).
+  # 
+  # TO DO:
+  #
+  # * Refactor to handle gems and debian packages.
+  #
   class Loader < Base
     include Cabar::Observer::Observed
 
@@ -270,6 +276,9 @@ private
     end
 
     def parse_component! directory, conf_file = nil
+      # The component.
+      comp = nil
+
       # List of plugins loaded.
       @plugins = [ ]
 
@@ -318,6 +327,9 @@ private
         comp
       end
     rescue Exception => err
+      if comp
+        comp._options[:enabled] = false
+      end
       raise Error.new("in #{conf_file.inspect}: in #{self.class}", :error => err)
     end
     
