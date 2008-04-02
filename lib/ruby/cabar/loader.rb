@@ -91,6 +91,8 @@ module Cabar
     def load_components!
       log "load_components!"
 
+      notify_observers(:before_load_components!)
+
       path = nil
       dir = nil
 
@@ -120,6 +122,9 @@ module Cabar
         log "component #{c.inspect}"
       end
       
+
+      notify_observers(:after_load_components!)
+
       self
     rescue Exception => err
       raise Error.new('Loading components', 
