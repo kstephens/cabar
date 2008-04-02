@@ -4,13 +4,28 @@ require 'cabar/facet'
 module Cabar
   class Facet
 
+    # Expands string in context of the Facet's Component.
+    def expand_string str
+      return str unless String === str
+      if str =~ /\#\{/
+        str = '"' + str.sub(/[\\\/]/){|x| "\\#{x}"} + '"'
+        component.instance_eval(str)
+      else
+        str
+      end
+    end
+
     # This represents a set of environment variables.
     #
     #   facet:
     #     env_var:
     #       NAME1: v1
     #       NAME2: v2
+    #
+    # This decomposes itself into EnvVar Facets in
+    # attach_component! method.
     class EnvVarGroup < self
+      # Hash of environment variables.
       attr_accessor :vars
 
       def _reformat_options! opts
@@ -38,16 +53,11 @@ module Cabar
 
     # A basic environment variable facet.
     class EnvVar < self
+      # The name of this environment variable.
       attr_accessor :env_var
 
+      # The current value for this environment variable.
       attr_accessor :value
-
-      def var
-        raise ArgumentError
-      end
-      def var= x
-        raise ArgumentError
-      end
 
       def env_var= x
         @env_var = x && x.to_s
@@ -63,18 +73,26 @@ module Cabar
         COMPONENT_ASSOCATIONS
       end
 
+      # This will set the environment variable value,
+      # If not already set.
       def compose_facet! facet
         value = facet.value 
         if @value == nil || @value == value
           @value = value 
+          @setter ||= facet.component
         else
-          raise "EnvVar #{env_var.inspect} already set #{@value.inspect}"
+          raise "EnvVar #{env_var.inspect} already set to #{@value.inspect} by #{@setter.inspect}"
         end
+
         self
       end
 
+      # Renders this environment variable's value.
+      #
+      # FIXME: This should be refactored to the render as
+      # render_Path.
       def render r
-        r.setenv(env_var, value)
+        r.setenv(env_var, expand_string(value))
       end
 
       def to_a
@@ -134,7 +152,7 @@ module Cabar
       end
 
       def is_env_var?
-        @env_var
+        ! ! @env_var
       end
 
       def deepen_dup!
@@ -143,20 +161,28 @@ module Cabar
         @abs_path = @abs_path.dup rescue @abs_path
       end
 
+      # Returns std_path or the Facet prototype key.
       def default_path
         [ (std_path || key).to_s ]
       end
 
+      # This Facet is inferred if each element in abs_path
+      # exists on the file system.
       def inferred?
         p = abs_path
-        p.all? { | x | File.exist? x }
+        p && p.all? { | x | File.exist? x }
       end
 
+      # Returns the path.  If not set, default_path is used.
       def path
         @path ||= 
           default_path
       end
 
+      # Returns the architecture-specific subdirectory.
+      # If arch_dir is a Proc, it is called with self.
+      #
+      # See cabar/plugin/ruby.rb for an example.
       def arch_dir_value
         case @arch_dir
         when Proc
@@ -170,12 +196,17 @@ module Cabar
         @abs_path = nil
       end
 
+      # Calculates the absolute path of each element in path.
+      # arch_dir subdirectories are interpolated on each element, if
+      # they exist.
       def abs_path
         @abs_path ||= 
         owner &&
         begin
-          @abs_path = [ ] # recursion lock.
-          x = path.map { | dir | File.expand_path(dir, owner.base_directory) }
+          @abs_path = EMPTY_ARRAY # recursion lock.
+
+          x = path.map { | dir | File.expand_path(expand_string(dir), owner.base_directory) }
+
           arch_dir = arch_dir_value
           if arch_dir
             # arch_dir = [ arch_dir ] unless Array === arch_dir
@@ -202,10 +233,13 @@ module Cabar
         end
       end
 
+      # Returns abs_path joined with the standard path separator.
       def value
         abs_path.uniq.join(Cabar.path_sep)
       end
 
+      # This will append the other Facet's abs_path to this
+      # Facet's abs_path uniquely.
       def compose_facet! facet
         # At this time: arch_path usage in abs_path should be resolvable.
         # facet.uncache_abs_path!
@@ -217,7 +251,7 @@ module Cabar
       end
 
       def to_s
-        "#<#{self.class} #{key.inspect} #{env_var.inspect} #{abs_path.inspect}>"
+        "#<#{self.class} #{key.inspect} #{env_var.inspect} #{path.inspect}>"
       end
 
       def inspect
@@ -245,6 +279,9 @@ module Cabar
         [ 'provides' ]
       end
 
+      # This Facet must be configured early, because
+      # it affects the component search path and
+      # loading of other components.
       def configure_early?
         true
       end
