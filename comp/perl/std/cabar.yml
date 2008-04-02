@@ -6,6 +6,7 @@
   perl_info = `perl -e 'printf #{perl_info}'`
   # puts perl_info
   perl_info = eval perl_info
+  perl_info ||= { }
   # pp perl_info
   perl_info[:prog] = `which perl`.chomp
   perl_info[:available] = ! perl_info[:prog].to_s.empty?
