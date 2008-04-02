@@ -129,6 +129,15 @@ describe Cabar::Version do
     v2.should < v3
   end
 
+  it 'should handle real-world examples' do
+    [
+     "2.0.3-7.10gutsy_i386"
+    ].each do | x |
+      create x
+    end
+  end
+
+
 end
 
 

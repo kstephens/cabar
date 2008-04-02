@@ -44,13 +44,15 @@ class Version
   EPOCH_RX            = '\d+'.freeze
 
   # Matches the upstream_version.
-  UPSTREAM_VERSION_RX = '[0-9][0-9A-Za-z\.\+\-\:\~]*'.freeze
+  UPSTREAM_VERSION_RX = '[0-9][0-9A-Za-z_\.\+\-\:\~]*'.freeze
 
-  # Matches the debain_revision.
-  DEBIAN_REVISION_RX  = '[0-9][0-9A-Za-z\.\+\:\~]*'.freeze
+  # Matches the debian_revision.
+  DEBIAN_REVISION_RX  = '[0-9][0-9A-Za-z_\.\+\:\~]*'.freeze
 
   # Matches a Debian version string.
-  VERSION_RX = /\A(?:(#{EPOCH_RX}):)?(#{UPSTREAM_VERSION_RX}?)(?:-(#{DEBIAN_REVISION_RX}))?\Z/
+  VERSION_RX_STR = "(?:(#{EPOCH_RX}):)?(#{UPSTREAM_VERSION_RX}?)(?:-(#{DEBIAN_REVISION_RX}))?".freeze
+
+  VERSION_RX = /\A#{VERSION_RX_STR}\Z/
 
   # True if version is a correctly formatted version string.
   def self.correct?(version)
