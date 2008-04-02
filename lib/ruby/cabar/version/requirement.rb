@@ -1,5 +1,5 @@
-# This is a hacked version of rubygems/requirment.rb
-#
+# This is a hacked version of rubygems/requirement.rb
+# See: http://www.debian.org/doc/debian-policy/ch-relationships.html
 
 #--
 # Copyright 2006 by Chad Fowler, Rich Kilmer, Jim Weirich and others.
@@ -23,14 +23,16 @@ class Cabar::Version::Requirement
     "="  =>  lambda { |v, r| v == r },
     "!=" =>  lambda { |v, r| v != r },
     ">"  =>  lambda { |v, r| v > r },
+    ">>" =>  lambda { |v, r| v > r }, # debian
     "<"  =>  lambda { |v, r| v < r },
+    "<<" =>  lambda { |v, r| v < r }, # debian
     ">=" =>  lambda { |v, r| v >= r },
     "<=" =>  lambda { |v, r| v <= r },
     "~>" =>  lambda { |v, r| v >= r && v < r.bump }
   }
 
   OP_RE = /#{OPS.keys.map{ |k| Regexp.quote k }.join '|'}/o
-
+  
   ##
   # Factory method to create a Gem::Requirement object.  Input may be a
   # Version, a String, or nil.  Intended to simplify client code.
@@ -127,6 +129,8 @@ class Cabar::Version::Requirement
     OPS[op].call(version, required_version)
   end
 
+  VERSION_RX_STR = Cabar::Version::VERSION_RX_STR
+
   ##
   # Parse the version requirement obj returning the operator and version.
   #
@@ -135,9 +139,9 @@ class Cabar::Version::Requirement
   # first.
   def parse(obj)
     case obj
-    when /^\s*(#{OP_RE})\s*([0-9.]+)\s*$/o then
+    when /^\s*(#{OP_RE})\s*(#{VERSION_RX_STR})\s*$/o then
       [$1, Cabar::Version.new($2)]
-    when /^\s*([0-9.]+)\s*$/ then
+    when /^\s*(#{VERSION_RX_STR})\s*$/ then
       ['=', Cabar::Version.new($1)]
     when /^\s*(#{OP_RE})\s*$/o then
       [$1, Cabar::Version.new('0')]
