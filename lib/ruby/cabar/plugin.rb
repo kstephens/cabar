@@ -38,6 +38,9 @@ module Cabar
     # Name of this plugin.
     attr_accessor :name
 
+    # If false, the plugin is disabled by default.
+    attr_accessor :enabled
+
     # Source of this plugin.
     attr_accessor :file
 
@@ -79,6 +82,13 @@ module Cabar
       @manager.register_plugin! self
     end
 
+
+    # True if the plugin is enabled.
+    def enabled?
+      @enabled != false
+    end
+
+
     # Installs the plugin's parts.
     def install!
       return if @installed
@@ -119,6 +129,8 @@ module Cabar
       end
 
       def register_plugin! plugin
+        return unless plugin.enabled?
+
         name = plugin.name.to_s
 
         # Unfortunately we need to allow multiple plugins to be
