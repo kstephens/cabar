@@ -40,7 +40,7 @@
 #
 # Refactoring a large system requires determining how parts
 # are interrelated so that they can be torn apart and reconnected
-# via API, protocols and contracts.
+# via APIs, protocols and contracts.
 #
 # The breaking apart of components requires the introduction of
 # how components will reassembled and communicate between each other.
@@ -163,7 +163,7 @@
 # by command shells and other programs.
 #
 # However, there is no reason that Facets cannot be designed to
-# configure components through other means, such as: 
+# communicate through other means, such as: 
 # 
 # * a global configuration file.
 # * shared memory.
@@ -310,6 +310,8 @@
 # * <<name>>-<<version>>/cabar.yml
 # * <<name>>/cabar.yml
 #
+# Cabar version strings follow the Debian version naming standard; see Cabar::Version for more details.
+#
 # == Requiring components
 #
 # To use a component in a environment, it must be "required" by the following mtethods, in order of precedence:
@@ -365,7 +367,8 @@
 # required API or feature set, component dependencies are usually unversioned 
 # or at most, version limits.
 #
-# It's recommended that dependency constraints should be as open as possible,
+# It's recommended that dependency constraints listed in
+# components should be as open as possible,
 # to allow component versions to be varied at the system configuration level,
 # usually in a CABAR_CONFIG file or with the CABAR_SELECT environment variable.
 #
@@ -377,15 +380,20 @@
 #
 # == Rubygems Plug-in
 #
-# The rubygems plugin component, located under cabar/comp support
-# the collection of rubygems into a cabar component.  The 'rubygems'
-# facet can generate GEM_PATH directories for components with
-# the 'rubygems'.  By default the gems component expects gems to
+# The rubygems plugin component, located under cabar/comp supports
+# the collection of rubygems into a cabar component.  This is useful
+# for creating software "platforms" for multiple systems.  For example
+# one might create two "Ruby on Rails" software platforms to test
+# different versions of rails and other dependencies.
+#  
+# The 'rubygems'
+# facet composes GEM_PATH directories for components with
+# the 'rubygems' facet.  By default, the 'rubygems' facet expects gems to
 # installed in a 'gems' subdirectory under the component directory.
 #
 # == Creating rubygems component
 #
-# Example: Create a directory name "platform_gems" somewhere under a
+# Example: Create a directory named "platform_gems" somewhere under a
 # CABAR_PATH repository.
 #
 # Create repo/platform_gems/cabar.yml:
@@ -416,6 +424,9 @@
 #
 # TODO
 #
+# == Facet Design
+#
+# TODO
 module Cabar
   EMPTY_HASH = { }.freeze
   EMPTY_ARRAY = [ ].freeze

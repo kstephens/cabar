@@ -22,7 +22,7 @@
 
 * Add documentation strings to Facet prototypes.
 
-* Change Facet.key to Facet._key to avoid collision with future use.
+* Change Facet.key to Facet._proto_name to avoid collision with future use.
 
 * Change Facet.owner to Facet._owner.
 
