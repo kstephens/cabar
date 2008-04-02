@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+
+=begin rdoc
+
+Cabar::Main component driver script.
+
+Create a softlink named component_name to cabar/bin/cbr-top-level.
+
+Running:
+
+  component_name foo bar
+
+Equivalent to:
+
+  cbr -R=<<component_name>> foo bar
+
+See Cabar for more info.
+
+=end
+
+component_name = File.basename($0)
+
+ARGV[0, 0] = [ "-R=#{component_name}" ]
+
+load "#{File.dirname($0)}/cbr"
+
