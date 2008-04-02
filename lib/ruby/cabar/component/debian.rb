@@ -1,6 +1,8 @@
 require 'cabar/component'
 
 require 'cabar/base'
+require 'cabar/version'
+
 
 module Cabar
   class Component
@@ -10,7 +12,7 @@ module Cabar
       # register_component_type :deb
 
       attr_accessor :name
-      attr_accessor :version
+      attr_accessor_type :version, Cabar::Version
 
       attr_accessor :dependencies
 

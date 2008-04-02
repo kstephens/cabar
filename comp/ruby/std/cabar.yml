@@ -23,6 +23,7 @@ cabar:
       list_only: [ :ruby, :erb, :irb, :rdoc, :ri, :testrb ]
     lib/ruby:
       abs_path: <%= ruby_info[:load_path].inspect %>
+      rdoc_generate: false
     lib/perl:
       enabled: false
 

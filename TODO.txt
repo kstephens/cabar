@@ -6,19 +6,23 @@
 
 = TO DO:
 
+* Solidify semantics of Component#status: status = unimplemented => disable Facet contributions
+
+* Add basic ruby rdoc support:
+
+    cbr ruby rdoc
+
 * Fix dirty Hoe test runs.
 
 * Add basic run-time support for component introspection.
 
-* Add support for -S (select ) option.
+* Add support for -S= (select ) option.
 
 * Add support for CABAR_SELECT environment variable.
 
 * Make Cabar::Base a mixin instead of an abstract base class.
 
 * Change Context#required_components to an unordered Version::Set.
-
-* Remove EnvVarPath, extend Path to support environment variables dynamically.
 
 * Allow simple facet prototypes to be defined in cabar.yml.
 
