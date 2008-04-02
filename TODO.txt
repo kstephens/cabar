@@ -8,13 +8,7 @@
 
 * Solidify semantics of Component#status: status = unimplemented => disable Facet contributions
 
-* Add basic ruby rdoc support:
-
-    cbr ruby rdoc
-
-* Fix dirty Hoe test runs.
-
-* Add basic run-time support for component introspection.
+* Add basic run-time support for component introspection; see cabar/runtime.rb.
 
 * Add support for -S= (select ) option.
 
