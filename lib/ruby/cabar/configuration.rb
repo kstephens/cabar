@@ -17,6 +17,9 @@ module Cabar
   # cabar_config.yml documents that are parsed and overlayed.
   # The default is "~/.cabar_conf.yml".
   #
+  # /etc/cabar/host-<<hostname>>-conf.yml and /etc/cabar/default.yml are
+  # implied at the end of CABAR_CONFIG for host and site-wide configuration.
+  #
   # The CABAR_PATH environment variable specifies the list of 
   # component repositories to search for components.
   #
@@ -132,12 +135,16 @@ module Cabar
     def config_file_path= x 
       case y = x
       when Array
+        y = y.dup
       when String
         y = Cabar.path_split(x)
       else
         raise ArgumentError, "Expected Array or String"
       end
       
+      y << "/etc/cabar/host-#{Cabar.hostname}.yml"
+      y << "/etc/cabar/default.yml"
+
       @config_file_path = Cabar.path_expand(y)
       
       # Flush caches:

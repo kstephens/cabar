@@ -1,3 +1,4 @@
+require 'socket' # Socket.gethostname
 
 # = Cabar
 #
@@ -435,6 +436,15 @@ module Cabar
   # The Cabar version.
   def self.version
     Version.create '1.0'
+  end
+
+  # Returns first dotted part of CABAR_HOSTNAME or system hostname.
+  def self.hostname
+    @@hostname ||= 
+      (
+       ENV['CABAR_HOSTNAME'] || 
+       Socket.gethostname
+       ).sub(/\..*/, '')
   end
 
   SEMICOLON = ';'.freeze
