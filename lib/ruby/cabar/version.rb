@@ -113,11 +113,11 @@ class Version
   # Compares by epoch, upstream_version, debian_revision.
   def <=> x
     case
-    when (r = epoch <=> x.epoch) != 0
+    when (r = @epoch <=> x.epoch) != 0
       r
-    when (r = upstream_version <=> x.upstream_version) != 0
+    when (r = @upstream_version <=> x.upstream_version) != 0
       r
-    when (r = debian_revision <=> x.debian_revision) != 0
+    when (r = @debian_revision <=> x.debian_revision) != 0
       r
     else
       0
@@ -178,6 +178,10 @@ class Version
 
     def to_a
       @to_a
+    end
+
+    def inspect 
+      "#<#{self.class} #{@to_s.inspect}>"
     end
 
     def <=> x
@@ -249,4 +253,6 @@ end # class
 
 end # module
 
+
+require 'cabar/version/requirement'
 
