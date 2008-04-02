@@ -251,7 +251,8 @@ DOC
         opts ||= EMPTY_HASH
         # $stderr.puts "render_Component #{c}"
 
-        tooltip = "#{c.to_s(:short)}: #{c.description}"
+        tooltip = "#{c.to_s(:short)}"
+        tooltip << ": #{c.description}" if c.description
         unless complete?(c)
           tooltip << "; status: #{c.status}"
         end
