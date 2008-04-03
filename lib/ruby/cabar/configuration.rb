@@ -208,10 +208,15 @@ module Cabar
     end
 
 
-    def read_config_file_with_includes file, cfg = nil
+    def read_config_file_with_includes file, cfg = nil, visited = { }
+      cfg ||= { }
+
+      file = File.expand_path(file)
+      return cfg if visited[file]
+      visited[file] = 1
+
       y = read_config_file file
       validate_config_hash y
-      cfg ||= { }
       cfg.cabar_merge!(y)
       
       # Handle environment variables.
@@ -226,7 +231,7 @@ module Cabar
       include.compact.each do | inc_file |
         # Include files are relative to source.
         inc_file = File.expand_path(inc_file, File.dirname(file))
-        read_config_file_with_includes inc_file, cfg
+        cfg = read_config_file_with_includes inc_file, cfg, visited
       end
 
       cfg
