@@ -179,6 +179,7 @@ task :p4_submit do
   sh "svn ci -m #{m.inspect}"
   sh "p4 revert -a ..."
   sh "p4 submit -r #{c}"
+  sh "p4 edit ..."
 end
 
 
