@@ -238,6 +238,24 @@ module Cabar
         check_unresolved_components
         raise Error, "Cannot find required component #{opts.inspect}"
       else
+        # Allow selection of default component.
+        # Overlay component defaults.
+        name = Hash === opts ? opts[:name] : opts.name
+        comp_config = (x = configuration.config['component']) && x['require_default'] || EMPTY_HASH
+        comp_config = comp_config[name] || EMPTY_HASH
+        comp_config = { :version => comp_config } unless Hash === comp_config
+
+        unless comp_config.empty?
+          constraint = opts
+          opts = opts.to_hash unless Hash === opts
+          opts = opts.cabar_symbolify
+          comp_config[:_by] = (opts[:_by].to_s) + " + component:require_default:"
+          opts.cabar_merge!(comp_config.cabar_symbolify)
+          $stderr.puts "_require_component default #{opts.inspect} <= #{comp_config}"
+
+          r = resolve_component opts, :all, &blk
+        end
+        
         # Select latest version.
         c = r.first
       end

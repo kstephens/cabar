@@ -1,13 +1,12 @@
 cabar:
   version: v1.0
   configuration:
-    select:
-      component:
+    component:
+      select:
         ruby:
           version: "<1.9"
         c2: 
           version: <%= (ENV['c2_VERSION'] || '>1.1').inspect %>
-    require:
-      component:
+      require:
         boc: true
 

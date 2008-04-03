@@ -1,3 +1,5 @@
+require 'cabar/base'
+
 require 'cabar/facet'
 
 require 'cabar/version'

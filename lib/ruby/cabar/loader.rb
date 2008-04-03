@@ -296,7 +296,8 @@ private
       # Process each component definition.
       comps.each do | name, opts |
         # Overlay configuration.
-        comp_config = @context.config['configure'] || EMPTY_HASH
+        comp_config = (x = context.configuration.config['component']) && x['configure']
+        comp_config ||= EMPTY_HASH
         comp_config = comp_config[name] || EMPTY_HASH
         opts.cabar_merge! comp_config
         

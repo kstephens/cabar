@@ -42,10 +42,12 @@ module Cabar
       def to_constraint
         @constraint ||=
           begin
+            # Get constraint options.
             opts = _options.dup
             opts[:name] = name
             opts[:version] = version if version
             opts[:_by] = component
+
             Cabar::Constraint.create opts
           end
       end

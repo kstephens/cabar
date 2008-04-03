@@ -5,6 +5,22 @@ Extensions for Ruby Hash for Cabar.
 =end
 
 class ::Hash
+  def cabar_symbolify!
+    each do | k, v |
+      if String === k
+        self[k.to_sym] = v
+      end
+    end
+    each do | k, v |
+      delete(k) if String === k
+    end
+    self
+  end
+
+  def cabar_symbolify
+    dup.cabar_symbolify!
+  end
+
   def cabar_merge! h, path = [ ]
     case h
     when Hash

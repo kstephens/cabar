@@ -57,7 +57,6 @@ module Cabar
       # Apply component selection.
       cfg = nil
       cfg ||= config['component']['select'] rescue nil
-      cfg ||= config['select']['component'] rescue nil # old syntax
       cfg ||= EMPTY_HASH
       
       cfg.each do | name, opts |
@@ -82,7 +81,6 @@ module Cabar
       # Apply component requires.
       cfg = nil
       cfg ||= config['component']['require'] rescue nil
-      cfg ||= config['require']['component'] rescue nil # Old syntax
       cfg ||= EMPTY_HASH
       
       cfg.each do | name, opts |
@@ -217,6 +215,26 @@ module Cabar
 
       y = read_config_file file
       validate_config_hash y
+
+      # Check to see if this config is enabled.
+      conf = y['cabar']['configuration'] 
+      return cfg if conf['enabled'] == false
+
+      # Handle deprecated formats.
+      if old_format = ((x = conf['select']) && x['component'])
+        $stderr.puts "cabar: in #{file}: use component: select: ..., instead of select: component: ..."
+        (conf['component'] ||= { })['select'] = old_format
+        x.delete('component')
+      end
+      
+      # Handle deprecated formats.
+      if old_format = ((x = conf['require']) && x['component'])
+        $stderr.puts "cabar: in #{file}: use component: require: ..., instead of require: component: ..."
+        (conf['component'] ||= { })['require'] = old_format
+        x.delete('component')
+      end
+
+      # Overlay file.
       cfg.cabar_merge!(y)
       
       # Handle environment variables.
