@@ -180,7 +180,12 @@ task :p4_submit do
   sh "svn update"
   m = "cabar: from SVN #{`svn update`.chomp}"
   sh "p4 revert -a ..."
-  sh "p4 submit -r #{c ? c : "-d #{m.inspect} ..."}"
+  if c 
+    sh "p4 submit -r -c #{ENV['c']}"
+  else
+    sh "p4 reopen -c default ..."
+    sh "p4 submit -r ..."
+  end
   sh "p4 edit ..."
 end
 
