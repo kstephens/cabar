@@ -13,33 +13,54 @@ module Cabar
     #
     # dependents Proc is is expected to return an Array.
     #
-    # May not complete if elements are cyclical.
+    # Should complete if graph is cyclical.
     def topographic_sort elements, opts = EMPTY_HASH
       # Get a Proc that returns the dependents of an element.
       # The proc must return an enumeration that can be perform :reverse.
       dependents_proc = opts[:dependents] || raise("No :dependents option")
-      
+
       # The depth of given element in the graph.
+      # Each element starts at 1
       depth = { }
+      elements.each { | e | depth[e] = 1 }
       
+      # Avoid cyclical edges.
+      edge_visited = { }
+
       # The queue containing each element and its current depth.
-      queue = elements.reverse.map { | e | [ e, 1 ] }
-      
+      queue = elements.dup
+      queue_size = queue.size
+
       # Until the queue is empty,
       until queue.empty?
-        # Get the element and it's current depth in the graph.
-        e, d = queue.pop
-        # puts "e = #{e.inspect} d = #{d.inspect}"
+        # Get the element.
+        e = queue.shift
         
-        # Update the elements depth based on the current depth.
-        if (! depth[e]) || (depth[e] < d)
-          depth[e] = d
+        # Put dependents lower than than current node.
+        d = depth[e] + 1
+        
+        dependents = dependents_proc.call(e)
+        dependents = dependents.select do | c |
+          # Update dependent's depth.
+          if depth[c] < d
+            depth[c] = d
+          end
+
+          # Was edge visited before?
+          edge = [ e, c ].freeze
+          if (v = edge_visited[edge]) && (v > queue_size) # heuristic
+            # Do not place on queue again.
+            false
+          else
+            # Mark edge as visited.
+            edge_visited[edge] ||= 1
+            edge_visited[edge] += 1
+          end
         end
-        
-        # Put dependents at end of queue with a depth greater
-        # than current element's depth.
-        d = d + 1
-        queue[0, 0] = (dependents_proc.call(e).reverse.map { | e | [ e, d ] })
+
+        # Put remaining dependents at front of queue.
+        queue[0, 0] = dependents
+        # queue.push(*dependents)
       end
       
       # Create a tie-breaker ordering proc
@@ -54,14 +75,14 @@ module Cabar
         order[x] <=> order[y]
       end
       
-      #puts "elements = #{elements.inspect}"
-      #puts "depth = #{depth.inspect}"
-      #puts "order = #{get_order.call.inspect}"
+      # $stderr.puts "elements = #{elements.inspect}"
+      # $stderr.puts "depth = #{depth.inspect}"
+      # $stderr.puts "order = #{get_order.call.inspect}"
       
       # Sort the elements by relative depth or tie-breaker ordering.
       result = elements.sort do | a, b | 
-        #puts "a = #{a.inspect}"
-        #puts "b = #{b.inspect}"
+        # $stderr.puts "a = #{a.inspect}"
+        # $stderr.puts "b = #{b.inspect}"
         if (x = depth[a] <=> depth[b]) != 0
           x
         elsif (x = order_proc.call(a, b)) != 0
