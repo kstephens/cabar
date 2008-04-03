@@ -251,7 +251,7 @@ module Cabar
           opts = opts.cabar_symbolify
           comp_config[:_by] = (opts[:_by].to_s) + " + component:require_default:"
           opts.cabar_merge!(comp_config.cabar_symbolify)
-          $stderr.puts "_require_component default #{opts.inspect} <= #{comp_config}"
+          # $stderr.puts "_require_component default #{opts.inspect} <= #{comp_config}"
 
           r = resolve_component opts, :all, &blk
         end
