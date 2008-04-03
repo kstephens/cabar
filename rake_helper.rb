@@ -174,8 +174,8 @@ task :p4_submit do
   m = ENV['m'] || "From #{ENV['USER']}@#{ENV['HOST']}"
   c = ENV['c'] ? "-c #{ENV['c']}" : '...'
   sh "p4 edit ..."
-  sh "xargs p4 add < Manifest.txt"
   sh "svn update"
+  sh "xargs p4 add < Manifest.txt"
   sh "svn ci -m #{m.inspect}"
   sh "p4 revert -a ..."
   sh "p4 submit -r #{c}"
