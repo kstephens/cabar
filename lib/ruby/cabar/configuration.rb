@@ -93,6 +93,7 @@ module Cabar
         context.require_component opts
       end
     end
+
     
     DISABLED_HASH = { :enabled => false }.freeze
 
@@ -161,17 +162,8 @@ module Cabar
           cfg = nil
           
           config_file_path.reverse.select { | file | File.exists? file }.each do | file |
-            begin
-              y = read_config_file file
-              validate_config_hash y
-              cfg ||= { }
-              cfg.cabar_merge!(y)
-            rescue Exception => err
-              pp err.backtrace
-              raise Error, "Problem reading config file #{file.inspect}: #{err.inspect}"
-            end
+            cfg = read_config_file_with_includes file, cfg
           end
-          
 
           cfg ||= {
             'cabar' => {
@@ -187,9 +179,14 @@ module Cabar
           # pp cfg
 
           x = cfg['cabar']['configuration']      
-          x['config_file_path'] = config_file_path
-          x['component_search_path'] = component_search_path
+          x['config_file_path'] ||= config_file_path
           
+          if x['component_search_path']
+            self.component_search_path = x['component_search_path']
+          end
+
+          x['component_search_path'] ||= component_search_path
+
           x
         end
     end
@@ -210,6 +207,32 @@ module Cabar
       @config_raw
     end
 
+
+    def read_config_file_with_includes file, cfg = nil
+      y = read_config_file file
+      validate_config_hash y
+      cfg ||= { }
+      cfg.cabar_merge!(y)
+      
+      # Handle environment variables.
+      env = y['cabar']['configuration']['env_var'] || EMPTY_HASH
+      env.each do | k, v |
+        ENV[k] = v
+      end
+
+      # Handle includes.
+      include = y['cabar']['configuration']['include']
+      include = [ include ] unless Array === include
+      include.compact.each do | inc_file |
+        # Include files are relative to source.
+        inc_file = File.expand_path(inc_file, File.dirname(file))
+        read_config_file_with_includes inc_file, cfg
+      end
+
+      cfg
+    rescue Exception => err
+      raise Error, "Problem reading config file #{file.inspect}: #{err.inspect}"
+    end
 
     # Read a YAML file after processing it as a ERB template.
     def read_config_file file
