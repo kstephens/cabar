@@ -184,7 +184,7 @@ task :p4_submit do
     sh "p4 submit -r -c #{ENV['c']}"
   else
     sh "p4 reopen -c default ..."
-    sh "p4 submit -r ..."
+    sh "p4 submit -r -d #{m.inspect} ..."
   end
   sh "p4 edit ..."
 end
