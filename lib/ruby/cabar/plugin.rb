@@ -129,6 +129,16 @@ module Cabar
       end
 
       def register_plugin! plugin
+        # Overlay configuration options.
+        config_opts = main.context.configuration.config['plugin']
+        config_opts &&= config_opts[plugin.name]
+        if config_opts
+          opts = plugin._options.dup
+          opts.cabar_merge!(config_opts)
+          plugin._options = opts
+        end
+
+        # Do not register if disabled.
         return unless plugin.enabled?
 
         name = plugin.name.to_s
