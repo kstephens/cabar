@@ -55,9 +55,9 @@ module Cabar
       by = "config@#{config['config_file_path'].inspect}"
       
       # Apply component selection.
-      cfg = config
-      cfg &&= cfg['select']
-      cfg &&= cfg['component']
+      cfg = nil
+      cfg ||= config['component']['select'] rescue nil
+      cfg ||= config['select']['component'] rescue nil # old syntax
       cfg ||= EMPTY_HASH
       
       cfg.each do | name, opts |
@@ -80,9 +80,9 @@ module Cabar
       by = "config@#{config['config_file_path'].inspect}"
 
       # Apply component requires.
-      cfg = config
-      cfg &&= cfg['require']
-      cfg &&= cfg['component']
+      cfg = nil
+      cfg ||= config['component']['require'] rescue nil
+      cfg ||= config['require']['component'] rescue nil # Old syntax
       cfg ||= EMPTY_HASH
       
       cfg.each do | name, opts |
