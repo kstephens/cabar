@@ -177,8 +177,10 @@ task :p4_submit do
   sh "svn update"
   sh "xargs p4 add < Manifest.txt"
   sh "svn ci -m #{m.inspect}"
+  sh "svn update"
+  m = "cabar: from SVN #{`svn update`.chomp}"
   sh "p4 revert -a ..."
-  sh "p4 submit -r #{c}"
+  sh "p4 submit -r -d #{m.inspect} #{c}"
   sh "p4 edit ..."
 end
 
