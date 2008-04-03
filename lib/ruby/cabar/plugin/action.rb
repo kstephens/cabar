@@ -61,13 +61,9 @@ Cabar::Plugin.new :name => 'cabar/action' do
         error_ok = str.sub!(/^\s*-/, '')
         # puts "error_ok: #{error_ok.inspect}"
         
-        Dir.chdir(component.directory) do 
-          # FIXME.
-          str = '"' + str + '"'
-          str = component.instance_eval do
-            eval str 
-          end
-          
+        Dir.chdir(component.directory) do
+          # Interpolate #{...} in String.
+          str = expand_string(str)          
           puts "+ #{str}"
           unless opts[:dry_run]
             result = system(str)

@@ -4,11 +4,11 @@ require 'cabar/facet'
 module Cabar
   class Facet
 
-    # Expands string in context of the Facet's Component.
+    # Expands String in context of the Facet's Component.
     def expand_string str
       return str unless String === str
       if str =~ /\#\{/
-        str = '"' + str.sub(/[\\\/]/){|x| "\\#{x}"} + '"'
+        str = '"' + str.sub(/[\\\"]/){|x| "\\#{x}"} + '"'
         component.instance_eval(str)
       else
         str
