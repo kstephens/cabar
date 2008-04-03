@@ -172,7 +172,7 @@ end
 desc "p4 edit, svn update, p4 submit"
 task :p4_submit do
   m = ENV['m'] || "From #{ENV['USER']}@#{ENV['HOSTNAME']}"
-  c = ENV['c'] ? "-c #{ENV['c']}" : '...'
+  c = ENV['c']
   sh "p4 edit ..."
   sh "svn update"
   sh "xargs p4 add < Manifest.txt"
