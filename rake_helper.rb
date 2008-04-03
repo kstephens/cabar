@@ -171,7 +171,7 @@ end
 
 desc "p4 edit, svn update, p4 submit"
 task :p4_submit do
-  m = ENV['m'] || "From #{ENV['USER']}@#{ENV['HOST']}"
+  m = ENV['m'] || "From #{ENV['USER']}@#{ENV['HOSTNAME']}"
   c = ENV['c'] ? "-c #{ENV['c']}" : '...'
   sh "p4 edit ..."
   sh "svn update"
@@ -180,7 +180,7 @@ task :p4_submit do
   sh "svn update"
   m = "cabar: from SVN #{`svn update`.chomp}"
   sh "p4 revert -a ..."
-  sh "p4 submit -r -d #{m.inspect} #{c}"
+  sh "p4 submit -r #{c ? c : "-d #{m.inspect} ..."}"
   sh "p4 edit ..."
 end
 
