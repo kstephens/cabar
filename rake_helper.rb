@@ -177,7 +177,7 @@ task :p4_submit do
   sh "xargs p4 add < Manifest.txt"
   sh "svn update"
   sh "svn ci -m #{m.inspect}"
-  # sh "p4 revert -a ..."
+  sh "p4 revert -a ..."
   sh "p4 submit -r #{c}"
 end
 
