@@ -163,7 +163,8 @@ module Cabar
 
     # Returns the base directory for facet artifacts.
     def base_directory
-      @base_directory ||= directory
+      @base_directory ||=
+        directory
     end
     
     # Returns true if the Component is top-level.

@@ -176,6 +176,8 @@ module Cabar
     def select_component opts, &blk
       notify_observers :before_select_component, opts
 
+      # $stderr.write 'S'; $stderr.flush
+
       s = selected_components.select! opts, &blk
 
       notify_observers :after_select_component, opts, s
@@ -197,6 +199,9 @@ module Cabar
     def resolve_component opts, all = false, &blk
       # puts "resolve #{opts.inspect}, #{all.inspect}"
       c = selected_components.select opts, &blk
+
+      # $stderr.write 'r'; $stderr.flush
+
       # puts "  c = #{c.size} #{c.inspect}"
       case c.size
       when 0
@@ -228,6 +233,8 @@ module Cabar
     # resolution.
     # Does not add component to top_level_components list.
     def _require_component opts, &blk
+      # $stderr.write 'R'; $stderr.flush
+
       r = resolve_component opts, :all, &blk
       case r.size
       when 0

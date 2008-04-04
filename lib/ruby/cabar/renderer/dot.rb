@@ -487,6 +487,8 @@ DOC
 
             if show_component_name
               str << "#{x.name}"
+            else
+              str << "#"
             end
 
             if show_component_version
