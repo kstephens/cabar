@@ -31,11 +31,14 @@ module Cabar
       
       # Forces coersion to an Array.
       def to_a
-        s = Cabar::Version::Set.new 
-        @set_by_name.values.each do | n_s |
-          s.push(*n_s)
+        @to_a ||=
+        begin
+          s = Cabar::Version::Set.new 
+          @set_by_name.values.each do | n_s |
+            s.push(*n_s)
+          end
+          s.to_a
         end
-        s.to_a
       end
       
       # Returns true if x is in this set.
@@ -119,6 +122,8 @@ module Cabar
           end
           s
         end
+
+        @to_a = nil
         
         s
       end
