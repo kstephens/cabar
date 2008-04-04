@@ -169,29 +169,43 @@ task :make_manifest do
 end
 
 
+USER = ENV['USER'] || `id -un`.chomp
+HOSTNAME = `hostname`.chomp
+
 desc "p4 edit, svn update, p4 submit"
 task :p4_submit do
-  m = ENV['m'] || "From #{ENV['USER']}@#{`hostname`.chomp}"
+  m = ENV['m'] || "From #{USER}@#{HOSTNAME}"
   c = ENV['c']
 
   # Open everything for edit.
   sh "p4 edit ..."
-  # Get latests Manifest.txt.
+
+  # Get latest Manifest.txt.
   sh "svn update"
+
+  # FIXME: Delete any files not in Manifest.txt.
+
   # Add any new files in Manifest.txt.
   sh "xargs p4 add < Manifest.txt"
+
   # Submit any pending changes.
   sh "svn ci -m #{m.inspect}"
+
   # Get the current svn rev.
   m = "cabar: from SVN #{`svn update`.chomp}"
+
   # Revert any unchanged files.
   sh "p4 revert -a ..."
+
   # Move everything to default changelist.
   sh "p4 reopen -c default ..."
+
   # Submit everything under here.
   sh "p4 submit -r -d #{m.inspect} ..."
+
   # Edit everything under here.
   sh "p4 edit ..."
+
   # Reopen in the original changelist.
   if c
     sh "p4 reopen -c #{c} ..."
@@ -200,8 +214,8 @@ end
 
 
 desc "p4 edit, svn ci"
-task :svn_ci do
-  m = ENV['m'] || "From #{ENV['USER']}@#{ENV['HOST']}"
+task :p4_edit_svn_ci do
+  m = ENV['m'] || "From #{USER}@#{HOSTNAME}"
   sh "p4 edit ..."
   sh "svn ci -m #{m.inspect}"
   sh "p4 revert -a ..."
