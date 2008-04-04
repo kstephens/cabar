@@ -15,9 +15,8 @@ module Cabar
   class Loader < Base
     include Cabar::Observer::Observed
 
+    # The Cabar::Context to load Components into.
     attr_accessor :context
-
-    attr_accessor :verbose
 
     attr_reader :component_search_path
     attr_reader :component_directories
@@ -30,12 +29,15 @@ module Cabar
       @component_directories = [ ]
       @component_directories_pending = [ ]
       @component_parse_pending = [ ]
-      @verbose = ENV['CABAR_DEBUG'] ? true : false
      super
     end
 
+    def logger
+      @context.logger
+    end
+
     def log msg, force = nil
-      $stderr.puts msg if force || @verbose
+      logger.info "loader: #{msg}", :force => force
     end
 
     def add_component_search_path! path, opts = nil

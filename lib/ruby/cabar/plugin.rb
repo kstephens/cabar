@@ -31,7 +31,6 @@ module Cabar
       old
     end
 
-
     # The manager for this plugin.
     attr_accessor :manager
 
@@ -74,8 +73,11 @@ module Cabar
       # Register this plugin.
       register!
     end
-
     
+    def logger
+      @manager.logger
+    end
+
     # Installs the parts of the plugin.
     def register!
       # Register the plugin.
@@ -132,6 +134,10 @@ module Cabar
         super
       end
 
+      def logger
+        @logger ||= @main.logger
+      end
+
       def register_plugin! plugin
         # Overlay configuration options.
         config_opts = main.context.configuration.config['plugin']
@@ -168,6 +174,11 @@ module Cabar
 
 
     # Builder for plugin artifacts.
+    #
+    # Provides basic DSL for constructing new Plugin elements:
+    #
+    # * Commands
+    # * Facets
     class Builder < Base
       # The plugin being built.
       attr_accessor :plugin
@@ -177,6 +188,10 @@ module Cabar
         @context_stack = [ ]
         super
         instance_eval &blk if block_given?
+      end
+
+      def logger
+        @logger ||= @plugin.logger
       end
 
       # Define a Facet.

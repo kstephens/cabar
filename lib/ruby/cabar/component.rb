@@ -328,6 +328,9 @@ module Cabar
       end
     end
     
+    # Called when a RequiredComponent facet resolves to
+    # this Component; dependent is the Component
+    # that depended on this Component.
     def add_dependent! dependent
       notify_observers :before_add_dependent!, dependent
 

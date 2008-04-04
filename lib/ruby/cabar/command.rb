@@ -60,6 +60,10 @@ module Cabar
       self
     end
 
+    def logger
+      @manager.logger
+    end
+
     # Returns all the valid names and aliases for this command.
     def names
       @aliases.dup << @name

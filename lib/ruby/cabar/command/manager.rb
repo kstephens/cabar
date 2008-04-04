@@ -26,6 +26,10 @@ module Cabar
         super
       end
       
+      def logger
+        owner.logger
+      end
+
       def command_names
         @commands.map{|c| c.name}.sort
       end

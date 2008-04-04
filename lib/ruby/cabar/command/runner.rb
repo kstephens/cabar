@@ -22,6 +22,10 @@ module Cabar
       # Cabar::Command::Manager to resolve top-level commands.
       attr_accessor :manager
 
+      def logger
+        @context.logger
+      end
+
       # Returns the Cabar::Command::Manager
       def manager
         @manager ||= 

@@ -60,8 +60,13 @@ module Cabar
       @required_components = Cabar::Version::Set.new
       @top_level_components = [ ] # ordered Cabar::Version::Set.new
       @unresolved_components = { } # name
-
       super
+    end
+
+    def logger
+      # why doesn't self.main work?
+      @logger ||= 
+        (@main ||= @_options[:main]).logger
     end
 
     # For Facet:: support.

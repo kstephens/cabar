@@ -5,6 +5,7 @@ require 'cabar/plugin'
 require 'cabar/command/manager'
 require 'cabar/command/runner'
 require 'cabar/observer'
+require 'cabar/logger'
 
 
 module Cabar
@@ -25,6 +26,9 @@ module Cabar
     # The Cabar::Plugin::Manager manages all plugins.
     attr_accessor :plugin_manager
 
+    # The Cabar::Logger object.
+    attr_accessor :logger
+
     def self.current
       @@current || raise(Error, "Cabar::Main not initialized")
     end
@@ -33,8 +37,11 @@ module Cabar
       @commands = Command::Manager.factory.
         new(:main => self, 
             :owner => self)
+      @logger = Logger.factory.
+        new(:name => 'cabar')
 
       super
+
       @@current = self
     end
 
