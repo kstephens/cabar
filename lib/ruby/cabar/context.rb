@@ -494,6 +494,7 @@ END
         c.provides.each do | facet |
           next unless facet.enabled?
           f = nil
+
           if facet.is_composable? 
             if f = coll[facet.key]
               f.compose_facet! facet
@@ -505,9 +506,6 @@ END
             (comp_facet[c] ||= [ ]) << facet
             f = facet
           end
-          #if f.key == 'cnu_config_path'
-          #  $stderr.puts "    f = #{f}\n  owner = #{f.owner}"
-          #end
         end
       end
 

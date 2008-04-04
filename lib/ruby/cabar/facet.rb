@@ -1,5 +1,6 @@
 require 'cabar/base'
 
+require 'pp'
 
 module Cabar
 
@@ -96,6 +97,8 @@ module Cabar
 
     # Creates a new Facet instance by cloning a Facet prototype.
     def self.create proto_name, conf = EMPTY_HASH, opts = EMPTY_HASH
+      # $stderr.puts "#{self}.create #{proto_name} #{conf.inspect} #{opts.inspect}"
+
       # Get the prototype object.
       case proto_name
       when Facet 
@@ -116,11 +119,11 @@ module Cabar
       end
 
       # Ask prototype to reformat its configuration options.
-      #$stderr.puts "\nopts = "; pp conf
+      # $stderr.puts "\nconf = #{conf.inspect}"
       conf = proto._reformat_options! conf
-      #$stderr.puts "\nopts = "; pp opts
+      # $stderr.puts "\nconf = #{conf.inspect}"
       conf = proto._normalize_options! conf
-      #$stderr.puts "\nopts = "; pp conf
+      # $stderr.puts "\nconf = #{conf.inspect}"
       return conf unless conf
 
       # Clone the prototype.

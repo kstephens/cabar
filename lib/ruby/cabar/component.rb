@@ -288,8 +288,10 @@ module Cabar
           end
         end
         
+        # Handle explicit environment variables.
         (conf['environment'] || EMPTY_HASH).each do | k, v |
           opts = { :env_var => k, :value => v }
+          # $stderr.puts "environment #{opts.inspect}"
           f = create_facet :env_var, opts
         end
 
@@ -398,6 +400,7 @@ module Cabar
     
     # Returns a new Facet attached to this Component.
     def create_facet type, conf, opts = EMPTY_HASH, &blk
+      # $stderr.puts "  create_facet #{type}, #{conf.inspect}, #{opts.inspect}"
       f = Facet.create type, conf, opts, &blk
       return f unless f
       

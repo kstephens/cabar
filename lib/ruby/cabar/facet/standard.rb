@@ -5,6 +5,7 @@ module Cabar
   class Facet
 
     # Expands String in context of the Facet's Component.
+    # FIXME: Move to facet.rb?
     def expand_string str
       return str unless String === str
       if str =~ /\#\{/
@@ -15,10 +16,14 @@ module Cabar
       end
     end
 
+    def is_env_var?
+      false
+    end
+
     # This represents a set of environment variables.
     #
     #   facet:
-    #     env_var:
+    #     env:
     #       NAME1: v1
     #       NAME2: v2
     #
@@ -41,15 +46,11 @@ module Cabar
       # key/value pair in the option Hash.
       def attach_component! c
         vars.each do | n, v |
-          c.create_facet(:env_var, :env_var => n, :value => v)
+          $stderr.puts "   env: #{n} #{v}"
+          c.create_facet(:env_var, { :env_var => n, :value => v })
         end
       end
     end # class
-
-    def is_env_var?
-      false
-    end
-
 
     # A basic environment variable facet.
     class EnvVar < self
@@ -65,10 +66,10 @@ module Cabar
       end
 
       def is_env_var?
-        true
+        ! ! @env_var
       end
 
-      COMPONENT_ASSOCATIONS = [ 'environment'.freeze ].freeze
+      COMPONENT_ASSOCATIONS = [ 'provides'.freeze, 'environment'.freeze ].freeze
       def component_associations
         COMPONENT_ASSOCATIONS
       end
