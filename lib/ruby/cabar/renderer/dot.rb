@@ -262,7 +262,7 @@ DOC
           :label => dot_label(c),
           :tooltip => tooltip,
           :style => required?(c) ? :solid : :dotted,
-          :URL => 'file://' + c.directory,
+          :URL => "file://#{c.directory}",
 #          :fillcolor => complete?(c) ? '#ffffff' : '#cccccc',
           :fontcolor => complete?(c) ? '#000000' : '#888888',
           :color     => complete?(c) ? '#000000' : '#888888',
@@ -494,7 +494,7 @@ DOC
             end
 
             if show_component_directory
-              dir = x.directory.sub(/^#{@current_directory}/, './')
+              dir = x.directory.to_s.sub(/^#{@current_directory}/, './')
               str << "\n#{dir}"
             end
 
