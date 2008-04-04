@@ -12,6 +12,8 @@ DOC
   #
 
   facet :env,     :class => Cabar::Facet::EnvVarGroup
+  facet :env_var, :class => Cabar::Facet::EnvVar
+
   cmd :env, <<'DOC' do
 
 Lists the environment variables for required components
