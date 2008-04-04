@@ -105,6 +105,10 @@ module Cabar
       @installing = false
     end
 
+    def inspect
+      "#<#{self.class} #{name.inspect} #{file.inspect}>"
+    end
+
     def to_s
       "plugin #{name}"
     end
