@@ -171,22 +171,31 @@ end
 
 desc "p4 edit, svn update, p4 submit"
 task :p4_submit do
-  m = ENV['m'] || "From #{ENV['USER']}@#{ENV['HOSTNAME']}"
+  m = ENV['m'] || "From #{ENV['USER']}@#{`hostname`.chomp}"
   c = ENV['c']
+
+  # Open everything for edit.
   sh "p4 edit ..."
+  # Get latests Manifest.txt.
   sh "svn update"
+  # Add any new files in Manifest.txt.
   sh "xargs p4 add < Manifest.txt"
+  # Submit any pending changes.
   sh "svn ci -m #{m.inspect}"
-  sh "svn update"
+  # Get the current svn rev.
   m = "cabar: from SVN #{`svn update`.chomp}"
+  # Revert any unchanged files.
   sh "p4 revert -a ..."
-  if c 
-    sh "p4 submit -r -c #{ENV['c']}"
-  else
-    sh "p4 reopen -c default ..."
-    sh "p4 submit -r -d #{m.inspect} ..."
-  end
+  # Move everything to default changelist.
+  sh "p4 reopen -c default ..."
+  # Submit everything under here.
+  sh "p4 submit -r -d #{m.inspect} ..."
+  # Edit everything under here.
   sh "p4 edit ..."
+  # Reopen in the original changelist.
+  if c
+    sh "p4 reopen -c #{c} ..."
+  end
 end
 
 
