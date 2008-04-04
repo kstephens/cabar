@@ -44,6 +44,12 @@ class Cabar::Command
   def exec_program cmd, *args
     # $stderr.puts "exec_program #{cmd.inspect} #{args.inspect}"
     
+    if ENV['CABAR_ALWAYS_EXEC']
+      args.unshfit cmd
+      Kernel::exec *args
+      raise Error, "cannot execute #{args.inspect}"
+    end
+
     unless /\// === cmd 
       ENV['PATH'].split(Cabar.path_sep).each do | x |
         x = File.expand_path(File.join(x, cmd))
