@@ -25,7 +25,7 @@ module Cabar
       lines = lines.split("\n")
       lines = lines.inject([ ]) do | a, l |
         if l[0 .. 1] == ' '
-          a.last << l
+          a.last << ("\n" + l)
         else
           a << l
         end
@@ -51,6 +51,26 @@ module Cabar
       end
 
       hash
+    end
+
+    def self.debian_generate_dot_graph pkgs
+      pkg_by_name = { }
+      pkgs.each do | pkg |
+        pkg_by_name[pkg[:Package]] = pkg
+      end
+
+      puts "digraph debian {"
+      puts "  overlap=false;"
+      puts "  splines=true;"
+      puts "  truecolor=true;"
+      puts "  clusterrank=local;"
+
+      label = '*'
+      tooltip = "#{pkg[:Package]} #{pkg[:Version]}"
+      puts "  node [ shape=box, style=solid, label=#{label.inspect}, tooltip=#{tooltip.inspect} ] #{pkg[:Package].inspect}"
+      puts "" 
+      puts "}"
+
     end
 
   end # module
