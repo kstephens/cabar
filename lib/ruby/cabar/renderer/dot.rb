@@ -8,6 +8,9 @@ module Cabar
     # Renders as a dot graph.
     # See http://www.graphviz.org/
     class Dot < self
+      # A list of components to render.
+      attr_accessor :components
+
       @@command_doc = ''
       def self.command_documentation
         @@command_documentation
@@ -23,10 +26,17 @@ module Cabar
         attr_accessor name
       end
 
+
+      command_option :require_selection, false, <<'DOC'
+Require all the selected components as top-level.
+Expands set of rendered components to all required components.
+DOC
+
       # Options:
       command_option :show_dependencies, true, <<'DOC'
 Show dependency edges between components.
 DOC
+
       command_option :link_component_versions, false, <<'DOC'
 Create links between a node for a component name and each component version.
 Also creates links between component versions and a component node.
@@ -61,6 +71,10 @@ DOC
 
       command_option :show_component_directory, false, <<'DOC'
 Show the component directory.
+DOC
+
+      command_option :show_dependency_constraint, true, <<'DOC'
+Show the dependency constraint information on the edge.
 DOC
 
       command_option :show_facets, false, <<'DOC'
@@ -108,29 +122,57 @@ DOC
 
       # Renders a Context as a Dot graph.
       def render_Context context
-        @context = context
+        _logger.debug :"Dot#render_Context"
 
-        # Get list of all components.
+        @node_count = 0
+        @edge_count = 0
+
+        @context = context
 
         available_components = 
           context.
-          available_components.to_a.
+          available_components.
+          to_a.
           sort { |a, b| a.name <=> b.name }
 
-        components = available_components
+        # Default selected components to all available components.
+        @components ||= available_components
 
-        # $stderr.puts "components = #{components.inspect}"
-        # $stderr.puts "r_components = #{context.required_components.inspect}"
+        _logger.info do
+          "components specified: #{@components.size}"
+        end
+        if @components.size < 100
+          _logger.info "components: "
+          _logger.info do
+            @components.map{|c| "  " + c.to_s}
+          end
+        end
+
+        # If --require-selection.
+        if require_selection
+          @components.each do | x |
+            _logger.info "requiring #{x.class} #{x.inspect}"
+            @context.require_component x
+          end
+          @context.resolve_components!
+          @components = @context.required_components.to_a
+        end
+
+        # Get list of components to show.
+        @components = @components.
+          sort { |a, b| a.name <=> b.name }
 
         unless show_unrequired_components
-          components = components.select do | c |
+          @components = @components.select do | c |
             required? c
           end
         end
 
-        # $stderr.puts "components = #{components.inspect}"
+        components = @components
 
-        @components = components
+        _logger.info do
+          "components rendering: #{@components.size}"
+        end
 
         # Get list of all facets.
         facets =
@@ -244,15 +286,25 @@ DOC
         puts ""
         puts "// END"
         puts "}"
+
+
+        _logger.info do
+          "nodes: #{@node_count}, edges: #{@edge_count}"
+        end
       end
+
 
       # Renders a Component as a dot node.
       def render_Component c, opts = nil
+        _logger.debug :C, :prefix => false, :write => true
+
         opts ||= EMPTY_HASH
         # $stderr.puts "render_Component #{c}"
 
         tooltip = "#{c.to_s(:short)}"
         tooltip << ": #{c.description}" if c.description
+        tooltip << "; type: #{c.component_type}" if c.component_type != Component::CABAR_STR
+
         unless complete?(c)
           tooltip << "; status: #{c.status}"
         end
@@ -282,6 +334,8 @@ DOC
         # $stderr.puts "render_Facet #{f.class}"
         return unless show_facets
         return if Cabar::Facet::RequiredComponent === f
+        _logger.debug :F, :prefix => false, :write => true
+
         render_node f, 
           :shape => :hexagon, 
           :label => dot_label(f)
@@ -290,6 +344,8 @@ DOC
       # Renders a dependency link for a given dependency facet.
       def render_dependency_link d
         return unless show_dependencies
+
+        _logger.debug :D, :prefix => false, :write => true
 
         c1 = d.component
         c2 = d.resolved_component
@@ -319,6 +375,8 @@ DOC
       def render_facet_link c, f
         return if Cabar::Facet::RequiredComponent === f
         return unless show_facet_links
+        _logger.debug :L, :prefix => false, :write => true
+
         render_edge c, f, :style => :dotted, :arrowhead => :none
       end
 
@@ -358,6 +416,10 @@ DOC
       # Renders a node.
       # If name is not a String, call dot_name() on it.
       def render_node name, opts = nil
+        @node_count += 1
+
+        _logger.debug :n, :prefix => false, :write => true
+
         opts ||= EMPTY_HASH
         name = dot_name(name) unless String === name
         prefix = name
@@ -380,6 +442,10 @@ DOC
       # Renders an edge between two nodes.
       # If n1 or n2 are not Strings, call dot_name() on them.
       def render_edge n1, n2, opts = nil
+        @edge_count += 1
+
+        _logger.debug :e, :prefix => false, :write => true
+
         opts ||= EMPTY_HASH
 
         n1 = dot_name(n1) unless String === n1
@@ -520,7 +586,9 @@ DOC
             str
           when Cabar::Facet::RequiredComponent
             # Use the version requirement.
-            x._proto ? x.version.to_s : x.key.to_s
+            show_dependency_constraint ?
+              (x._proto ? x.version.to_s : x.key.to_s) :
+              EMPTY_STRING
           when Cabar::Facet
             # Use the facet name.
             x.key.to_s

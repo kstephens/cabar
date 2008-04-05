@@ -21,6 +21,7 @@ DOC
 Lists all available components.
 DOC
       selection.select_available = true
+      selection.to_a
 
       yaml_renderer.
         render(selection.to_a,
@@ -54,11 +55,12 @@ Example Usage:
 Graph Options:
 #{Cabar::Renderer::Dot.command_documentation}
 DOC
-      selection.select_required = true
+      selection.select_available = true
       selection.to_a
       
       r = Cabar::Renderer::Dot.new cmd_opts
-      
+      r.components = selection.to_a
+
       r.render(context)
     end
     
