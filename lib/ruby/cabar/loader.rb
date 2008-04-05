@@ -32,12 +32,10 @@ module Cabar
      super
     end
 
-    def logger
-      @context.logger
-    end
-
-    def log msg, force = nil
-      logger.info "loader: #{msg}", :force => force
+    def _logger
+      @_logger ||=
+        Cabar::Logger.new(:name => :loader, 
+                          :delegate => @context.main._logger)
     end
 
     def add_component_search_path! path, opts = nil
@@ -65,7 +63,9 @@ module Cabar
         raise ArgumentError, "position must be :before or :after"
       end
 
-      log "  add_component_search_path! #{path.inspect} #{opts.inspect}"
+      _logger.debug do
+        "add_component_search_path! #{path.inspect} #{opts.inspect}"
+      end
 
       self
     end
@@ -91,7 +91,7 @@ module Cabar
     # loading, to implement recursive component repositories.
     #
     def load_components!
-      log "load_components!"
+      _logger.debug :"load_components!"
 
       notify_observers(:before_load_components!)
 
@@ -100,7 +100,9 @@ module Cabar
 
       # While there are still component paths to search.
       @component_search_path_pending.cabar_each! do | path |
-        log "search path #{path.inspect}"
+        _logger.debug do
+          "search path #{path.inspect}"
+        end
         @component_search_path << path
         
         search_for_component_directories(path).each do | dir |
@@ -110,8 +112,10 @@ module Cabar
         # While there are still components to load.
         @component_directories_pending.cabar_each! do | dir |
           @component_directories << dir
-          log "  component dir #{dir.inspect}"
-          
+          _logger.debug do
+            "component dir #{dir.inspect}"
+          end
+
           parse_component! dir
         end
 
@@ -121,7 +125,9 @@ module Cabar
       # the components can be fully configured.
       @component_parse_pending.cabar_each! do | c |
         c.parse_configuration!
-        log "component #{c.inspect}"
+        _logger.debug do
+          "component #{c.inspect}"
+        end
       end
       
 
@@ -138,7 +144,9 @@ module Cabar
 
     # Returns a list of all component directories.
     def search_for_component_directories *path
-      log "search_for_component_directories #{path.inspect}"
+      _logger.debug do
+        "search_for_component_directories #{path.inspect}"
+      end
 
       # Find all */*/cabar.yml or */cabar.yml files.
       x = path.map do | p |
@@ -164,7 +172,9 @@ module Cabar
       # Unique.
       x = x.cabar_uniq_return!
 
-      log "result #{x.inspect}"
+      _logger.debug do
+        "result #{x.inspect}"
+      end
 
       x
     end
@@ -207,7 +217,9 @@ private
       conf_file ||= 
         File.join(directory, "cabar.yml")
       
-      log "    loading #{conf_file}"
+      _logger.info do
+        "  loading #{conf_file.inspect}"
+      end
 
       conf = @context.configuration.read_config_file conf_file
       conf = conf['cabar']
@@ -260,10 +272,19 @@ private
           Cabar::Main.current.plugin_manager.add_observer(self, :plugin_installed, :plugin_installed!)
 
           plugin.each do | file |
-            file = Cabar.path_expand(file, directory) 
-            log "    loading plugin #{file}"
+            next unless file
+
+            file = Cabar.path_expand(file, directory)
+
+            _logger.debug do
+              "    loading plugin #{file.inspect}"
+            end
+
             require file
-            log "    loading plugin #{file}: DONE"
+
+            _logger.debug do
+              "    loading plugin #{file.inspect}: DONE"
+            end
           end
         ensure
           Cabar::Plugin.default_name = save_name
@@ -271,14 +292,18 @@ private
         end
       end
 
-      log "    loading #{conf_file}: DONE"
+      _logger.info do
+        "    loading #{conf_file.inspect}: DONE"
+      end
 
       [ conf, comps, conf_file ]
     end
 
     # Observer callback for newly installed plugins.
     def plugin_installed! plugin_manager, plugin
-      log "      plugin installed #{plugin.name.inspect} #{plugin.file.inspect}"
+      _logger.debug do
+        "      plugin installed #{plugin.name.inspect} #{plugin.file.inspect}"
+      end
       (@plugins ||= [ ]) << plugin
     end
 
@@ -293,7 +318,9 @@ private
 
       return nil unless conf
 
-      log "    loading #{conf_file}: DONE"
+      _logger.info do
+        "    loading #{conf_file}: DONE"
+      end
 
       # Process each component definition.
       comps.each do | name, opts |
@@ -324,13 +351,22 @@ private
 
         # Register component, if it's enabled.
         if comp.enabled?
-          log "      enabled #{conf_file}"
+          _logger.debug do
+            "      enabled #{conf_file.inspect}"
+          end
+
           comp.parse_configuration_early!
 
           add_available_component! comp
+        else
+          _logger.info do 
+            "      component #{comp} disabled"
+          end
         end
 
-        log "    parse #{conf_file}: DONE"
+        _logger.info do
+          "    parse #{conf_file.inspect}: DONE"
+        end
 
         comp
       end
