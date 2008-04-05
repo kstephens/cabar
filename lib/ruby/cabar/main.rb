@@ -27,7 +27,7 @@ module Cabar
     attr_accessor :plugin_manager
 
     # The Cabar::Logger object.
-    attr_accessor :logger
+    attr_accessor :_logger
 
     def self.current
       @@current || raise(Error, "Cabar::Main not initialized")
@@ -37,7 +37,7 @@ module Cabar
       @commands = Command::Manager.factory.
         new(:main => self, 
             :owner => self)
-      @logger = Logger.factory.
+      @_logger = Logger.factory.
         new(:name => 'cabar')
 
       super

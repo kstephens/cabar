@@ -6,7 +6,7 @@ require 'cabar/context'
 module Cabar
   # Manages a selection of Components based on command line options.
   #
-  # Provide default standard cbr Command options.
+  # Provides standard cbr Command options for selecting Components.
   class Selection < Base
     # The Context object.
     attr_accessor :context
@@ -18,15 +18,19 @@ module Cabar
     attr_accessor :select_constraint
     
     # Option: -T
+    # Select only top-level components.
     attr_accessor :select_top_level
 
     # Option: -A
+    # Select all available components.
     attr_accessor :select_available
 
     # Option: -R
+    # Select all required component from top-level.
     attr_accessor :select_required
 
     # Option: -D
+    # Select all dependencies of any selected components.
     attr_accessor :select_dependencies
 
     # The required Component from select_constraint.
@@ -42,6 +46,12 @@ module Cabar
       super
     end
 
+
+    def _looger
+      @_logger ||=
+        Cabar::Logger.new(:name => :selection,
+                          :delegate => @context.main._logger)
+    end
 
     # Parses command line options to determine how to 
     # select Components.
@@ -142,12 +152,18 @@ module Cabar
               result = context.
                 component_dependencies(context.required_components.to_a)
             end
+
           when @select_available
             result = context.available_components
+            _logger.debug "result #{result.class} #{result.to_a.size}"
+
             if component_constraint
               result = result.select(component_constraint)
+              _logger.debug "result #{result.class} #{result.to_a.size}"
             end
+
             result = result.to_a
+            _logger.debug "result #{result.class} #{result.to_a.size}"
             
             if @select_dependencies
               result = context.component_dependencies(result)

@@ -74,8 +74,8 @@ module Cabar
       register!
     end
     
-    def logger
-      @manager.logger
+    def _logger
+      @manager._logger
     end
 
     # Installs the parts of the plugin.
@@ -134,18 +134,23 @@ module Cabar
         super
       end
 
-      def logger
-        @logger ||= @main.logger
+      def _logger
+        @_logger ||= 
+          @main._logger
       end
 
       def register_plugin! plugin
         # Overlay configuration options.
         config_opts = main.context.configuration.config['plugin']
         config_opts &&= config_opts[plugin.name]
+
+        _logger.debug "plugin: #{plugin} configuration #{config_opts.inspect}"
+
         if config_opts
           opts = plugin._options.dup
           opts.cabar_merge!(config_opts)
           plugin._options = opts
+          _logger.info "plugin: #{plugin} configuration #{opts.inspect}"
         end
 
         # Do not register if disabled.
@@ -190,8 +195,9 @@ module Cabar
         instance_eval &blk if block_given?
       end
 
-      def logger
-        @logger ||= @plugin.logger
+      def _logger
+        @_logger ||=
+          @plugin._logger
       end
 
       # Define a Facet.

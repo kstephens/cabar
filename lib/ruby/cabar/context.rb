@@ -28,7 +28,7 @@ module Cabar
     include Cabar::Sort
 
     # The Cabar::Main object.
-    attr_reader :main
+    attr_accessor :main
 
     # Set of all components availiable.
     attr_reader :available_components
@@ -63,10 +63,11 @@ module Cabar
       super
     end
 
-    def logger
-      # why doesn't self.main work?
-      @logger ||= 
-        (@main ||= @_options[:main]).logger
+    def _logger
+      @_logger ||= 
+        Cabar::Logger.new(:name => :context,
+                          :delegate => main._logger
+                          )
     end
 
     # For Facet:: support.
@@ -81,7 +82,8 @@ module Cabar
 
     # Returns the Cabar::Configuration object.
     def configuration
-      @configuration ||= Cabar::Configuration.new(:context => self)
+      @configuration ||= 
+        Cabar::Configuration.new(:context => self)
     end
 
     # Returns the configuration hash.
@@ -141,11 +143,16 @@ module Cabar
     #
 
     #
-    # Returns a set of all availabe components
+    # Returns a set of all available components
     # found through the component directories search path.
     #
     def available_components
-      loader.available_components
+      @available_components ||=
+        begin
+          x = loader.available_components
+          _logger.info "available components: #{x.size}"
+          x
+        end
     end
 
 
@@ -178,12 +185,12 @@ module Cabar
 
     # Select a component by constraint.
     # This reduces the selected_components set.
-    def select_component opts, &blk
+    def select_component opts
       notify_observers :before_select_component, opts
 
       # $stderr.write 'S'; $stderr.flush
 
-      s = selected_components.select! opts, &blk
+      s = selected_components.select! opts
 
       notify_observers :after_select_component, opts, s
 
@@ -201,13 +208,11 @@ module Cabar
     # If all is true, an Array is returned.
     # If all is false, the resolved component is returned, iff
     # there is no amibiguity.
-    def resolve_component opts, all = false, &blk
-      # puts "resolve #{opts.inspect}, #{all.inspect}"
-      c = selected_components.select opts, &blk
+    def resolve_component opts, all = false
+      _logger.debug :r, :write => true, :prefix => false
 
-      # $stderr.write 'r'; $stderr.flush
+      c = selected_components.select opts
 
-      # puts "  c = #{c.size} #{c.inspect}"
       case c.size
       when 0
         all ? [ ] : nil
@@ -220,12 +225,12 @@ module Cabar
 
     # Requires a specific component and/or version.
     # Adds to top_level_components list.
-    def require_component opts, &blk
+    def require_component opts
       return nil unless opts
 
       notify_observers :before_require_component, opts
 
-      c = _require_component opts, &blk
+      c = _require_component opts
       add_top_level_component! c
 
       notify_observers :after_require_component, opts, c
@@ -237,13 +242,14 @@ module Cabar
     # Use internally by cabar during dependency
     # resolution.
     # Does not add component to top_level_components list.
-    def _require_component opts, &blk
+    def _require_component opts
       # $stderr.write 'R'; $stderr.flush
 
-      r = resolve_component opts, :all, &blk
+      r = resolve_component opts, :all
       case r.size
       when 0
         constraint = opts
+        _logger.error "Cannot find required component #{opts.inspect}"
         opts = opts.to_hash unless Hash === opts
         opts[:dependent] = constraint.to_s
         unresolved_component! opts
@@ -265,7 +271,7 @@ module Cabar
           opts.cabar_merge!(comp_config.cabar_symbolify)
           # $stderr.puts "_require_component default #{opts.inspect} <= #{comp_config}"
 
-          r = resolve_component opts, :all, &blk
+          r = resolve_component opts, :all
         end
         
         # Select latest version.

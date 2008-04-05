@@ -26,7 +26,7 @@ module Cabar
         super
       end
       
-      def logger
+      def _logger
         owner.logger
       end
 

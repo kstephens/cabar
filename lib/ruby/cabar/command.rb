@@ -60,8 +60,10 @@ module Cabar
       self
     end
 
-    def logger
-      @manager.logger
+    def _logger
+      @_logger ||=
+        Cabar::Logger.new(:name => "command: #{name_path.join(' ')}", 
+                          :delegate => @manager._logger)
     end
 
     # Returns all the valid names and aliases for this command.
