@@ -79,5 +79,9 @@ describe Cabar::Constraint do
     constraint_count "b*,arch=i386", 1
   end
 
+  it 'should not match "foo,arch=i386"' do
+    constraint_count "foo,arch=i386", 0
+  end
+
 end
 
