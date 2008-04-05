@@ -190,10 +190,9 @@ module Cabar
       o = _options.dup
 
       if x = o[:component_type]
-        s << "#{o[:component_type]}:" unless x == Component::CABAR_STR
+        x = '' if x == Component::CABAR_STR
+        s << "#{x}:"
         o.delete(:component_type)
-      else
-        s << '*:'
       end
 
       s << "#{name}" if name
