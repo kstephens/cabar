@@ -42,8 +42,11 @@ module Cabar
       end
       
       # Handle '<type>:<name>'
-      if /^([^:]+):(.*)$/.match(x[:name])
-        x[:component_type] ||= $1
+      if /^([^:]*):(.*)$/.match(x[:name])
+        x[:component_type] ||= 
+          $1.empty? ? 
+            Cabar::Component::CABAR_STR :
+            $1
         x[:name] = $2
       end
 

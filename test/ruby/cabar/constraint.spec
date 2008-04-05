@@ -15,6 +15,7 @@ describe Cabar::Constraint do
     @nvs << (@food_1_1 = nv.new(:name => 'food', :version => '1.1'))
     @nvs << (@bar_1_0 = nv.new(:name => 'bar', :version => '1.0'))
     @nvs << (@bar_1_1 = nv.new(:name => 'bar', :version => '1.1', :arch => 'i386'))
+    @nvs << (@deb_deb_1_0 = nv.new(:name => 'deb', :version => '1.0', :component_type => 'deb')) 
   end
 
   def constraint c
@@ -31,15 +32,15 @@ describe Cabar::Constraint do
   end
 
   it "should match nil" do
-    constraint_count(nil, 6)
+    constraint_count(nil, 7)
   end
 
   it "should match true" do
-    constraint_count true, 6
+    constraint_count true, 7
   end
 
   it 'should match ""' do
-    constraint_count "", 6
+    constraint_count "", 7
   end
 
   it 'should match { :name => "foo" }' do
@@ -65,6 +66,14 @@ describe Cabar::Constraint do
 
   it 'should match "cabar:name=foo"' do
     constraint_count 'cabar:name=foo', 3
+  end
+
+  it 'should match "deb:deb"' do
+    constraint_count 'deb:deb', 1
+  end
+
+  it 'should not match ":deb"' do
+    constraint_count ':deb', 0
   end
 
   it 'should match "foo*,arch=i386"' do
