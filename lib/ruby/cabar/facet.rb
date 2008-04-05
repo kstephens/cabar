@@ -70,19 +70,27 @@ module Cabar
         key.map { | t | register_prototype facet_proto, t }
       else
         key ||= facet_proto.key.to_s
-        # $stderr.puts "register_prototype(#{facet_proto.inspect}) as #{key.inspect}"
+        _logger.debug2 do
+          "register_prototype(#{facet_proto.inspect}) as #{key.inspect}"
+        end
         @@key_to_proto[key] ||= facet_proto
       end
     end
 
     # Returns true if the Facet is actually inferred.
     def infer?
-      #result = 
-      inferrable? && inferred?
-      # $stderr.puts "#{key} inferrable? => #{inferrable?.inspect}"
-      # $stderr.puts "#{key} inferred? => #{inferred?.inspect}"
-      # $stderr.puts "#{component.inspect} #{key} infer? result => #{result.inspect}" if result
-      # result
+      result = 
+        inferrable? && inferred?
+
+      _logger.debug2 do
+        [ 
+         "#{key} inferrable? => #{inferrable?.inspect}",
+         "#{key} inferred? => #{inferred?.inspect}",
+         "#{component.inspect} #{key} infer? result => #{result.inspect}"
+        ] 
+      end
+
+      result
     end
 
     # Returns true if Facet is inferred by some component attribute.
@@ -97,7 +105,9 @@ module Cabar
 
     # Creates a new Facet instance by cloning a Facet prototype.
     def self.create proto_name, conf = EMPTY_HASH, opts = EMPTY_HASH
-      # $stderr.puts "#{self}.create #{proto_name} #{conf.inspect} #{opts.inspect}"
+      _logger.debug2 do
+        "#{self}.create #{proto_name} #{conf.inspect} #{opts.inspect}"
+      end
 
       # Get the prototype object.
       case proto_name
@@ -137,7 +147,6 @@ module Cabar
 
       # Set the clone's configuration.
       obj._options = conf
-      #$stderr.puts "\obj = "; pp obj
 
       obj
     end

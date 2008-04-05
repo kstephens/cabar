@@ -16,6 +16,12 @@ module Cabar
       super
     end
     
+    def _logger
+      @_logger ||=
+        Cabar::Logger.new(:name => self.class.name,
+                          :delegate => super)
+    end
+
     # Same as output.puts *args.
     def puts *args
       @output.puts(*args)
