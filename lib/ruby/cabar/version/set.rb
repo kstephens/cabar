@@ -7,8 +7,12 @@ require 'forwardable'
 module Cabar
   class Version
 
-    # This maintains an ordered set of objects that
+    # Maintains an ordered set of objects that
     # respond to :name and :version.
+    #
+    # include? and select can take a object such as
+    # Cabar::Constraint that returns matchers, Regexp for name, or
+    # Cabar::Version::Requirements for version.
     #
     # Set is sorted by name in proper order
     # and version in reverse order.
@@ -101,7 +105,7 @@ module Cabar
       end
       
       # Reduces set based on additional constraint.
-      def select! opts, &blk
+      def select! opts
         opts = Cabar::Constraint.create opts
 
         match = opts.to_proc
@@ -116,13 +120,13 @@ module Cabar
         self
       end
       
-      def select opts, &blk
-        dup.select! opts, &blk
+      def select opts
+        dup.select! opts
       end
       
       # Find first matching component from list.
-      def find opts, &blk
-        result = select opts, &blk
+      def find opts
+        result = select opts
         
         if result.size > 1 
           raise "Too many components match #{opts.inspect}: #{result.map{|x| x.version.to_s}.inspect}"

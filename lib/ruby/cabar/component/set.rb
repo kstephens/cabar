@@ -24,7 +24,8 @@ module Cabar
       attr_reader :selections
 
       def initialize avail
-        @a = avail
+        @avail = avail
+        @_set = nil
         @set_by_name = nil
         @selections = { }
       end
@@ -33,6 +34,7 @@ module Cabar
       def to_a
         @to_a ||=
         begin
+          @_set = nil
           s = Cabar::Version::Set.new 
           @set_by_name.values.each do | n_s |
             s.push(*n_s)
@@ -41,11 +43,22 @@ module Cabar
         end
       end
       
-      # Returns true if x is in this set.
-      def include? x
-        to_a.include? x
+      # Returns a Hash where each object
+      # in this set is a key with a value of true.
+      def _set
+        @_set ||=
+          to_a.inject({ }) do |h, o|
+            h[o] = true
+            h
+          end
       end
 
+      # Returns true if x is in this set.
+      def include? x
+        ! ! _set.key?(x)
+      end
+
+      # Returns a new Set joined with all the arguments.
       def join *args
         to_a.join(*args)
       end
@@ -56,7 +69,7 @@ module Cabar
         @set_by_name ||=
         begin
           @set_by_name = { }
-          @a.map { | c | c.name }.uniq.each do | name |
+          @avail.map { | c | c.name }.uniq.each do | name |
             set_for_name name
           end
           @set_by_name
@@ -69,7 +82,7 @@ module Cabar
       end
       
       # Apply block to each component.
-      def each &blk
+      def each
         set_by_name.each do | name, version_set |
           yield name, version_set unless version_set.empty?
         end
@@ -78,7 +91,7 @@ module Cabar
       # Returns the Version::Set for a component name.
       def set_for_name name
         set_by_name[name] ||=
-          @a.select(:name => name)
+          @avail.select(:name => name)
       end
 
       # Returns a set of components by name or contrstaint.
@@ -109,42 +122,44 @@ module Cabar
       
 
       # Reduces the set of components based on a constraint.
-      def select! opts, &blk
+      def select! opts
         opts = _prepare_opts opts
+        
+        # Invalidate caches.
+        @to_a = nil
+        @_set = nil
         
         if name = opts.name
           (@selections[name] ||= [ ]) << opts.dup
           s = set_for_name name
-          s.select! opts, &blk
+          s.select! opts
         else
           s = Cabar::Version::Set.new
           @selections.each do | name, version_set |
             x = opts.dup
             x.name = name
-            r = select! x, &blk
+            r = select! x
             s.push(*r.to_a)
           end
           s
         end
 
-        @to_a = nil
-        
         s
       end
       
 
       # Returns a new set as constrained.
-      def select opts, &blk
+      def select opts
         opts = _prepare_opts opts
         if name = opts.name
           s = set_for_name name
-          s = s.select opts, &blk
+          s = s.select opts
         else
           s = Cabar::Version::Set.new
           each do | name, version_set |
             x = opts.dup
             x.name = name
-            r = select x, &blk
+            r = select x
             s.push(*r.to_a)
           end
           s
@@ -153,13 +168,13 @@ module Cabar
       end
       
       # Find a components matching a constraint.
-      def find opts, &blk
+      def find opts
         opts = _prepare_opts opts
         if name = opts.name
           s = set_for_name name
-          s.find opts, &blk
+          s.find opts
         else
-          @a.find opts, &blk
+          @avail.find opts
         end
       end
       
