@@ -213,6 +213,8 @@ module Cabar
       return cfg if visited[file]
       visited[file] = 1
 
+      _logger.info "config: loading #{file.inspect}"
+
       y = read_config_file file
       validate_config_hash y
 
@@ -222,16 +224,25 @@ module Cabar
 
       # Handle deprecated formats.
       if old_format = ((x = conf['select']) && x['component'])
-        $stderr.puts "cabar: in #{file}: use component: select: ..., instead of select: component: ..."
+        _logger.warn "config: in #{file}: use component: select: ..., instead of select: component: ..."
         (conf['component'] ||= { })['select'] = old_format
         x.delete('component')
       end
       
       # Handle deprecated formats.
       if old_format = ((x = conf['require']) && x['component'])
-        $stderr.puts "cabar: in #{file}: use component: require: ..., instead of require: component: ..."
+        _logger.warn "config: in #{file}: use component: require: ..., instead of require: component: ..."
         (conf['component'] ||= { })['require'] = old_format
         x.delete('component')
+      end
+
+      # Handle includes first.
+      include = y['cabar']['configuration']['include']
+      include = [ include ] unless Array === include
+      include.compact.each do | inc_file |
+        # Include files are relative to source.
+        inc_file = File.expand_path(inc_file, File.dirname(file))
+        cfg = read_config_file_with_includes inc_file, cfg, visited
       end
 
       # Overlay file.
@@ -243,14 +254,7 @@ module Cabar
         ENV[k] = v
       end
 
-      # Handle includes.
-      include = y['cabar']['configuration']['include']
-      include = [ include ] unless Array === include
-      include.compact.each do | inc_file |
-        # Include files are relative to source.
-        inc_file = File.expand_path(inc_file, File.dirname(file))
-        cfg = read_config_file_with_includes inc_file, cfg, visited
-      end
+      _logger.info "config: loading #{file.inspect}: DONE"
 
       cfg
     rescue Exception => err
