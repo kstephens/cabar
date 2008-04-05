@@ -89,10 +89,11 @@ module Cabar
       str = x
 
       case str
-      when /^\/[^\/]+\/[a-z]*$/
+      when /\A\/[^\/]+\/[a-z]*\Z/
+        # Yuck: use Regexp.new, not eval.
         str = 
           @@string_to_matcher_cache[str] ||=
-          eval str # Yuck: use Regexp.new
+          eval(str) 
       when /[\*\?\[\]\|]/
         str = 
           @@string_to_matcher_cache[str] ||= 
