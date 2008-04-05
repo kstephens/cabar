@@ -18,28 +18,25 @@ DOC
     unless @debian_components
       @debian_components = [ ]
 
-      $stderr.write "Parsing Debian packages: "; $stderr.flush
+      _logger.info "Parsing Debian packages: ", :write => true
       dpkgs = Cabar::Debian.debian_parse_dpkg_file
 
       dpkgs.each do | dpkg |
         name = dpkg[:Package] || raise("Cannot get debian name")
         opts = {
-          :name => "#{DEB_STR}:#{name}",
-          :debian_name => name,
+          :name => name,
           :version => dpkg[:Version],
           :component_type => DEB_STR,
           :debian_detail => dpkg,
         }
-        # $stderr.write "."; $stderr.flush
 
-        c = opts
         c = loader.create_component(opts)
         c.debian_dependencies
 
         @debian_components << c
       end
 
-      $stderr.puts ": #{@debian_components.size}"
+      _logger.info "#{@debian_components.size}", :prefix => false
     end
 
     @debian_components
@@ -48,41 +45,51 @@ DOC
 
   # Provide Debian components.
   def after_load_components! loader, args
-    # $stderr.puts "loader = #{loader}, args = #{args.inspect}"
     debs = debian_available_components(loader)
+
+    _logger.info "Adding available Debian packages to context: ", :write => true
+
     debs.each do | c |
       loader.add_available_component! c
-      # $stderr.write '.'; $stderr.flush
+      _logger.debug :".", :write => true, :prefix => false
     end
-    # $stderr.puts "added #{debs.size}"
+
+    _logger.info " #{debs.size}", :prefix => false
   end
   
   # Callback after other components have been loaded.
   Cabar::Loader.add_observer(self, :after_load_components!, :after_load_components!)
 
   class Cabar::Component
+    # Hash containing the raw detail about the Debian package.
     attr_accessor :debian_detail
 
     def debian_dependencies
       unless @debian_dependencies
         @debian_dependencies = [ ]
 
-        # $stderr.puts "  debian_dependencies #{self.name}:" 
+        _logger.debug2 do
+          "  debian_dependencies #{name}/#{version} =>"
+        end
 
         if deps = @debian_detail[:Depends]
           deps.scan(/(\S+)\s+[(]([^\)]+)[)],?/) do
             name, version = $1, $2
-            $stderr.puts "    #{name.inspect} #{version.inspect}"
-            
+
+            _logger.debug2 do
+              "   #{name.inspect} #{version.inspect}"
+            end
+
             f = create_facet :required_component, 
-              :name => "#{DEB_STR}:#{name}",
-              :debian_name => name,
+              :name => name,
               :component_type => DEB_STR,
               :version => version
             
             @debian_dependencies << f
           end
         end
+
+        _logger.debug2 :" ", :prefix => false
       end
 
       @debian_dependencies
