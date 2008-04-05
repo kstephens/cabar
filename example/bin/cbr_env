@@ -16,7 +16,7 @@ repo="$base/repo"
 _export CABAR_PATH "${repo}/dev:${repo}/prod:${repo}/plat:@${repo}/.."
 
 # Parse a config file.
-_export CABAR_CONFIG "${base}/cabar_conf.yml"
+_export CABAR_CONFIG "${CABAR_CONFIG:-${base}/cabar_conf.yml}"
 
 # Require a top-level component.
 # _export CABAR_REQUIRE 'c1'
