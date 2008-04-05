@@ -6,6 +6,7 @@ Releases.txt
 TODO.txt
 bin/cbr
 bin/cbr-run
+bin/cbr-top-level
 bin/ruby_call_graph.rb
 cabar.yml
 comp/perl/std/cabar.yml
@@ -18,6 +19,7 @@ example/bin/cbr-run-test
 example/bin/cbr-run-test-bin-sh
 example/bin/cbr_env
 example/cabar_conf.yml
+example/cabar_conf_debian.yml
 example/repo/dev/boc/bin/boc
 example/repo/dev/boc/cabar.yml
 example/repo/dev/c1/Rakefile
@@ -59,12 +61,14 @@ lib/ruby/cabar/component/set.rb
 lib/ruby/cabar/configuration.rb
 lib/ruby/cabar/constraint.rb
 lib/ruby/cabar/context.rb
+lib/ruby/cabar/debian.rb
 lib/ruby/cabar/error.rb
 lib/ruby/cabar/facet.rb
 lib/ruby/cabar/facet/required_component.rb
 lib/ruby/cabar/facet/standard.rb
 lib/ruby/cabar/hash.rb
 lib/ruby/cabar/loader.rb
+lib/ruby/cabar/logger.rb
 lib/ruby/cabar/main.rb
 lib/ruby/cabar/observer.rb
 lib/ruby/cabar/plugin.rb

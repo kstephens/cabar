@@ -1,0 +1,8 @@
+cabar:
+  version: v1.0
+  configuration:
+    include: cabar_conf.yml
+    plugin:
+      cabar/debian:
+        enabled: true
+
