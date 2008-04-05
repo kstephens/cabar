@@ -5,17 +5,51 @@ task :default => :doc_graphs
 desc "generates dependency graphs under doc/"
 task :doc_graphs do
   [ [ ], [ :show_facet_names ], [ :show_unrequired_components ], [ :show_unrequired_components, :group_component_versions ] ].each do | opts | 
-    opts_fn = opts.map{|o| x = [ ]; o.to_s.scan(/(^|_)([a-z])/i){|m| x << $2}; x.join('')}
-    base_file = "doc/#{([ :cabar ] + opts_fn).join('.')}"
-    dot_file = "#{base_file}.dot"
+    make_graph opts
+  end
 
-    sh "bin/cbr_env cbr comp dot --show-dependencies #{opts.map{|o| "--#{o}"}.join(' ')} > #{dot_file}"
+  # Show debian graphs
+  sh "mkdir -p empty"
 
-    # [ :dot, :neato, :twopi, :circo, :fdp ].
-    [ :dot, :neato ].
-      each do | g |
-      sh "#{g} -Tsvg -o #{dot_file}.#{g}.svg #{dot_file}"
+  with_env :CABAR_CONFIG => 'cabar_conf_debian.yml',
+           :CABAR_LOG_LEVEL => 'info',
+           :CABAR_PATH => 'empty' do
+    make_graph [ :show_unrequired_components, :require_selection ], 'debian', '++show-dependency-constraint - "deb:gcc*"'
+  end
+end
+
+def with_env env
+  save_env = { }
+  env.each do | k, v |
+    k = k.to_s
+    save_env[k] = ENV[k]
+    ENV[k] = v
+    $stderr.puts "  #{k}=#{v.inspect}"
+  end
+  yield
+ensure
+  env.keys do | k |
+    k = k.to_s
+    if v = save_env[k]
+      ENV[k] = v
+    else
+      ENV.delete(k)
     end
+  end
+end
+
+
+def make_graph opts, base_name = nil, more_opts = nil
+  opts_fn = opts.map{|o| x = [ ]; o.to_s.scan(/(^|_)([a-z])/i){|m| x << $2}; x.join('')}
+  base_file = "doc/#{([ :cabar, base_name ] + opts_fn).compact.join('.')}"
+  dot_file = "#{base_file}.dot"
+  
+  sh "bin/cbr_env cbr comp dot #{more_opts} --show-dependencies #{opts.map{|o| "--#{o}"}.join(' ')} > #{dot_file}"
+  
+  # [ :dot, :neato, :twopi, :circo, :fdp ].
+  [ :dot, :neato ].
+    each do | g |
+    sh "#{g} -Tsvg -o #{dot_file}.#{g}.svg #{dot_file}"
   end
 end
 
