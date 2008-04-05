@@ -155,7 +155,7 @@ module Cabar
         if p.sub!(/^@/, '' )
           [ "#{p}/cabar.yml" ]
         else
-          [ "#{p}/*/*/cabar.yml", "#{p}/*/cabar.yml" ]
+          [ "#{p}/*/[0123456789]*/cabar.yml", "#{p}/*/cabar.yml" ]
         end
       end.cabar_flatten_return!
       
