@@ -126,10 +126,10 @@ module Cabar
 
     
     # The CABAR type.
-    CABAR = 'cabar'.freeze
+    CABAR_STR = 'cabar'.freeze
 
     def initialize *args
-      @component_type = CABAR
+      @component_type = CABAR_STR
 
       @plugins = [ ]
       super
@@ -209,13 +209,30 @@ module Cabar
       end
     end
     
+    # Returns a Constraint object that exactly matches
+    # this Component.
+    def to_constraint
+      @to_constraint ||=
+        Cabar::Constraint.create(:name => name,
+                                 :version => version,
+                                 :component_type => component_type
+                                 )
+    end
+
+    # Convert to a String representation that
+    # is similar to a Constraint String representation.
     def to_s format = :long
+      s = ''
+
+      s << "#{component_type}:" if component_type != CABAR_STR
+
+      s << "#{name}/#{version}"
       case format
-      when :short
-        "#{name}/#{version}"
       when :long
-        "#{name}/#{version}@#{directory}"
+        s << "@#{directory}" if directory
       end
+
+      s
     end
     
     def inspect *args

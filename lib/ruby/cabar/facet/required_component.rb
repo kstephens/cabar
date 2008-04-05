@@ -7,7 +7,10 @@ module Cabar
   class Facet
     # Represents a component required by another component.
     class RequiredComponent < self
-      # attr_accessor :name
+      attr_accessor :name
+
+      attr_accessor :component_type
+
       attr_accessor_type :version, Cabar::Version::Requirement
       
       # Configuration to apply the resolved Component.
@@ -21,8 +24,9 @@ module Cabar
         @configuration ||= { }
       end
       
+      COMPONENT_ASSOCIATIONS = [ 'requires'.freeze ].freeze
       def component_associations
-        [ 'requires' ]
+        COMPONENT_ASSOCIATIONS
       end
       
       def _reformat_options! opts
@@ -43,9 +47,10 @@ module Cabar
         @constraint ||=
           begin
             # Get constraint options.
-            opts = _options.dup
+            opts = { }
             opts[:name] = name
             opts[:version] = version if version
+            opts[:component_type] = component_type if component_type
             opts[:_by] = component
 
             Cabar::Constraint.create opts
@@ -129,6 +134,7 @@ module Cabar
             context.
               unresolved_component!(
                                     :name => name, 
+                                    :component_type => component_type,
                                     :version => version, 
                                     :dependent => component
                                     )
@@ -149,6 +155,7 @@ module Cabar
           [
            [ :version,   version.to_s ],
            [ :component, "#{c && c.name}/#{c && c.version.to_s}" ],
+           [ :component_type, "#{c && c.component_type}" ],
           ]
       end
       

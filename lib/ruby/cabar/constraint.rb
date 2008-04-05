@@ -43,7 +43,7 @@ module Cabar
       
       # Handle '<type>:<name>'
       if /^([^:]+):(.*)$/.match(x[:name])
-        x[:component_type] = $1
+        x[:component_type] ||= $1
         x[:name] = $2
       end
 
@@ -76,6 +76,9 @@ module Cabar
       @_proc = nil
     end
 
+    # Cache of string_to_matcher Regexps.
+    @@string_to_matcher_cache = { }
+
     # Converts:
     #
     # "/name/" => Regexp.new(name)
@@ -87,15 +90,22 @@ module Cabar
 
       case str
       when /^\/[^\/]+\/[a-z]*$/
-        str = eval str # Yuck: use Regexp.new
-      when /[\*\?\[\]]/
-        str = str.gsub('*', "\001")
-        str = str.gsub('?', "\002")
-        str = str.gsub('.', "\003")
-        str = str.gsub("\001", ".*")
-        str = str.gsub("\002", ".")
-        str = str.gsub("\003", "\\.")
-        str = Regexp.new("^#{str}$") 
+        str = 
+          @@string_to_matcher_cache[str] ||=
+          eval str # Yuck: use Regexp.new
+      when /[\*\?\[\]\|]/
+        str = 
+          @@string_to_matcher_cache[str] ||= 
+          begin
+            y = str
+            y = y.gsub('*', "\001")
+            y = y.gsub('?', "\002")
+            y = y.gsub('.', "\003")
+            y = y.gsub("\001", ".*")
+            y = y.gsub("\002", ".")
+            y = y.gsub("\003", "\\.")
+            y = Regexp.new("^#{y}$") 
+          end
       end
       # $stderr.puts "#{x.inspect} => #{str.inspect}"
       str
@@ -174,16 +184,21 @@ module Cabar
     def to_s
       s = ''
       o = _options.dup
+
       if x = o[:component_type]
-        s << "#{o[:type]}:" unless x == Component::CABAR
+        s << "#{o[:component_type]}:" unless x == Component::CABAR_STR
         o.delete(:component_type)
+      else
+        s << '*:'
       end
+
       s << "#{name}" if name
       s << "/#{version}" if version
       o.each do | k, v |
         s << ',' unless s.empty?
         s << "#{k}=#{v}"
       end
+
       s
     end
 
