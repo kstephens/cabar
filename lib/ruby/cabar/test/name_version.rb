@@ -18,7 +18,7 @@ class Cabar::Test::NameVersion
   end
 
   def initialize opts = EMPTY_HASH
-    @component_type = Cabar::Component::CABAR
+    @component_type = Cabar::Component::CABAR_STR
     opts.each do | k, v |
       s = "#{k}="
       if respond_to? s
