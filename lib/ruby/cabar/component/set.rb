@@ -94,11 +94,15 @@ module Cabar
 
       
       def _prepare_opts opts
+        opts =
         case opts
+        when Cabar::Constraint
+          opts
         when Cabar::Component
-          opts = { :name => opts.name, :version => opts.version }
+          opts.to_constraint
+        else
+          Cabar::Constraint.create opts
         end
-        opts = Cabar::Constraint.create opts
         
         opts
       end
