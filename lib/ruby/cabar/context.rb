@@ -389,8 +389,8 @@ END
     join("\n    ")}
     selected:
       #{
-    selected_components.
-    selections[name].map do | q |
+    (selected_components.
+    selections[name] || EMPTY_ARRAY).map do | q |
 #$stderr.puts "name = #{name.inspect}"
 #$stderr.puts "x = #{x.inspect}"
 #$stderr.puts "q = #{q.inspect}"
