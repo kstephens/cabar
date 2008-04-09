@@ -3,6 +3,7 @@ require 'cabar/error'
 
 
 require 'cabar/version/requirement'
+require 'cabar/command/runner'
 require 'yaml'
 require 'erb'
 
@@ -30,6 +31,9 @@ module Cabar
   # * component options.
   # * plugin configuration.
   #
+  # Use -C config.path.to.element=value,... to override configuration
+  # from the command line.
+  #
   class Configuration < Base
     class Error < Cabar::Error; end
 
@@ -47,8 +51,52 @@ module Cabar
       super
       self.config_file_path      = ENV['CABAR_CONFIG'] || '~/.cabar_conf.yml'
       self.component_search_path = ENV['CABAR_PATH']   || '.'
+
+      Cabar::Command::Runner.add_observer(self, :command_parse_args_after)
     end
     
+    # Take -C command opts from sender.
+    def command_parse_args_after sender, action
+      @cmd_line_overlay ||= { }
+      opts = sender.state.cmd_opts
+
+      # $stderr.puts "opts = #{opts.inspect}"
+
+      if c_opt = opts[:C]
+        opts.delete(:C)
+
+        c_opt.scan(/([^\s=]+)=([^,]+)/) do
+          path, value = $1, $2
+          path = path.split(/[\.:\/]/)
+
+          key = path.pop
+          path.inject(@cmd_line_overlay) { | h, k |
+            h = h[k] ||= { } 
+            h
+          }[key] = str_to_value(value)
+        end
+      end
+      
+      if @config
+        config.cabar_merge!(@cmd_line_overlay)
+      end
+
+      self
+    end
+
+    def str_to_value str
+      case str
+      when 'true'
+        str = true
+      when 'false'
+        str = false
+      when '~', 'nil'
+        str = nil
+      else
+        str
+      end
+    end
+
     # Applies the component selection configuration to the Context.
     #
     def apply_configuration! context
@@ -179,12 +227,15 @@ module Cabar
           x = cfg['cabar']['configuration']      
           x['config_file_path'] ||= config_file_path
           
+          # Overlay command line -C=opt=value
+          x.cabar_merge!(@cmd_line_overlay || EMPTY_HASH)
+
           if x['component_search_path']
             self.component_search_path = x['component_search_path']
           end
 
           x['component_search_path'] ||= component_search_path
-
+          
           x
         end
     end

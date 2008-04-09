@@ -157,7 +157,7 @@ task :make_manifest do
   files = Dir['**/*'].reject { |fn| 
       fn == 'email.txt' ||
       ! test(?f, fn) || 
-      fn =~ /CVS|.svn|([#~]$)|(.gem$)|(^pkg\/)|(^doc\/)/ ||
+      fn =~ /CVS|.svn|([#~]$)|(\.gem$)|(^pkg\/)|(^doc\/)/ ||
       (PKG_manifest_reject && (fn =~ PKG_manifest_reject))
     }.sort.join("\n") + "\n"
 

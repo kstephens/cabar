@@ -4,12 +4,15 @@ require 'cabar/error'
 require 'cabar/command'
 require 'cabar/command/state'
 
+require 'cabar/observer'
 
 module Cabar
   class Command
 
     # Parses command-line arguments and executes a command.
     class Runner < Base
+      include Cabar::Observer::Observed
+
       # Cabar::Main object.
       attr_accessor :context
       
@@ -87,7 +90,9 @@ module Cabar
         if state.cmd_path.empty?
           parse_args [ 'help', '--error=', 'command not specified'  ]
         end
-        
+
+        notify_observers(:command_parse_args_after)
+
         # $stderr.puts "state = #{state.inspect}"
         
         self

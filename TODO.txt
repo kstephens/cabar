@@ -4,10 +4,12 @@
 
 * A faulty component's plugin may prevent entire system from working.
 
-= TO DO:
+= FINISHED:
 
-* Add -C configuration.path.element=value,... option to override
-  configuration settings.
+* Add -C=configuration.path.element=value,... option to override
+  configuration settings. 
+
+= TO DO:
 
 * Solidify semantics of Component#status: status = unimplemented => disable Facet contributions
 

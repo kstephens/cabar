@@ -64,6 +64,7 @@ module Cabar
     class Component < Base
       attr_accessor :name
       attr_accessor_type :version, Cabar::Version
+      attr_accessor :component_type
       attr_accessor :directory
       attr_accessor :base_directory
       attr_reader :env

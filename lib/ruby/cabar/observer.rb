@@ -28,7 +28,7 @@ module Cabar
       # callback can be a Proc or a method Symbol.
       def add_observer observer, action = nil, callback = nil
         # $stderr.puts "add_observer on #{@owner.class.inspect} #{observer} #{action} #{callback}"
-        callback ||= :update 
+        callback ||= action || :update 
         callback = [ observer, callback ]
         (@callback_by_action[action] ||= [ ]).push callback
       end
