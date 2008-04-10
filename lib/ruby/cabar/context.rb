@@ -63,6 +63,15 @@ module Cabar
       super
     end
 
+
+    def unresolved_components_ok!
+      @unresolved_components_ok = true
+    end
+
+    def unresolved_components_ok?
+      ! ! @unresolved_components_ok
+    end
+
     def _logger
       @_logger ||= 
         Cabar::Logger.new(:name => :context,
@@ -250,11 +259,17 @@ module Cabar
       when 0
         constraint = opts
         _logger.error "Cannot find required component #{opts.inspect}"
+        opts = opts.to_constraint if Cabar::Component === opts
         opts = opts.to_hash unless Hash === opts
+        # $stderr.puts "opts = #{opts.inspect}"
         opts[:dependent] = constraint.to_s
         unresolved_component! opts
         check_unresolved_components
-        raise Error, "Cannot find required component #{opts.inspect}"
+        if unresolved_components_ok?
+          return nil
+        else
+          raise Error, "Cannot find required component #{opts.inspect}"
+        end
       else
         # Allow selection of default component.
         # Overlay component defaults.
@@ -264,8 +279,9 @@ module Cabar
         comp_config = { :version => comp_config } unless Hash === comp_config
 
         unless comp_config.empty?
-          constraint = opts
+          opts = opts.to_constraint if Cabar::Component === opts
           opts = opts.to_hash unless Hash === opts
+          # $stderr.puts "opts = #{opts.inspect}"
           opts = opts.cabar_symbolify
           comp_config[:_by] = (opts[:_by].to_s) + " + component:require_default:"
           opts.cabar_merge!(comp_config.cabar_symbolify)
@@ -361,6 +377,7 @@ module Cabar
     # TODO: Make this use the yaml error formatter.
     def check_unresolved_components
       return self unless unresolved_components? 
+      return self if unresolved_components_ok?
 
       notify_observers :before_check_unresolved_components
 

@@ -151,6 +151,7 @@ DOC
         # If --require-selection.
         if require_selection
           @components.each do | x |
+            next unless x
             _logger.info "requiring #{x.class} #{x.inspect}"
             @context.require_component x
           end

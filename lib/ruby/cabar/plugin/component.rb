@@ -55,7 +55,14 @@ Example Usage:
 Graph Options:
 #{Cabar::Renderer::Dot.command_documentation}
 DOC
+      context.unresolved_components_ok!
       selection.select_available = true
+
+      if opt = cmd_opts[:r]
+        context.require_component(Cabar::Constraint.create(opt))
+        context.resolve_components!
+      end
+
       selection.to_a
       
       r = Cabar::Renderer::Dot.new cmd_opts
