@@ -6,7 +6,7 @@
   ruby_info[:prog] = File.expand_path(`which ruby`.chomp)
   ruby_info[:available] = ! ruby_info[:prog].to_s.empty?
   ruby_info[:bin] = File.dirname(ruby_info[:prog])
-  # pp ruby_info
+  $stderr.puts "ruby_info = #{ruby_info.inspect}"
  %>
 cabar:
   version: '1.0'
