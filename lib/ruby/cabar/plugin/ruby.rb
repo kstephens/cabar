@@ -26,7 +26,21 @@ DOC
       arch = ruby_comp && ruby_comp.ruby['arch']
       # $stderr.puts "arch = #{arch.inspect}"
       arch
-    }
+    },
+    :standard_path_proc => lambda { | facet |
+      # Get the standard ruby load_path. 
+      ruby_comp =
+        facet.
+        context.
+        required_components['ruby']
+      ruby_comp &&= ruby_comp.size == 1 && ruby_comp.first
+      # $stderr.puts "ruby_comp = #{ruby_comp}"
+      path = ruby_comp && ruby_comp.ruby['load_path']
+      # $stderr.puts "path = #{path.inspect}"
+      path &&= path.map{|x| x =~ /^\./ ? x : File.expand_path(x) } 
+      # $stderr.puts "  path = #{path.inspect}"
+      path
+   }
 
 
   cmd_group :ruby do

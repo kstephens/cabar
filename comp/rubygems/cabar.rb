@@ -5,7 +5,11 @@ DOC
 
   facet :rubygems, 
         :path => [ 'gems' ], 
-        :env_var => :GEM_PATH
+        :env_var => :GEM_PATH,
+        :standard_path_proc => lambda { | f |
+          x = `ruby -r rubygems -e 'puts Gem.path.inspect'`.chomp
+          x = eval x
+        }
 
   cmd_group [ :rubygems, :gems ] do
 

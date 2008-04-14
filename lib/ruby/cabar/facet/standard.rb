@@ -136,6 +136,19 @@ module Cabar
       # each element x in path.
       attr_accessor :arch_dir
 
+      # If set, the default is used to initialize
+      # the default of the environment variable during
+      # processing.
+      attr_accessor :standard_value
+
+      # If set, the default is used to initialize
+      # the default value from a path.
+      attr_accessor :standard_path
+
+      # If set, the Proc is called to default the
+      # default value during composition.
+      attr_accessor :standard_path_proc
+
 
       COMPONENT_ASSOCIATIONS = [ 'provides' ].freeze
       COMPONENT_ASSOCIATIONS_ENV_VAR = [ 'provides', 'environment' ].freeze
@@ -160,6 +173,8 @@ module Cabar
         super
         @path = @path.dup rescue @path
         @abs_path = @abs_path.dup rescue @abs_path
+        @default_path = @default_path.dup rescue @default_path
+        @default_value = @default_value.dup rescue @default_value
       end
 
       # Returns std_path or the Facet prototype key.
@@ -239,16 +254,41 @@ module Cabar
         abs_path.uniq.join(Cabar.path_sep)
       end
 
+      # Returns the standard value for this environment var by
+      # expanding default_path 
+      def standard_value
+        @standard_value ||=
+          (x = standard_path) && 
+          x.
+          map{|x| File.expand_path(x, base_directory)}.
+          uniq.
+          join(Cabar.path_sep)
+      end
+
+      def standard_path
+        @standard_path ||=
+          begin
+            @standard_path = EMPTY_ARRAY
+            x = @standard_path_proc && @standard_path_proc.call(self)
+            x = x.split(Cabar.path_sep) if String === x
+            x || EMPTY_ARRAY
+          end
+      end
+
       # This will append the other Facet's abs_path to this
       # Facet's abs_path uniquely.
       def compose_facet! facet
         # At this time: arch_path usage in abs_path should be resolvable.
         # facet.uncache_abs_path!
         @abs_path = (abs_path + facet.abs_path).uniq
-        #if @key == 'cnu_config_path'
-        #  $stderr.puts "compose_facet! #{@key.inspect}\n  owner = #{@owner}\n  abs_path = #{@abs_path.inspect}"
-        #end
-        self
+=begin
+        if @key == 'lib/ruby'
+          $stderr.puts "  compose_facet! #{@key.inspect}"
+          $stderr.puts "    from = #{facet.owner}\n    abs_path = #{facet.abs_path.inspect}"
+          $stderr.puts "    to   = #{@owner}\n    abs_path = #{@abs_path.inspect}"
+        end
+=end
+        self 
       end
 
       def to_s

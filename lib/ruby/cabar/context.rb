@@ -536,6 +536,8 @@ END
               f
             else
               f = coll[facet.key] = facet.dup
+              f.context = self
+              f.owner = self
             end
           else
             (comp_facet[c] ||= [ ]) << facet
@@ -555,18 +557,38 @@ END
       map { | f | f.key }.
       each do | ft |
         fp = Facet.proto_by_key(ft)
+        f = coll[ft]
+        facet = nil
+
         if (v = ENV[fp.env_var])
-          f = coll[ft]
+          # $stderr.puts "  creating facet for ENV[#{fp.env_var}] => #{v.inspect}"
           facet = Facet.create(ft, 
                                :path => Cabar.path_split(v),
                                :context => self,
                                :owner => self)
-          
+        end
+
+        if facet 
           if f 
             f.compose_facet! facet  
           else
             coll[ft] = facet
           end
+        end
+      end
+
+
+      # Append the facet's default_path to the end 
+      # of the collected facets.
+      coll.each do | facet_key, f |
+        fp = Facet.proto_by_key(facet_key)
+        if fp.is_composable? && fp.standard_path_proc
+          f_standard = f.dup
+          f_standard.context = self
+          f_standard.owner = self
+          f_standard.abs_path = f.standard_path
+          # $stderr.puts "  f_default #{facet_key.inspect} = #{f_standard.abs_path.inspect}"
+          f.compose_facet! f_standard
         end
       end
 
