@@ -43,7 +43,7 @@ module Cabar
   #     version: v1.0
   #     configuration:
   #       # Override CABAR_PATH.
-  #       component_search_path:
+  #       component_search_path: "/override/repo1:/override/repo2"
   #         
   #       # Other cabar_confg.ymls to be included.
   #       # Includes are overlayed before this config.
