@@ -42,6 +42,9 @@ module Cabar
   #   cabar:
   #     version: v1.0
   #     configuration:
+  #       # Override CABAR_PATH.
+  #       component_search_path:
+  #         
   #       # Other cabar_confg.ymls to be included.
   #       # Includes are overlayed before this config.
   #       include:
