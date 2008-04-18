@@ -8,11 +8,11 @@ Create a softlink named component_name to cabar/bin/cbr-top-level.
 
 Running:
 
-  component_name foo bar
+  component_name comp dep 
 
 Equivalent to:
 
-  cbr -R=<<component_name>> foo bar
+  cbr - <<component_name>> comp dep
 
 See Cabar for more info.
 
