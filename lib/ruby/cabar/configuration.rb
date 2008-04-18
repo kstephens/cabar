@@ -26,13 +26,59 @@ module Cabar
   #
   # Cabar configurations can specify overrides for:
   #
-  # * component selection
+  # * component selection.
   # * top-level component requires
   # * component options.
   # * plugin configuration.
+  # * command options (NOT IMPLEMENTED).
+  # * environment variables.
+  # * facet options (NOT IMPLEMENTED).
   #
   # Use -C config.path.to.element=value,... to override configuration
   # from the command line.
+  #
+  # Example/Syntax:
+  #
+  #   cabar:
+  #     version: v1.0
+  #     configuration:
+  #       # Other cabar_confg.ymls to be included.
+  #       # Includes are overlayed before this config.
+  #       include:
+  #       - 'my_cabar_config.yml'
+  #       - 'other_cabar_config.yml'
+  #
+  #       # Environment variables to be defined.
+  #       env_var:
+  #         FOO: bar
+  #       
+  #       # Plugin configuration overrides.
+  #       plugin:
+  #         cabar/perl:
+  #           enable: false
+  #
+  #       # Command option overrides.
+  #       # NOT YET IMPLEMENTED.
+  #       command:
+  #         "comp dot":
+  #           'show-unrequired-components': true
+  #
+  #       # Component configurations.
+  #       component:
+  #         # Component constraints.
+  #         select:
+  #           component_foo: '>1.2'
+  #         
+  #         # Component requirements.
+  #         # Ignored if "- <component>" option is used.
+  #         # See Cabar::Selection.
+  #         require:
+  #           my_top_level: true
+  #         
+  #         # Component configuration overrides.   
+  #         configure:
+  #           avoided_component:
+  #             enabled: false
   #
   class Configuration < Base
     class Error < Cabar::Error; end
