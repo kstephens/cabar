@@ -325,17 +325,22 @@ private
       # Process each component definition.
       comps.each do | name, opts |
         # Overlay configuration.
-        comp_config = (x = context.configuration.config['component']) && x['configure']
+        comp_config = 
+          (x = context.configuration.config['component']) && 
+          x['configure']
         comp_config ||= EMPTY_HASH
         comp_config = comp_config[name] || EMPTY_HASH
+        # $stderr.puts "comp_config #{name.inspect} => #{comp_config.inspect}"
         opts.cabar_merge! comp_config
+        # puts "comp opts #{name.inspect} => "; pp opts
         
-        opts[:name] = name
-        opts[:directory] = directory
-        opts[:context] = self
-        opts[:enabled] = conf['enabled']
+        opts['name'] ||= name
+        opts['directory'] ||= directory
+        # opts['enabled'] = conf['enabled']
         opts[:_config_file] = conf_file
         opts[:plugins] = @plugins
+        # puts "comp opts #{name.inspect} => "; pp opts
+        opts[:context] = self
 
         comp = create_component opts
         
