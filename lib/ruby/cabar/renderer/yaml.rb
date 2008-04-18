@@ -54,6 +54,7 @@ module Cabar
         if @verbose 
           puts "  - name:          #{c.name.inspect}"
           puts "    version:       #{c.version.to_s.inspect}"
+          puts "    enabled:       #{c.enabled?.inspect}"
           puts "    description:   #{c.description.inspect}" if c.description
           puts "    directory:     #{c.directory.inspect}"
           puts "    base_dir:      #{c.base_directory.inspect}" if c.base_directory != c.directory
