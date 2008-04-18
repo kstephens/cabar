@@ -5,6 +5,8 @@ Cabar::Plugin.new :name => 'cabar/action' do
   require 'cabar/command/standard' # Standard command support.
   require 'cabar/facet/standard'   # Standard facets and support.
 
+  require 'shellwords'
+
   ##################################################################
   # action facet
   #
@@ -40,10 +42,22 @@ Cabar::Plugin.new :name => 'cabar/action' do
       @action.key? action.to_s
     end
     
+    # Runs action with arguments.
+    #
+    # If action expression is a String,
+    # args are quoted using Shellwords and appended.
+    # then substituted via Ruby #{...} expansion.
+    #
     def execute_action! action, args, opts = EMPTY_HASH
       expr = @action[action.to_s] || raise("cannot find action #{action.inspect}")
-      puts "component #{component}:"
-      puts "action: #{action.inspect}: #{expr.inspect}"
+      puts "component:"
+      puts "  #{component.to_s(:short)}:"
+      puts "    action: "
+      puts "      #{action.inspect}:"
+      puts "        expr: #{expr.inspect}"
+      unless args.empty?
+        puts "        args: #{args.inspect}"
+      end
       
       result = nil
       if opts[:dry_run]
@@ -58,25 +72,31 @@ Cabar::Plugin.new :name => 'cabar/action' do
         
       when String
         str = expr.dup
+        unless args.empty?
+          str += ' ' + Shellwords.shellwords(args.join(' ')).join(' ')
+        end
         error_ok = str.sub!(/^\s*-/, '')
         # puts "error_ok: #{error_ok.inspect}"
         
         Dir.chdir(component.directory) do
           # Interpolate #{...} in String.
           str = expand_string(str)          
-          puts "+ #{str}"
+          puts "        command: #{str.inspect}"
+          puts "        output: |"
           unless opts[:dry_run]
             result = system(str)
           end
+          puts "                |"
         end
         
-        puts "result: #{result.inspect}"
+        puts "        result: #{result.inspect}"
         puts "\n"
         
         unless error_ok
           raise "action: failed #{result.inspect}" unless result
         end
       end
+
       
       result
     end
@@ -89,6 +109,7 @@ Cabar::Plugin.new :name => 'cabar/action' do
     end
   end # class
   
+
   facet :action, 
         :class => Cabar::Facet::Action
 
