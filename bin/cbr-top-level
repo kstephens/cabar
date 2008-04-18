@@ -20,7 +20,9 @@ See Cabar for more info.
 
 component_name = File.basename($0)
 
-ARGV[0, 0] = [ "-R=#{component_name}" ]
+ARGV[0, 0] = [ "-", component_name ]
 
-load "#{File.dirname($0)}/cbr"
+actual_prog = File.expand_path($0)
+actual_prog = File.expand_path(File.readlink(actual_prog), File.dirname(actual_prog)) rescue actual_prog
+load "#{File.dirname(actual_prog)}/cbr"
 
