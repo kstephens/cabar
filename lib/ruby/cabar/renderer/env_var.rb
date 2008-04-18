@@ -76,8 +76,13 @@ module Cabar
       end
       
 
+      def normalize_env_name name
+        name = name.to_s.sub(/[^A-Z0-9_]/i, '_')
+      end
+
       # Render a basic environment variable set.
       def setenv name, val
+        name = normalize_env_name name
         name = name.to_s
         val = val.to_s
         if env_var_prefix == ''
@@ -85,6 +90,7 @@ module Cabar
         end
         _setenv "#{env_var_prefix}#{name}", val
       end
+
 
       # Renders low-level environment variable set.
       # Subclass should override this.
@@ -114,6 +120,7 @@ module Cabar
         if verbose
           $stderr.puts "# #{$0} setenv #{name.inspect} #{val.inspect}"
         end
+        name = normalize_env_name name
         if (v = @env[name]) && ! @env[save_name = "CABAR_BEFORE_#{name}"]
           @env[save_name] = v
         end
@@ -131,6 +138,7 @@ module Cabar
     # Renders environment variables as a sourceable /bin/sh shell script.
     class ShellScript < EnvVar
       def _setenv name, val 
+        name = normalize_env_name name
         puts "#{name}=#{val.inspect}; export #{name};"
       end
     end # class
@@ -139,6 +147,7 @@ module Cabar
     # Renders environment variables as Ruby code.
     class RubyScript < EnvVar
       def _setenv name, val
+        name = normalize_env_name name
         puts "ENV[#{name.inspect}] = #{val.inspect};"
       end
     end # class
