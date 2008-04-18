@@ -174,7 +174,11 @@ module Cabar
         raise ArgumentError, "expected Array or String"
       end
 
-      @component_search_path = Cabar.path_expand(y)
+      y =
+        @component_search_path = 
+        Cabar.path_expand(y)
+
+      ENV['CABAR_PATH'] = Cabar.path_join(y)
 
       x
     end
@@ -192,8 +196,12 @@ module Cabar
       y << "/etc/cabar/host-#{Cabar.hostname}.yml"
       y << "/etc/cabar/default.yml"
 
-      @config_file_path = Cabar.path_expand(y)
+      y =
+        @config_file_path = 
+        Cabar.path_expand(y).uniq
       
+      ENV['CABAR_CONFIG'] = Cabar.path_join(y)
+
       # Flush caches:
       @config = nil
       
