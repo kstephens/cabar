@@ -57,15 +57,15 @@ module Cabar
             args = EMPTY_HASH
           when '-'
             options[_to_sym(EMPTY_STRING)] = args.shift
-          when /^--?([^\s=]+)=(.+)$/
+          when /\A--?([^\s=]+)=(.+)\Z/
             options[_to_sym($1)] = $2
-          when /^--?([^\s=]+)=$/
+          when /\A--?([^\s=]+)=\Z/
             arg = args.shift
             arg = arg.dup rescue arg
             options[_to_sym($1)] = arg
-          when /--?([^\s+=]+)$/
+          when /\A--?([^\s+=]+)\Z/
             options[_to_sym($1)] = true
-          when /\+\+?([^\s+=]+)$/
+          when /\A\+\+?([^\s+=]+)\Z/
             options[_to_sym($1)] = false
           else
             # Check for command.
