@@ -174,7 +174,7 @@ USER = ENV['USER'] || `id -un`.chomp
 HOSTNAME = `hostname`.chomp
 
 def p4_pending_cl(name = PKG_NAME)
-  `p4 changelists -u '#{USER}' -s pending -c '#{USER}.#{HOSTNAME}'`.
+  `p4 changelists -u '#{USER}' -s pending -c '#{USER}.#{HOSTNAME}' ...`.
   split("\n").
   map do | l |
     l =~ /Change (\d+).* '#{name}: from SVN/
