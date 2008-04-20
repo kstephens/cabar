@@ -42,10 +42,11 @@ class Cabar::Command
   #
   # Otherwise the executable is simple exec'ed.
   def exec_program cmd, *args
-    # $stderr.puts "exec_program #{cmd.inspect} #{args.inspect}"
+    # $stderr.puts "exec_program #{cmd.inspect}, #{args.inspect}"
     
     if ENV['CABAR_ALWAYS_EXEC']
-      args.unshfit cmd
+      args.unshift cmd
+      # $stderr.puts "Executing #{args.inspect}"
       Kernel::exec *args
       raise Error, "cannot execute #{args.inspect}"
     end
@@ -77,6 +78,7 @@ class Cabar::Command
         ARGV.push *args
         $0 = cmd
         
+        # $stderr.puts "Loading #{([ cmd ] + ARGV).inspect}"
         load cmd
         exit 0
       when (/^\s*#!.*cbr-run/ === lines[0] && /^\s*#!\s*(.*)/ === lines[1])
