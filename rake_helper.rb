@@ -169,13 +169,44 @@ task :make_manifest do
 end
 
 
+
 USER = ENV['USER'] || `id -un`.chomp
 HOSTNAME = `hostname`.chomp
+
+def p4_pending_cl(name = PKG_NAME)
+  `p4 changelists -u '#{USER}' -s pending -c '#{USER}.#{HOSTNAME}'`.
+  split("\n").
+  map do | l |
+    l =~ /Change (\d+).* '#{name}: from SVN/
+    $1
+  end.
+  compact.
+  first
+end
+
+def svn_root
+  `svn info`.
+  split("\n").
+  map do | l |
+    l =~ /Repository Root: (.*)/
+    $1
+  end.
+  compact.
+  first
+end
+
+task :p4_pending_cl do
+  puts p4_pending_cl
+end
+
+task :svn_root do
+  puts svn_root
+end
 
 desc "p4 edit, svn update, p4 submit"
 task :p4_submit do
   m = ENV['m'] || "From #{USER}@#{HOSTNAME}"
-  c = ENV['c']
+  c = ENV['c'] || p4_pending_cl
 
   # Open everything for edit.
   sh "p4 edit ..."
@@ -192,7 +223,7 @@ task :p4_submit do
   sh "svn ci -m #{m.inspect}"
 
   # Get the current svn rev.
-  m = "cabar: from SVN #{`svn update`.chomp}"
+  m = "#{PKG_NAME}: from SVN #{`svn update`.chomp} of #{svn_root}"
 
   # Revert any unchanged files.
   sh "p4 revert -a ..."
