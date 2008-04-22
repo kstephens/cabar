@@ -30,7 +30,7 @@ Cabar::Plugin.new :name => 'cabar/action' do
     end
     
     def _reformat_options! opts
-      opts = { :action => opts }
+      opts = { :action => opts || { } }
       opts
     end
     
