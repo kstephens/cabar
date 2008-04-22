@@ -99,7 +99,6 @@ module Cabar
     def initialize opts = EMPTY_HASH
       super
       self.config_file_path      = ENV['CABAR_CONFIG'] || '~/.cabar_conf.yml'
-      self.component_search_path = ENV['CABAR_PATH']   || '.'
 
       Cabar::Command::Runner.add_observer(self, :command_parse_args_after)
     end
@@ -133,6 +132,7 @@ module Cabar
       self
     end
 
+
     def str_to_value str
       case str
       when 'true'
@@ -145,6 +145,7 @@ module Cabar
         str
       end
     end
+
 
     # Applies the component selection configuration to the Context.
     #
@@ -214,6 +215,23 @@ module Cabar
       opts
     end
 
+    # Defaults to CABAR_CONFIG environement variable OR current directory.
+    def component_search_path
+      unless @component_search_path
+        # Install default (and a recursion lock)
+        self.component_search_path = 
+          ENV['CABAR_PATH'] ||
+          '.'
+        
+        # Load override from config.
+        config
+      end
+
+      @component_search_path
+    end
+
+
+    # Strings are split according to Cabar.path_split.
     def component_search_path= x 
       case y = x
       when Array
@@ -262,6 +280,9 @@ module Cabar
     def config
       @config ||=
         begin
+          # Recursion lock.
+          @config = EMPTY_HASH
+
           cfg = nil
           
           config_file_path.reverse.select { | file | File.exists? file }.each do | file |
@@ -287,11 +308,14 @@ module Cabar
           # Overlay command line -C=opt=value
           x.cabar_merge!(@cmd_line_overlay || EMPTY_HASH)
 
+          # Take component_search_path from config.
           if x['component_search_path']
             self.component_search_path = x['component_search_path']
           end
 
-          x['component_search_path'] ||= component_search_path
+          # Install component_search_path into config.
+          x['component_search_path'] ||=
+            component_search_path
           
           x
         end

@@ -6,8 +6,10 @@
 
 = FINISHED:
 
-* Add -C=configuration.path.element=value,... option to override
-  configuration settings. 
+* Use -C=configuration.path.element=value,... option to override
+  configuration settings: 
+
+   bin/cbr_env cbr config list -C=component:require:boc=false
 
 = TO DO:
 
