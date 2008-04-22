@@ -103,11 +103,6 @@ module Cabar
       Cabar::Command::Runner.add_observer(self, :command_parse_args_after)
     end
 
-    # FIX THIS UGLYNESS
-    def component_search_patth
-      config unless @config
-      @component_search_path
-    end
 
     # Take -C command opts from sender.
     def command_parse_args_after sender, action
