@@ -138,16 +138,20 @@ DOC
 
       action = cmd_args.shift
 
-      print_header :component
+      print_header :action
+      sorted_actions={}
       get_actions(action).each do | c, facet |
-        # puts "f = #{f.to_a.inspect}"
-        puts "    #{c.to_s(:short)}: "
-        puts "      action:"
         facet.action.each do | k, v |
           next if action && ! (action === k)
-          puts "        #{k}: #{v.inspect}"
+          sorted_actions[k]=(sorted_actions[k] || []) << c
         end
       end
+      sorted_actions.keys.sort.each { |action_name|
+        puts "    #{action_name}:  "
+        sorted_actions[action_name].sort_by {|c| c.name }.each {|comp| 
+          puts "      - #{comp.to_s(:short)} "
+        }
+      }
     end # cmd
 
     cmd [ :run, :exec, 'do' ], <<'DOC' do
@@ -163,7 +167,7 @@ DOC
       # Render environment vars.
       setup_environment!
       # puts ENV['RUBYLIB']
-
+      raise "No components responded to action!" unless get_actions(action).size > 0
       get_actions(action).each do | c, f |
         f.execute_action! action, cmd_args.dup, cmd_opts
       end
