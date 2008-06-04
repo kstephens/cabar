@@ -42,7 +42,7 @@ module Cabar
         dependents = dependents_proc.call(e)
         dependents = dependents.select do | c |
           # Update dependent's depth.
-          if depth[c] < d
+          if ! depth[c] || (depth[c] < d)
             depth[c] = d
           end
 
@@ -53,7 +53,7 @@ module Cabar
             false
           else
             # Mark edge as visited.
-            edge_visited[edge] ||= 1
+            edge_visited[edge] ||= 0
             edge_visited[edge] += 1
           end
         end
@@ -95,6 +95,13 @@ module Cabar
       result
     end
     #module_method :sort_topographic
+
+
+    # Returns the topographically sorted subset of all nodes in a directed graph.
+    # all_elements must list all the nodes in the directed graph.
+    def topographic_sort_subset subset, all_nodes, opts = nil
+      topographic_sort(all_nodes, opts) & subset
+    end
 
   end # module
 
