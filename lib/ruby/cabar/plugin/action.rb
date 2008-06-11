@@ -126,6 +126,9 @@ Defined by:
     action:
       name_1: cmd_1
       name_2: cmd_2
+
+If an action command begins with '-' it's error code is ignored.
+
 DOC
 
     cmd :list, <<'DOC' do
