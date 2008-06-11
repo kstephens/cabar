@@ -12,7 +12,7 @@ cabar:
   version: '1.0'
   component:
     name: ruby
-    version: <%= "#{ruby_info[:version]}.#{ruby_info[:patchlevel]}".inspect %>
+    version: <%= "v#{ruby_info[:version]}.#{ruby_info[:patchlevel]}".inspect %>
     description: "Ruby - <%= ruby_info[:prog] %>"
     enabled: <%= ruby_info[:available].inspect %>
     base_directory: <%= File.dirname(ruby_info[:bin]).inspect %>
