@@ -5,6 +5,7 @@ require 'cabar/error'
 require 'cabar/version/requirement'
 require 'cabar/command/runner'
 require 'yaml'
+require 'ostruct'
 require 'erb'
 
 
@@ -36,6 +37,25 @@ module Cabar
   #
   # Use -C config.path.to.element=value,... to override configuration
   # from the command line.
+  #
+  #
+  # Cabar config files are ERb templates that are parsed as YAML 
+  # after expansion.  The following expansions are supported:
+  #
+  #   <%= cabar.current_file %>           
+  #      - The current config file.
+  #
+  #   <%= cabar.current_directory %>      
+  #      - The current config file's directory.
+  #
+  #   <%= cabar.current_file_points_to %> ]
+  #      - The current config file's real name (symlinks expanded).
+  #
+  #   <%= cabar.current_directory_points_to %> 
+  #       - The current config file's directory's real name (symlinks expanded).
+  #  
+  #   <%= cabar.configuration %>
+  #       - The Cabar::Configuration object itself.
   #
   # Example/Syntax:
   #
@@ -94,6 +114,11 @@ module Cabar
 
     # The Context object.
     attr_accessor :context
+
+    def component_search_path
+      config unless @config
+      @component_search_path
+    end
 
     
     def initialize opts = EMPTY_HASH
@@ -394,15 +419,32 @@ module Cabar
       raise Error, "Problem reading config file #{file.inspect}: #{err.inspect}"
     end
 
-    # Read a YAML file after processing it as a ERB template.
+    # Read a YAML file after processing it as an ERB template and initializing config OpenStruct.
+    # Use:
+    # 
     def read_config_file file
+      file = File.expand_path(file)
+
+      # File.readlink does not iteratively expand symlinks as you would expect.
+      file_readlink = file
+      file_readlink = File.readlink(file_readlink) while File.symlink?(file_readlink)
       cfg = nil
+
       File.open(file) do | fh |
+        # ERb Interface.
+        cabar = OpenStruct.new('current_file'      => file,
+	                       'current_file_points_to' => file_readlink,
+                               'current_directory' => File.dirname(file),
+			       'current_directory_points_to' => File.dirname(file_readlink),
+                               'configuration'     => self)
+
         template = ERB.new fh.read
-        fh = template.result binding
-        cfg = YAML::load fh
+        yaml = template.result binding
+        cfg = YAML::load yaml
+
         validate_yaml_hash cfg
       end
+
       cfg
     rescue Exception => err
       raise Error, "Problem reading config file #{file.inspect}: #{err.inspect}"
