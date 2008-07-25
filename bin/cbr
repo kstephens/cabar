@@ -29,8 +29,9 @@ if CABAR_TRACE_LOG = ENV['CABAR_TRACE_LOG']
     }
   end
 end
-
-$:.unshift File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib', 'ruby'))
+this=__FILE__
+this=File.readlink(this) while File.symlink?(this)
+$:.unshift File.expand_path(File.join(File.dirname(this), '..', 'lib', 'ruby'))
 
 require 'cabar'
 require 'cabar/main'
