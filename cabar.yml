@@ -15,6 +15,7 @@ cabar:
       path: 'comp'
     action:
       test: 'rake test'
+      show_env: '/usr/bin/env | sort'
 
   requires:
     component:

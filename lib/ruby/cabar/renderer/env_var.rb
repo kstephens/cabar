@@ -77,7 +77,7 @@ module Cabar
       
 
       def normalize_env_name name
-        name = name.to_s.sub(/[^A-Z0-9_]/i, '_')
+        name = name.to_s.gsub(/[^A-Z0-9_]/i, '_')
       end
 
       # Render a basic environment variable set.
