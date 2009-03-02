@@ -20,6 +20,25 @@ module Cabar
       false
     end
 
+    # Unique Array while preserving last-most order
+    # instead of preserving first-most order.
+    #
+    # Example:
+    #
+    #   [ :a, :b, :a, :c ].uniq => 
+    #     [ :a, :b, :c ]
+    #
+    #   uniq_lastmost([ :a, :b, :a, :c ]) =>
+    #     [ :b, :a, :c ]
+    #
+    # This is useful leave standard search paths
+    # towards the end, regardless if they reoccur
+    # at the front.
+    #
+    def uniq_lastmost a
+      a && a.reverse.uniq.reverse
+    end
+
     # This represents a set of environment variables.
     #
     #   facet:
@@ -122,6 +141,11 @@ module Cabar
 
       # The array of paths relative to the Component's base_directory.
       attr_accessor :path
+
+      # A Proc that returns an array of paths relative to the Component's
+      # base_directory.  This proc is called by #path if path 
+      # is not set.
+      attr_accessor :path_proc
      
       # The absolute path names for each element in path.
       attr_accessor :abs_path
@@ -189,9 +213,12 @@ module Cabar
         p && p.all? { | x | File.exist? x }
       end
 
-      # Returns the path.  If not set, default_path is used.
+      # Returns the path.
+      # If not set, path_proc or default_path is used
+      # to default.
       def path
         @path ||= 
+          (@path_proc && @path_proc.call(self)) || 
           default_path
       end
 
@@ -245,13 +272,13 @@ module Cabar
       # render_Path.
       def render r
         if is_env_var?
-          r.setenv(env_var, abs_path.uniq.join(r.path_sep))
+          r.setenv(env_var, uniq_lastmost(abs_path).join(r.path_sep))
         end
       end
 
       # Returns abs_path joined with the standard path separator.
       def value
-        abs_path.uniq.join(Cabar.path_sep)
+        uniq_lastmost(abs_path).join(Cabar.path_sep)
       end
 
       # Returns the standard value for this environment var by
@@ -259,9 +286,7 @@ module Cabar
       def standard_value
         @standard_value ||=
           (x = standard_path) && 
-          x.
-          map{|x| File.expand_path(x, base_directory)}.
-          uniq.
+          uniq_lastmost(x.map{|x| File.expand_path(x, base_directory)}).
           join(Cabar.path_sep)
       end
 
@@ -280,7 +305,7 @@ module Cabar
       def compose_facet! facet
         # At this time: arch_path usage in abs_path should be resolvable.
         # facet.uncache_abs_path!
-        @abs_path = (abs_path + facet.abs_path).uniq
+        @abs_path = uniq_lastmost(abs_path + facet.abs_path)
 =begin
         if @key == 'lib/ruby'
           $stderr.puts "  compose_facet! #{@key.inspect}"

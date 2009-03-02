@@ -72,6 +72,15 @@ Cabar::Plugin.new :name => 'cabar/action' do
         
       when String
         str = expr.dup
+        # TODO: 
+        # * Use unshellwords?!?
+        # * Move this down before system so process is in component.directory
+        # and :dry_run is honored.
+        if str =~ /^\s*!exec\s+(\S+)*/
+          exec_args = str.split(/\s+/)
+          exec_args.shift #get rid of !exec
+          exec *exec_args
+        end
         unless args.empty?
           str += ' ' + Shellwords.shellwords(args.join(' ')).join(' ')
         end

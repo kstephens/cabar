@@ -19,7 +19,7 @@ module Cabar
   # cabar_config.yml documents that are parsed and overlayed.
   # The default is "~/.cabar_conf.yml".
   #
-  # /etc/cabar/host-<<hostname>>-conf.yml and /etc/cabar/default.yml are
+  # /etc/cabar/host-<<hostname>>.yml and /etc/cabar/default.yml are
   # implied at the end of CABAR_CONFIG for host and site-wide configuration.
   #
   # The CABAR_PATH environment variable specifies the list of 
@@ -426,6 +426,7 @@ module Cabar
       file = File.expand_path(file)
 
       # File.readlink does not iteratively expand symlinks as you would expect.
+      # "Neither does this." -- Kurt
       file_readlink = file
       file_readlink = File.readlink(file_readlink) while File.symlink?(file_readlink)
       cfg = nil

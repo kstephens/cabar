@@ -2,9 +2,15 @@
 Cabar::Plugin.new :documentation => <<'DOC' do
 Support for rubygems repository components.
 DOC
-
   facet :rubygems, 
-        :path => [ 'gems' ], 
+        :path_proc => 
+          lambda { | f | 
+            'gems-' + 
+            Cabar::Main.current.context.
+            selected_components.to_a.
+            select { | c | c.name =~ /^rubygems/ }.
+            first.version.to_s
+          }, 
         :env_var => :GEM_PATH,
         :standard_path_proc => lambda { | f |
           x = `ruby -r rubygems -e 'puts Gem.path.inspect'`.chomp
@@ -130,7 +136,7 @@ DOC
 
       def get_gems_facets match = nil
         result = [ ]
-        
+
         selection.to_a.each do | c |
           next if match && ! (match === c)
           # puts "c.facets = #{c.facets.inspect}"
