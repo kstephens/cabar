@@ -6,7 +6,7 @@ cabar:
     version: v1.0
     description: 'Cabar - Component Backplane Manager'
 
-  plugin: lib/ruby/cabar/plugin/standard.rb
+  plugin: lib/ruby/cabar/plugin/cabar.rb
 
   facet:
     bin: true
