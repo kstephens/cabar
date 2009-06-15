@@ -98,6 +98,38 @@ module Cabar
       false
     end
 
+    # Expands String in context of the Facet's Component.
+    def expand_string str
+      return str unless String === str
+      if str =~ /\#\{/
+        str = '"' + str.sub(/[\\\"]/){|x| "\\#{x}"} + '"'
+        component.instance_eval(str)
+      else
+        str
+      end
+    end
+
+
+    # Unique Array while preserving last-most order
+    # instead of preserving first-most order.
+    #
+    # Example:
+    #
+    #   [ :a, :b, :a, :c ].uniq => 
+    #     [ :a, :b, :c ]
+    #
+    #   uniq_lastmost([ :a, :b, :a, :c ]) =>
+    #     [ :b, :a, :c ]
+    #
+    # This is useful leave standard search paths
+    # towards the end, regardless if they reoccur
+    # at the front.
+    #
+    def uniq_lastmost a
+      a && a.reverse.uniq.reverse
+    end
+
+
     def register_prototype!
       self.class.register_prototype self
       self
