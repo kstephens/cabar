@@ -109,7 +109,7 @@ DOC
         unless ENV['GEM_PATH'] && ENV['GEM_HOME']
           ENV['GEM_PATH'] ||= begin
             x = `ruby -r rubygems -e 'puts Gem.path.inspect' 2>/dev/null`.chomp
-            x = $?.success? ? eval x : nil # WHAT TO DO IF THIS FAILS? -- kurt 2009/06/15
+            x = $?.success? ? eval(x) : nil # WHAT TO DO IF THIS FAILS? -- kurt 2009/06/15
           end
 
           ENV['GEM_HOME'] ||= Cabar.path_split(ENV['GEM_PATH']).first
