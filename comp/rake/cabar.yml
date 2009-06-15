@@ -1,0 +1,8 @@
+cabar:
+  version: '1.0'
+  component:
+    name: rake
+    version: v0.1
+    description: "rake running facet"
+  plugin: 'cabar.rb'
+

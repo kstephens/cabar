@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+require 'pp'
+require 'rubygems'
+#save the original dir, we might need this
+CBRAKE_orig_dir=Dir.getwd
+require 'rubygems'
+gem 'rake'
+require 'rake'
+
+class Rake::Application
+  #add a new rake action to run our cabarified stuff.
+  def cbr_run
+      standard_exception_handling do
+        init
+        begin
+        load_rakefile 
+        rescue SystemExit => e
+          #This sucks, but rake kernel.exit if there is no top
+          #level rakefile.  A blind rescue is my only solution
+          #at the moment.
+          $stderr.puts e.message if e.message!='exit'
+        end
+        top_level
+      end
+  end
+end
+
+rakefiles={}
+(ENV['CABAR_RAKE_FILE']||'').split(':').each do |key|file,ns_name=key.split('!')
+    rakefiles[ns_name]=file
+end
+
+alias :cbr_original_task :task
+rakefiles.each_pair{|ns,afile|
+  @file=afile
+  eval("def task(*args, &block)
+    ldir=File.dirname('#{@file}')
+    wrap_block=proc {|*args| 
+      Dir.chdir(ldir){
+        block.call(*args) if block
+      }
+    }
+    cbr_original_task(*args,&wrap_block)
+  end")
+  Dir.chdir(File.dirname(afile)){
+    namespace ns.to_sym do
+#      $stderr.puts "LOADING #{afile}"
+      eval `cat #{afile}`
+    end
+  }
+}
+Rake.application.cbr_run
+

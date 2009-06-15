@@ -1,0 +1,4 @@
+#!/bin/bash
+eval `cbr env`
+exec cbrake_ruby $@ 
+
