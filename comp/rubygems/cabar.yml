@@ -14,6 +14,10 @@
   end
 #  require 'pp'	  
 #  pp rubygems_info
+  # Jer: WHAT IS THIS WORKING-AROUND? -- kurt 2009/06/15
+  # This entire mechanisim for introspecting on rubygems is flawed, it happens too early in
+  # in the component resolution. -- Jer
+  rubygems_info[:installed] = true
  %>
 cabar:
   version: '1.0'

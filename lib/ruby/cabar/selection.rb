@@ -8,33 +8,43 @@ module Cabar
   #
   # Provides standard cbr Command options for selecting Components.
   class Selection < Base
+    #quick and dirty macro we use to clear the to_a cache
+    def self.attr_accessor_with_clear method_name, var
+      attr_reader method_name
+      vars_to_clear=[*var].map{|v|('@'+v.to_s).to_sym}
+      var_to_set=('@'+method_name.to_s).to_sym
+      define_method (method_name.to_s + '=').to_sym do |x|
+        vars_to_clear.each{|var| instance_variable_set var, nil }
+        instance_variable_set (var_to_set).to_sym, x
+      end
+    end
+        
     # The Context object.
-    attr_accessor :context
-
+    attr_accessor_with_clear :context, :to_a
     # Command option Hash parsed by Command::Runner.
-    attr_accessor :cmd_opts
+    attr_accessor_with_clear :cmd_opts, :to_a
 
     # Option: "- <<component-constraint>>"
-    attr_accessor :select_constraint
+    attr_accessor_with_clear :select_constraint, :to_a
     
     # Option: -T
     # Select only top-level components.
-    attr_accessor :select_top_level
+    attr_accessor_with_clear :select_top_level, :to_a
 
     # Option: -A
     # Select all available components.
-    attr_accessor :select_available
+    attr_accessor_with_clear :select_available, :to_a
 
     # Option: -R
     # Select all required component from top-level.
-    attr_accessor :select_required
+    attr_accessor_with_clear :select_required, :to_a
 
     # Option: -D
     # Select all dependencies of any selected components.
-    attr_accessor :select_dependencies
+    attr_accessor_with_clear :select_dependencies, :to_a
 
     # The required Component from select_constraint.
-    attr_accessor :selected_component
+    attr_accessor_with_clear :selected_component, :to_a
 
     def initialize *args
       @selected_component = nil
@@ -56,6 +66,7 @@ module Cabar
     # Parses command line options to determine how to 
     # select Components.
     def parse_cmd_opts!
+      @to_a=nil
 #      puts "@cmd_opts = #{@cmd_opts.inspect}"
 
       if x = cmd_opts[:_]

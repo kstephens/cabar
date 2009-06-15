@@ -79,6 +79,7 @@ Cabar::Plugin.new :name => 'cabar/action' do
         if str =~ /^\s*!exec\s+(\S+)*/
           exec_args = str.split(/\s+/)
           exec_args.shift #get rid of !exec
+          exec_args=exec_args + args
           exec *exec_args
         end
         unless args.empty?

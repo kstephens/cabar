@@ -537,7 +537,7 @@ END
             else
               f = coll[facet.key] = facet.dup
               f.context = self
-              f.owner = self
+              f.owner = c
             end
           else
             (comp_facet[c] ||= [ ]) << facet
