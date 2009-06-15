@@ -4,9 +4,6 @@ Cabar::Plugin.new :name => 'cabar/env', :documentation => <<'DOC' do
 Environment variable support.
 DOC
 
-  require 'cabar/command/standard' # Standard command support.
-  require 'cabar/facet/standard'   # Standard facets and support.
-
   ##################################################################
   # env facet
   #

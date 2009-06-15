@@ -4,9 +4,6 @@ Cabar::Plugin.new :name => 'cabar/config', :documentation => <<'DOC' do
 Configuration support.
 DOC
 
-  require 'cabar/command/standard' # Standard command support.
-  require 'cabar/facet/standard'   # Standard facets and support.
-
   ##################################################################
   # Configuration
   #

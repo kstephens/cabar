@@ -2,9 +2,6 @@
 
 Cabar::Plugin.new :name => 'cabar/facet' do
 
-  require 'cabar/command/standard' # Standard command support.
-  require 'cabar/facet/standard'   # Standard facets and support.
-  
   ##################################################################
   # Facet
   #

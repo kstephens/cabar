@@ -1,6 +1,7 @@
 require 'cabar/base'
 
 require 'cabar/context'
+require 'cabar/command/helper' # Standard command support.
 require 'cabar/facet/standard' # Cabar::Facet::Path
 require 'cabar/main'
 require 'cabar/observer'
@@ -226,7 +227,7 @@ module Cabar
         # Add it to this plugin.
         @plugin.facets << facet
 
-       facet
+        facet
       end
       
       # Define a new command.

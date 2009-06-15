@@ -5,8 +5,6 @@ Cabar::Plugin.new :name => 'cabar/component', :documentation => <<'DOC' do
 Component support.
 DOC
 
-  require 'cabar/command/standard' # Standard command support.
-  require 'cabar/facet/standard'   # Standard facets and support.
   require 'cabar/renderer/dot'     # Dot graph support.
 
   ##################################################################

@@ -6,9 +6,6 @@ Includes all plugins named 'cabar/plugin/*.rb'
 found in $: (#{$:.inspect}).
 DOC
 
-  require 'cabar/command/standard' # Standard command support.
-  require 'cabar/facet/standard'   # Standard facets and support.
-
   # Pull any files named cabar/plugin/*.rb
   # in the current $: ruby lib search path.
   $:.map { | dir | Dir["#{dir}/cabar/plugin/*.rb"] }.

@@ -8,12 +8,19 @@ module Cabar
     attr_reader :_options
 
     @@factory = { }
+
+    # Defines the factory object for this Class.
     def self.factory= x
       @@factory[self] = x
     end
+
+    # Returns the factory object for this Class that responds to #new.
+    # This defaults to the Class object itself if not specified
+    # by #factory=.
     def self.factory
       @@factory[self] ||= self
     end
+
 
     def self.attr_accessor_type name, type, constructor = :create_cabar
       self.class_eval <<"END", __FILE__, __LINE__

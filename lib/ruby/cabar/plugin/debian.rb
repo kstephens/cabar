@@ -7,9 +7,6 @@ Cabar::Plugin.new :name => 'cabar/debian',
 Debian package support.
 DOC
 
-  require 'cabar/command/standard' # Standard command support.
-  require 'cabar/facet/standard'   # Standard facets and support.
-
   require 'cabar/debian'
 
   DEB_STR = 'deb'.freeze
