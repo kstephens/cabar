@@ -2,18 +2,24 @@ module Cabar
   unless defined?(Facet::Rakefile)
     class Facet::Rakefile < Facet::Path
       attr_accessor :rakefiles
-      def _normalize_options! opts, new_opts={}
-        new_opts=super
-        if Hash===opts and opts.invert[nil] and opts[:path].nil?
-          x=opts.invert[nil]
-          new_opts[:path]=x.to_s
+
+      def _normalize_options! opts, new_opts = { }
+        new_opts = super
+        if Hash === opts and opts.invert[nil] and opts[:path].nil?
+          x = opts.invert[nil]
+          new_opts[:path] = x.to_s
           new_opts.delete(x)
         end
         new_opts
       end
+
       def inferred?
-        File.exist? File.join(component.base_directory,'Rakefile')
+        File.exist? File.join(component.base_directory, 'Rakefile')
       end
+
+      # Jer: THIS APPEARS TO BE REDUNDANT/COPY N PASTE CODE
+      # please explain why the standard #abs_path method was insufficent?
+      # -- kurt 2009/06/16
       def abs_path
         @abs_path ||=
         owner &&
@@ -42,6 +48,7 @@ module Cabar
     end
   end
 end
+
 Cabar::Plugin.new do
   facet :rakefile, 
       :env_var => :CABAR_RAKE_FILE,

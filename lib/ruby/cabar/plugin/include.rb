@@ -1,13 +1,6 @@
 
 
-Cabar::Plugin.new :name => 'cabar/include', :documentation => <<'DOC' do
-C includes support.
-DOC
-
-  ##################################################################
-  # C include facet
-  #
-
+Cabar::Plugin.new :name => 'cabar/include', :documentation => 'C includes support' do
   facet :include, :env_var => :INCLUDE_PATH
 
 end # plugin

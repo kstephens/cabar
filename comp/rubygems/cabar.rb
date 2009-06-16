@@ -1,7 +1,6 @@
 
-Cabar::Plugin.new :documentation => <<'DOC' do
-Support for rubygems repository components.
-DOC
+Cabar::Plugin.new :documentation => 'Support for rubygems repository components.' do
+
   facet :rubygems, 
         :path_proc => 
           lambda { | f | 
@@ -14,16 +13,14 @@ DOC
         :env_var => :GEM_PATH,
         :standard_path_proc => lambda { | f |
           x = `ruby -r rubygems -e 'puts Gem.path.inspect' 2>/dev/null`.chomp
-          return '' unless $?.success?
-          x = eval x
+          x = $?.success? ? eval(x) : ''
         }
 
   cmd_group [ :rubygems, :gems ] do
 
-    cmd [ :list ] , <<'DOC' do
-[ - <component> ]
-List gems repositories.
-DOC
+    doc "[ - <component> ]
+List gems repositories."
+    cmd [ :list ] do
       selection.select_required = true
       selection.to_a
 
@@ -42,18 +39,16 @@ DOC
       end
     end
 
-    cmd :gem , <<'DOC' do
-[ - <gems-component> ] <<gem-cmd-args>> 
+    doc '[ - <gems-component> ] <<gem-cmd-args>> 
 Run gem using a gems component environment.
 
 Example:
 
   cbr gems gem - my_gems_component install rails 
 
-Installs "rails" gem into "my_gems_component/gems",
-if my_gems_component has the 'rubygems' facet.
-
-DOC
+Installs "rails" Gem into "my_gems_component/gems",
+if my_gems_component has the "rubygems" facet.'
+    cmd :gem do
       selection.select_required = true
       selection.to_a
 
@@ -77,14 +72,12 @@ DOC
       end
     end
 
-    cmd :env , <<'DOC' do
-[ - <gems-component> ] <<gem-cmd-args>> 
+    doc "[ - <gems-component> ] <<gem-cmd-args>> 
 Print the gem environment.
 
 Example:
-  cbr gems env - my_gems_component
-
-DOC
+  cbr gems env - my_gems_component"
+    cmd :env do
       selection.select_required = true
       selection.to_a
 

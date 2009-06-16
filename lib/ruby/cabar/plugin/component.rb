@@ -1,23 +1,15 @@
 
 
-
-Cabar::Plugin.new :name => 'cabar/component', :documentation => <<'DOC' do
-Component support.
-DOC
+Cabar::Plugin.new :name => 'cabar/component', :documentation => 'Component support.' do
 
   require 'cabar/renderer/dot'     # Dot graph support.
-
-  ##################################################################
-  # Component commands
-  #
 
   facet :required_component, :class => Cabar::Facet::RequiredComponent
   
   cmd_group [ :component, :comp, :c ] do
-    cmd :list, <<'DOC' do
-[ --verbose ] 
-Lists all available components.
-DOC
+    doc "[ --verbose ] 
+Lists all available components."
+    cmd :list do
       selection.select_available = true
       selection.to_a
 
@@ -27,10 +19,9 @@ DOC
                )
     end
 
-    cmd :facet, <<'DOC' do
-
-Show the facets for the top-level component.
-DOC
+    doc "
+Show the facets for the top-level component."
+    cmd :facet do
       selection.select_required = true
       selection.to_a
 
@@ -41,8 +32,7 @@ DOC
                )
     end
     
-    cmd :dot, <<"DOC" do
-[ <graph-options> ... ]
+    doc "[ <graph-options> ... ]
 Render the components as a Dot graph on STDOUT.
 See http://www.graphvis.org/ for more information about Dot.
 
@@ -51,8 +41,8 @@ Example Usage:
   cbr comp dot | dot -Tsvg -o graph.svg
 
 Graph Options:
-#{Cabar::Renderer::Dot.command_documentation}
-DOC
+#{Cabar::Renderer::Dot.command_documentation}"
+    cmd :dot do
       context.unresolved_components_ok!
       selection.select_available = true
 
@@ -69,10 +59,9 @@ DOC
       r.render(context)
     end
     
-    cmd :dependencies, <<'DOC' do
-[ <cmd-opts???> ]
-Lists the dependencies for a selected component.
-DOC
+    doc "[ <cmd-opts???> ]
+Lists the dependencies for a selected component."
+    cmd :dependencies do
       selection.select_required = true
       selection.select_dependencies = true
       selection.to_a
@@ -81,10 +70,9 @@ DOC
         render(selection.to_a)
     end
 
-    cmd :show, <<'DOC' do
-[ <cmd-opts???> ]
-Lists the current settings for required components.
-DOC
+    doc "[ <cmd-opts???> ]
+Lists the current settings for required components."
+    cmd :show do
       selection.select_required = true
       selection.to_a
 

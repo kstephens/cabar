@@ -3,10 +3,9 @@
 Cabar::Plugin.new :name => 'cabar/plugin' do
 
   cmd_group :plugin do
-    cmd :list, <<'DOC' do
-[ name ]
-List plugins.
-DOC
+    doc "[ name ]
+List plugins."
+    cmd :list do
       name = cmd_args.shift
 
       print_header :plugin

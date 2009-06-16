@@ -101,7 +101,7 @@ module Cabar
 
       # Create a new builder, use the plugin's
       # block to execute the DSL.
-      Builder.factory.new(:plugin => self, &@block)
+      Builder.factory.new(:plugin => self, :default_doc => documentation, &@block)
 
       @installed = true
     ensure
@@ -184,14 +184,20 @@ module Cabar
     # Provides basic DSL for constructing new Plugin elements:
     #
     # * Commands
+    # * Command Groups
     # * Facets
     class Builder < Base
       # The plugin being built.
       attr_accessor :plugin
       
+      # The default documentation.
+      attr_accessor :default_doc
+
       def initialize *args, &blk
         @context = nil
         @context_stack = [ ]
+        @doc = nil
+        @doc_default = nil
         super
         instance_eval &blk if block_given?
       end
@@ -201,10 +207,18 @@ module Cabar
           @plugin._logger
       end
 
+     # Define :documentation for the next item.
+      def doc text
+        text << "\n" unless /\n\Z/ =~ text
+        if @doc
+          $stderr.puts "cabar: warning doc already defined as #{@doc.inspect} at #{caller[0]}"
+        end
+        @doc = text.dup.freeze
+      end
+
       # Define a Facet.
       def facet name, opts = nil, &blk
-        opts ||= { }
-
+        opts = _take_doc(opts)
         opts[:key] = name
         opts[:class] ||= Facet::Path
         cls = opts[:class]
@@ -231,11 +245,12 @@ module Cabar
       end
       
       # Define a new command.
-      def define_command *args, &blk
+      def define_command name, opts = nil, &blk
+        opts = _take_doc(opts)
         # $stderr.puts "@context = #{@context.inspect}"
-        # $stderr.puts "define_command #{args.inspect}"
+        # $stderr.puts "define_command #{name.inspect}, #{opts.inspect}"
 
-        cmd = _command_manager.define_command *args, &blk
+        cmd = _command_manager.define_command(name, opts, &blk)
 
         cmd._defined_in = @plugin
 
@@ -247,11 +262,12 @@ module Cabar
 
 
       # Creates a new command group.
-      def define_command_group *args, &blk
+      def define_command_group name, opts = nil, &blk
+        opts = _take_doc(opts)
         # $stderr.puts "@context = #{@context.inspect}"
-        # $stderr.puts "define_command_group #{args.inspect}"
-
-        cmd = _command_manager.define_command_group *args
+        # $stderr.puts "define_command_group #{name.inspect}, #{opts.inspect}"
+ 
+        cmd = _command_manager.define_command_group(name, opts)
 
         cmd._defined_in = @plugin
 
@@ -264,6 +280,20 @@ module Cabar
       alias :cmd_group :define_command_group
 
       private
+
+      def _take_doc opts = nil
+        opts = { :documentation => opts } if String === opts
+        opts ||= { }
+        if text = @doc
+          if opts[:documentation]
+            $stderr.puts "cabar: warning doc and :documentation defined at #{caller[1]}"            
+          end
+          @doc = nil
+        end
+        text ||= @default_doc
+        opts[:documentation] = text if text
+        opts
+      end
 
       def _with_context object
         @context_stack.push @context

@@ -1,6 +1,6 @@
 
 
-Cabar::Plugin.new :name => 'cabar/bin' do
+Cabar::Plugin.new :name => 'cabar/bin', :documentation => 'Support for bin/ and $PATH' do
 
   ##################################################################
   # bin facet
@@ -9,10 +9,9 @@ Cabar::Plugin.new :name => 'cabar/bin' do
   facet :bin, :env_var => :PATH, :inferrable => true
 
   cmd_group :bin do
-    cmd [ :run, :exec ], <<'DOC' do
-<prog> <prog-args> ....
-Runs <prog> in the environment of the top-level component.
-DOC
+    doc "<prog> <prog-args> ....
+Runs <prog> in the environment of the top-level component."
+    cmd [ :run, :exec ] do
       selection.select_required = true
       selection.to_a
       
@@ -21,12 +20,11 @@ DOC
       exec_program *cmd_args
     end # cmd
     
-    cmd [ :list, :ls ], <<'DOC' do
-[ <prog> ] 
+    doc "[ <prog> ] 
 Lists all bin programs.
 
-<prog> defaults to '*'
-DOC
+<prog> defaults to '*'"
+    cmd [ :list, :ls ] do
       prog = cmd_args.shift || '*'
       selection.select_required = true
 

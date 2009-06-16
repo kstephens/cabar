@@ -1,21 +1,15 @@
 
 
-Cabar::Plugin.new :name => 'cabar/env', :documentation => <<'DOC' do
-Environment variable support.
-DOC
-
-  ##################################################################
-  # env facet
-  #
+Cabar::Plugin.new :name => 'cabar/env', :documentation => 'Environment variable support.' do
 
   facet :env,     :class => Cabar::Facet::EnvVarGroup
   facet :env_var, :class => Cabar::Facet::EnvVar
 
-  cmd :env, <<'DOC' do
-
+  doc "
 Lists the environment variables for required components
 as a sourceable /bin/sh script.
-DOC
+"
+  cmd :env do
     selection.select_required = true
     selection.to_a
     

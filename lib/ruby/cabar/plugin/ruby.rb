@@ -1,9 +1,6 @@
 
 
-Cabar::Plugin.new :name => 'cabar/ruby', :documentation => <<'DOC' do
-Support for Ruby.
-DOC
-
+Cabar::Plugin.new :name => 'cabar/ruby', :documentation => "Support for Ruby." do
   require 'fileutils'
 
   ##################################################################
@@ -42,7 +39,7 @@ DOC
 
 
   cmd_group :ruby do
-    cmd :rdoc, <<"DOC" do
+    doc <<'DOC'
 [ --rdoc-directory=<dir> ]
 Generate rdoc documentation for components with lib/ruby facet.
 
@@ -51,8 +48,8 @@ Facet/command options:
 * rdoc_directory: defaults to "gen/rdoc".
 * rdoc_generate: if false, rdoc is not run on the component's lib/ruby paths.
 DOC
-      #'emacs
-
+#'emacs
+    cmd :rdoc do
       selection.select_required = true
       selection.to_a.each do | c |
         next unless f = c.facet('lib/ruby')

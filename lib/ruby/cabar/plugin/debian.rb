@@ -3,9 +3,7 @@
 
 Cabar::Plugin.new :name => 'cabar/debian', 
   :enabled => false, 
-  :documentation => <<'DOC' do
-Debian package support.
-DOC
+  :documentation => 'Debian package support.' do
 
   require 'cabar/debian'
 

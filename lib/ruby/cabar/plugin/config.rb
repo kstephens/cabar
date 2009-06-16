@@ -1,18 +1,12 @@
 
 
-Cabar::Plugin.new :name => 'cabar/config', :documentation => <<'DOC' do
-Configuration support.
-DOC
-
-  ##################################################################
-  # Configuration
-  #
+Cabar::Plugin.new :name => 'cabar/config', :documentation => 'Configuration support.' do
 
   cmd_group [ :config, :conf, :cfg ] do
-    cmd [ :show, :list ], <<'DOC' do
-
+    doc "
 Show current configuration.
-DOC
+"
+    cmd [ :show, :list ] do
       puts context.configuration.config_raw.to_yaml
     end
 

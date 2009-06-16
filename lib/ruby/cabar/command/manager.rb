@@ -20,9 +20,12 @@ module Cabar
       # A commands names and aliases must be unique
       attr_reader :command_by_name
       
+      attr_accessor :default_documentation
+
       def initialize *args
         @commands = [ ]
         @command_by_name = { }
+        @default_documentation = nil
         super
       end
       
@@ -122,6 +125,7 @@ module Cabar
       def define_command_group name, opts = nil, &blk
         opts = { :documentation => opts } if String === opts
         opts ||= { }
+        opts[:documentation] ||= @default_documentation
         cmd = create_command! name, opts, nil
         cmd.instance_eval &blk if block_given?
         cmd.documentation = <<"DOC"

@@ -27,6 +27,8 @@ module Cabar
     attr_accessor :aliases
 
     # The documentation for the command.
+    # The first line of the documentation is the command line synopsis.
+    # The remaining lines are the description.
     attr_accessor :documentation
 
     # The Proc to be executed for the command.
@@ -118,6 +120,7 @@ module Cabar
 
     # Returns the lines of documentation.
     def documentation_lines
+      raise Cabar::Error, "no documentation for command #{(name_path * ' ').inspect}" unless @documentation
       @documentation_lines ||= @documentation.split("\n")
     end
 

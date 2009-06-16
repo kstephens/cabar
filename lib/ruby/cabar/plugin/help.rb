@@ -1,15 +1,9 @@
 
 
-Cabar::Plugin.new :name => 'cabar/help' do
-
-  ##################################################################
-  # help
-  #
-
-  cmd :help, <<'DOC' do
-[ --verbose ] [ <command> ]
-Lists all commands or help for a specific command.
-DOC
+Cabar::Plugin.new :name => 'cabar/help', :documentation => 'Help support.' do
+  doc "[ --verbose ] [ <command> ]
+Lists all commands or help for a specific command."
+  cmd :help do
     # puts "cmd_args = #{cmd_args.inspect}"
     opts = cmd_opts.dup
     opts[:path] = cmd_args.empty? ? nil : cmd_args.dup
@@ -65,9 +59,9 @@ DOC
         end
       end
 
-    end # cmd
+    end
 
-  end # cmd_group
+  end # cmd
   
 end # plugin
 

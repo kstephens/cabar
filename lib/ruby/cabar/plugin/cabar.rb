@@ -20,13 +20,11 @@ DOC
       require n
     end
 
-  # Internals and introspection.
-
+  doc "Internals and introspection."
   cmd_group :cabar do
-    cmd :shell, <<'DOC' do
-[ - <component> ]
-Starts an interactive shell on Cabar::Context.
-DOC
+    doc "[ - <component> ]
+Starts an interactive shell on Cabar::Context."
+    cmd :shell do
       selection.select_required = true
       selection.to_a
       
