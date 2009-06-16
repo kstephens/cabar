@@ -9,9 +9,8 @@ Cabar::Plugin.new :name => 'cabar/component', :documentation => 'Component suppo
   cmd_group [ :component, :comp, :c ] do
     doc "[ --verbose ] 
 Lists all available components."
-    cmd :list do
+    cmd [ :list, :ls ] do
       selection.select_available = true
-      selection.to_a
 
       yaml_renderer.
         render(selection.to_a,
@@ -23,7 +22,6 @@ Lists all available components."
 Show the facets for the top-level component."
     cmd :facet do
       selection.select_required = true
-      selection.to_a
 
       yaml_renderer.
         render(context.
@@ -38,7 +36,7 @@ See http://www.graphvis.org/ for more information about Dot.
 
 Example Usage:
 
-  cbr comp dot | dot -Tsvg -o graph.svg
+  cbr comp dot -r component | dot -Tsvg -o graph.svg
 
 Graph Options:
 #{Cabar::Renderer::Dot.command_documentation}"
@@ -51,8 +49,6 @@ Graph Options:
         context.resolve_components!
       end
 
-      selection.to_a
-      
       r = Cabar::Renderer::Dot.new cmd_opts
       r.components = selection.to_a
 
@@ -64,7 +60,6 @@ Lists the dependencies for a selected component."
     cmd :dependencies do
       selection.select_required = true
       selection.select_dependencies = true
-      selection.to_a
 
       yaml_renderer.
         render(selection.to_a)
@@ -74,7 +69,7 @@ Lists the dependencies for a selected component."
 Lists the current settings for required components."
     cmd :show do
       selection.select_required = true
-      selection.to_a
+      selection.to_a # FIXME: needed for required_components below!
 
       yaml_renderer.
         render(context.required_components.to_a, :sort => true)

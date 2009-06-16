@@ -190,6 +190,15 @@ module Cabar
         end
     end
 
+    # Delegate other methods to #to_a.
+    def method_missing sel, *args, &blk  
+      if (target = self.to_a).respond_to?(sel)
+        target.send(sel, *args, &blk)
+      else
+        super
+      end
+    end
+
   end # class
 
 end # module
