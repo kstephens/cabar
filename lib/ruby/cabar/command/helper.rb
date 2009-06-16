@@ -12,7 +12,7 @@ class Cabar::Command
   end
 
   def setup_environment!
-    context.render Cabar::Renderer::InMemory.new
+    selection.resolver.render Cabar::Renderer::InMemory.new
   end
 
   # Return a YAML renderer.

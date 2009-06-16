@@ -28,7 +28,7 @@ module Cabar
 
     # Called when a Relationship
     # is specified for a Facet.
-    def attach_facet! f
+    def attach_facet! f, resolver
       f.attach_relationship! self
     end
 

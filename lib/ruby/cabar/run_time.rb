@@ -7,7 +7,7 @@ require 'cabar/version'
 
 
 module Cabar
-  # Provides a run-time interface to the current Cabar::Context.
+  # Provides a run-time interface to the current Cabar::Resolver.
   class RunTime < Base
     attr_reader :component_by_name
 

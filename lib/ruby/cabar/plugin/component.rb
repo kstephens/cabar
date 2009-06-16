@@ -24,7 +24,7 @@ Show the facets for the top-level component."
       selection.select_required = true
 
       yaml_renderer.
-        render(context.
+        render(resolver.
                facets.
                values
                )
@@ -41,18 +41,18 @@ Example Usage:
 Graph Options:
 #{Cabar::Renderer::Dot.command_documentation}"
     cmd :dot do
-      context.unresolved_components_ok!
+      resolver.unresolved_components_ok!
       selection.select_available = true
 
       if opt = cmd_opts[:r]
-        context.require_component(Cabar::Constraint.create(opt))
-        context.resolve_components!
+        resolver.require_component(Cabar::Constraint.create(opt))
+        resolver.resolve_components!
       end
 
       r = Cabar::Renderer::Dot.new cmd_opts
       r.components = selection.to_a
 
-      r.render(context)
+      r.render(resolver)
     end
     
     doc "[ <cmd-opts???> ]
@@ -72,9 +72,9 @@ Lists the current settings for required components."
       selection.to_a # FIXME: needed for required_components below!
 
       yaml_renderer.
-        render(context.required_components.to_a, :sort => true)
+        render(resolver.required_components.to_a, :sort => true)
       yaml_renderer.
-        render(context.facets.values.to_a)
+        render(resolver.facets.values.to_a)
     end
     
   end # cmd_group

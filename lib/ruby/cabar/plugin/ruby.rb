@@ -14,7 +14,7 @@ Cabar::Plugin.new :name => 'cabar/ruby', :documentation => "Support for Ruby." d
       # Get the arch_dir 
       ruby_comp =
         facet.
-        context.
+        resolver.
         required_components['ruby']
       ruby_comp &&= ruby_comp.size == 1 && ruby_comp.first
       # $stderr.puts "ruby_comp = #{ruby_comp}"
@@ -26,7 +26,7 @@ Cabar::Plugin.new :name => 'cabar/ruby', :documentation => "Support for Ruby." d
       # Get the standard ruby load_path. 
       ruby_comp =
         facet.
-        context.
+        resolver.
         required_components['ruby']
       ruby_comp &&= ruby_comp.size == 1 && ruby_comp.first
       # $stderr.puts "ruby_comp = #{ruby_comp}"

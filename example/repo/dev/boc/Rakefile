@@ -1,0 +1,4 @@
+task :test do
+  exit 0
+end
+

@@ -1,6 +1,6 @@
 
 
-Cabar::Plugin.new :name => 'cabar/plugin' do
+Cabar::Plugin.new :name => 'cabar/plugin', :documentation => 'Cabar Plugin support.' do
 
   cmd_group :plugin do
     doc "[ name ]

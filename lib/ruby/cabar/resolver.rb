@@ -3,7 +3,7 @@ require 'cabar/base'
 require 'cabar/version'
 require 'cabar/version/requirement'
 require 'cabar/version/set'
-require 'cabar/context'
+require 'cabar/resolver'
 require 'cabar/renderer'
 require 'cabar/facet'
 require 'cabar/facet/standard'
@@ -19,11 +19,14 @@ require 'cabar/sort'
 
 
 module Cabar
-  # Manages sets of available, selected, required and unresolved components.
+  # Resolves sets of available, selected, required and unresolved components.
   #
-  # Also manages collecting and composing Facets vended from required
+  # Resolves composing Facets vended from required
   # components.
-  class Context < Base
+  #
+  # Commands should probably use Selections.
+  #
+  class Resolver < Base
     include Cabar::Observer::Observed
     include Cabar::Sort
 
@@ -52,7 +55,7 @@ module Cabar
       @@current = x
     end
     def make_current!
-      Cabar::Context.current = self
+      Cabar::Resolver.current = self
     end
 
 
@@ -61,6 +64,24 @@ module Cabar
       @top_level_components = [ ] # ordered Cabar::Version::Set.new
       @unresolved_components = { } # name
       super
+    end
+
+
+    DUP_IVARS = [
+                 '@available_components',
+                 '@selected_components',
+                 '@required_components',
+                 '@top_level_components',
+                 '@unresolved_components',
+                ]
+    def dup_deepen!
+      super
+      @loader = nil # loader references this.
+      DUP_IVARS.each do | n |
+        v = instance_variable_get(n)
+        v = v.dup rescue v
+        instance_variable_set(n, v)
+      end
     end
 
 
@@ -74,7 +95,7 @@ module Cabar
 
     def _logger
       @_logger ||= 
-        Cabar::Logger.new(:name => :context,
+        Cabar::Logger.new(:name => :resolver,
                           :delegate => main._logger
                           )
     end
@@ -85,6 +106,19 @@ module Cabar
         directory
     end
 
+
+    ###########################################################
+    # Selection
+    #
+
+    # Creates a new Selection associated with this Resolver.
+    def selection opts = nil
+      opts ||= { }
+      opts[:resolver] = self
+      Cabar::Selection.factory.new(opts)
+    end
+ 
+
     ###########################################################
     # Configuration
     #
@@ -92,7 +126,7 @@ module Cabar
     # Returns the Cabar::Configuration object.
     def configuration
       @configuration ||= 
-        Cabar::Configuration.new(:context => self)
+        Cabar::Configuration.new
     end
 
     # Returns the configuration hash.
@@ -106,12 +140,12 @@ module Cabar
       configuration.config_raw
     end
 
-    # Applies the current configuration to this context.
+    # Applies the current configuration to this Resolver.
     def apply_configuration!
       configuration.apply_configuration! self
     end
 
-    # Applies the component requires configuration to this context.
+    # Applies the component requires configuration to this Resolver.
     # This will try CABAR_TOP_LEVEL environment variable
     # first.
     # If not defined, apply the configuration file's
@@ -135,10 +169,11 @@ module Cabar
     # Returns the component loader.
     def loader
       @loader ||= 
-        Cabar::Loader.factory.new(:context => self).
+        Cabar::Loader.factory.new(:resolver => self).
         # Prime the component search path queue.
         add_component_search_path!(configuration.component_search_path)
     end
+
 
     # Force loading of a component directory.
     # Used to force cabar to load itself.
@@ -232,6 +267,7 @@ module Cabar
       end
     end
 
+
     # Requires a specific component and/or version.
     # Adds to top_level_components list.
     def require_component opts
@@ -246,6 +282,7 @@ module Cabar
 
       c
     end
+
 
     # Requires a specific component and/or version.
     # Use internally by cabar during dependency
@@ -313,6 +350,7 @@ module Cabar
       c
     end
 
+
     # Called when a component is required.
     def add_required_component! c
       unless @required_components.include? c
@@ -322,10 +360,12 @@ module Cabar
       c
     end
 
+
     # Returns true if a Component is top-level.
     def top_level_component? c
       @top_level_components.include? c
     end
+
 
     # Called to resolve all component dependencies:
     # Pass 1: select all components dependencies.
@@ -335,15 +375,15 @@ module Cabar
       notify_observers :before_resolve_components!
 
       required_components.each do | c |
-        c.select_component!
+        c.select_component!(self)
       end
 
       required_components.each do | c |
-        c.resolve_component!
+        c.resolve_component!(self)
       end
 
       required_components.each do | c |
-        c.require_component!
+        c.require_component!(self)
       end
 
       notify_observers :after_resolve_components!
@@ -351,10 +391,12 @@ module Cabar
       self
     end
     
+
     # Returns true if component was required.
     def required_component? c
       @required_components.include? c
     end
+
 
     # Called during resolve_compoent!
     def unresolved_component! opts
@@ -364,12 +406,14 @@ module Cabar
       self
     end
 
+
     # True if there are unresolved components.
     # This can be due to overconstrained components or
     # components that are unavailable.
     def unresolved_components? 
       ! unresolved_components.empty?
     end
+
 
     # Checks unresolved_components list.
     # If there are any, raise an error.
@@ -425,6 +469,7 @@ END
       raise Error, "UnresolvedComponent"
     end
 
+
     # Validates all components.
     # Check for unresolved components.
     # Then validate each component.
@@ -434,7 +479,7 @@ END
       check_unresolved_components
 
       required_components.each do | c |
-        c.validate!
+        c.validate!(self)
       end
 
       notify_observers :after_validate_components!
@@ -455,7 +500,7 @@ END
 
 
     # Returns an Array of all a Component's dependencies.
-    # Forces resolution of components.
+    # Forces resolution and validation of components.
     def component_dependencies c
       resolve_components!
 
@@ -487,7 +532,6 @@ END
       set = topographic_sort(set, :dependents => lambda { |c| deps[c] || EMPTY_ARRAY })
       # puts "set sort_topo = #{set.inspect}"
 
-
       set
     end
 
@@ -503,6 +547,7 @@ END
         collected_facets[0]
     end
 
+
     # Returns a Hash of all non-composable facets for each
     # component.
     def comp_facets
@@ -515,6 +560,7 @@ END
 #      @collected_facets ||=
         collect_facets
     end
+
 
     # Collects and composes all Facets provided in
     # all required components in dependencency order.
@@ -536,7 +582,7 @@ END
               f
             else
               f = coll[facet.key] = facet.dup
-              f.context = self
+              f.resolver = self
               f.owner = c
             end
           else
@@ -564,7 +610,7 @@ END
           # $stderr.puts "  creating facet for ENV[#{fp.env_var}] => #{v.inspect}"
           facet = Facet.create(ft, 
                                :path => Cabar.path_split(v),
-                               :context => self,
+                               :resolver => self,
                                :owner => self)
         end
 
@@ -584,7 +630,7 @@ END
         fp = Facet.proto_by_key(facet_key)
         if fp.is_composable? && fp.standard_path_proc
           f_standard = f.dup
-          f_standard.context = self
+          f_standard.resolver = self
           f_standard.owner = self
           f_standard.abs_path = f.standard_path
           # $stderr.puts "  f_default #{facet_key.inspect} = #{f_standard.abs_path.inspect}"
@@ -603,7 +649,7 @@ END
 
           facet = Facet.create(ft, 
                                :path => Cabar.path_split(v),
-                               :context => self,
+                               :resolver => self,
                                :owner => self)
           
           facet.compose_facet! f if f
@@ -615,7 +661,7 @@ END
       [ coll, comp_facet ]
     end
 
-    # Renders this context on a Cabar::Renderer,
+    # Renders this Resolver on a Cabar::Renderer,
     # after validating all components.
     def render r
       validate_components!

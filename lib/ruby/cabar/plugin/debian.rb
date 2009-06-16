@@ -42,7 +42,7 @@ Cabar::Plugin.new :name => 'cabar/debian',
   def after_load_components! loader, args
     debs = debian_available_components(loader)
 
-    _logger.info "Adding available Debian packages to context: ", :write => true
+    _logger.info "Adding available Debian packages: ", :write => true
 
     debs.each do | c |
       loader.add_available_component! c

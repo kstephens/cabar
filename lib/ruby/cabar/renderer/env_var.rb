@@ -20,10 +20,10 @@ module Cabar
         Cabar.path_sep
       end
 
-      # Renders a Context object,
-      # Using the Context's current required_components_dependencies.
+      # Renders a Resolver object,
+      # Using the Resolver's current required_components_dependencies.
       #
-      def render_Context x
+      def render_Resolver x
         comment "Cabar config"
 
         comps = x.required_component_dependencies

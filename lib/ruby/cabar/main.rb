@@ -1,6 +1,6 @@
 require 'cabar/base'
 
-require 'cabar/context'
+require 'cabar/resolver'
 require 'cabar/plugin'
 require 'cabar/command/manager'
 require 'cabar/command/runner'
@@ -20,8 +20,9 @@ module Cabar
     # The Cabar::Command::Manager for top-level commands.
     attr_accessor :commands
 
-    # The Cabar::Context that manages component resolution.
-    attr_accessor :context
+    # The global Cabar::Resolver that contains the available_components.
+    # Cabar::Selection will clone this for each Command object.
+    attr_accessor :resolver
 
     # The Cabar::Plugin::Manager manages all plugins.
     attr_accessor :plugin_manager
@@ -60,7 +61,7 @@ module Cabar
       @command_runner ||= 
         begin
           # Force loading of plugins.
-          context.available_components
+          resolver.available_components
 
           @command_runner = Command::Runner.factory.new(:context => self)
           
@@ -84,22 +85,22 @@ module Cabar
 
     ##################################################################
 
-    # Return the Cabar::Context object.
-    def context
-      @context ||=
+    # Return the Cabar::Resolver object.
+    def resolver
+      @resolver ||=
       begin
-        @context =
-          Context.factory.
+        @resolver =
+          Resolver.factory.
           new(:main => self,
               :directory => File.expand_path('.')).
           make_current!
 
         # Force loading of cabar itself early.
-        @context.load_component!(Cabar.cabar_base_directory, 
+        @resolver.load_component!(Cabar.cabar_base_directory, 
                                  :priority => :before, 
                                  :force => true)
 
-        @context
+        @resolver
       end
     end
 

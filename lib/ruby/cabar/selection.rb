@@ -1,6 +1,6 @@
 require 'cabar/base'
 
-require 'cabar/context'
+require 'cabar/resolver'
 
 
 module Cabar
@@ -19,8 +19,9 @@ module Cabar
       end
     end
         
-    # The Context object.
-    attr_accessor_with_clear :context, :to_a
+    # The Resolver object.
+    attr_accessor_with_clear :resolver, :to_a
+
     # Command option Hash parsed by Command::Runner.
     attr_accessor_with_clear :cmd_opts, :to_a
 
@@ -60,7 +61,7 @@ module Cabar
     def _looger
       @_logger ||=
         Cabar::Logger.new(:name => :selection,
-                          :delegate => @context.main._logger)
+                          :delegate => @resolver.main._logger)
     end
 
     # Parses command line options to determine how to 
@@ -144,28 +145,28 @@ module Cabar
             s_o = component_constraint
 
             if s_o
-              @selected_component = context.require_component s_o
+              @selected_component = resolver.require_component s_o
             else
-              context.apply_configuration_requires!
+              resolver.apply_configuration_requires!
             end
 
             # Resolve configuration.
-            context.resolve_components!
+            resolver.resolve_components!
             
             # Validate configuration.
-            context.validate_components!
+            resolver.validate_components!
             
             # Get the required components.
             if @select_top_level
-              result = context.
+              result = resolver.
                 top_level_components.to_a
             else
-              result = context.
-                component_dependencies(context.required_components.to_a)
+              result = resolver.
+                component_dependencies(resolver.required_components.to_a)
             end
 
           when @select_available
-            result = context.available_components
+            result = resolver.available_components
             _logger.debug "result #{result.class} #{result.to_a.size}"
 
             if component_constraint
@@ -177,7 +178,7 @@ module Cabar
             _logger.debug "result #{result.class} #{result.to_a.size}"
             
             if @select_dependencies
-              result = context.component_dependencies(result)
+              result = resolver.component_dependencies(result)
             else
               result = Component.sort(result)
             end

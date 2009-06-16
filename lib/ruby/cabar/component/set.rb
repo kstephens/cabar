@@ -15,7 +15,7 @@ module Cabar
     # This occurs during component version selection
     # or depenency resolution.
     #
-    # See Cabar::Context for usages.
+    # See Cabar::Resolver for usages.
     #
     # It responds to most Enumerable methods as expected.
     #

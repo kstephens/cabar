@@ -4,7 +4,7 @@ require 'c2'
 
 puts "c2_prog version #{C2.version}: #{ARGV.join(' ')}"
 
-cc = Cabar::Context.current
+cc = Cabar::Resolver.current
 
 puts "\ntop_level_components = #{cc.top_level_components.join(', ')}"
 puts "\nrequired_components = #{cc.required_components.join(', ')}"

@@ -98,7 +98,7 @@ DOC
 Enables *everything*
 DOC
 
-      attr_reader :context
+      attr_reader :resolver
 
       def initialize *args
         @@option_defaults.each do | k, v |
@@ -120,17 +120,18 @@ DOC
         @current_directory = File.expand_path('.') + '/'
       end
 
-      # Renders a Context as a Dot graph.
-      def render_Context context
-        _logger.debug :"Dot#render_Context"
+
+      # Renders a Resolver as a Dot graph.
+      def render_Resolver resolver
+        _logger.debug :"Dot#render_Resolver"
 
         @node_count = 0
         @edge_count = 0
 
-        @context = context
+        @resolver = resolver
 
         available_components = 
-          context.
+          resolver.
           available_components.
           to_a.
           sort { |a, b| a.name <=> b.name }
@@ -153,10 +154,10 @@ DOC
           @components.each do | x |
             next unless x
             _logger.info "requiring #{x.class} #{x.inspect}"
-            @context.require_component x
+            @resolver.require_component x
           end
-          @context.resolve_components!
-          @components = @context.required_components.to_a
+          @resolver.resolve_components!
+          @components = @resolver.required_components.to_a
         end
 
         # Get list of components to show.
@@ -394,7 +395,7 @@ DOC
         # $stderr.puts "c1 = #{c1}"
         # $stderr.puts "  created_from = #{created_from.inspect}"
 
-        created_from = context.selected_components[created_from]
+        created_from = resolver.selected_components[created_from]
         # $stderr.puts "  created_from = #{created_from.inspect}"
 
         return unless created_from
@@ -487,14 +488,14 @@ DOC
 
       # Return true if a Component is top-level.
       def top_level? c
-        @context.top_level_component? c
+        @resolver.top_level_component? c
       end
 
       # Returns true if a Component is required.
       def required? c
         (
          @required[c.object_id] ||=
-         [ @context.required_component?(c) ]
+         [ @resolver.required_component?(c) ]
          ).first
       end
 

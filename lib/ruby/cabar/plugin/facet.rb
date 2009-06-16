@@ -1,6 +1,6 @@
 
 
-Cabar::Plugin.new :name => 'cabar/facet' do
+Cabar::Plugin.new :name => 'cabar/facet', :documentation => 'Cabar Facet support.' do
 
   ##################################################################
   # Facet

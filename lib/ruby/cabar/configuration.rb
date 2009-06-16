@@ -112,8 +112,6 @@ module Cabar
     # Path to search for configuration files.
     attr_accessor :config_file_path
 
-    # The Context object.
-    attr_accessor :context
 
     def component_search_path
       config unless @config
@@ -173,9 +171,9 @@ module Cabar
     end
 
 
-    # Applies the component selection configuration to the Context.
+    # Applies the component selection configuration to the Resolver.
     #
-    def apply_configuration! context
+    def apply_configuration! resolver
       by = "config@#{config['config_file_path'].inspect}"
       
       # Apply component selection.
@@ -188,7 +186,7 @@ module Cabar
         opts[:name] = name unless name.nil?
         opts[:_by] = by
         
-        context.select_component opts
+        resolver.select_component opts
       end
 
 
@@ -198,8 +196,9 @@ module Cabar
       # end
     end
 
-    # Applies the compnent requires configuration to the Context.
-    def apply_configuration_requires! context
+
+    # Applies the component requires configuration to the Resolver.
+    def apply_configuration_requires! resolver
       by = "config@#{config['config_file_path'].inspect}"
 
       # Apply component requires.
@@ -212,7 +211,7 @@ module Cabar
         opts[:name] = name unless name.nil?
         opts[:_by] = by
         
-        context.require_component opts
+        resolver.require_component opts
       end
     end
 

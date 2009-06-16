@@ -60,7 +60,7 @@ lib/ruby/cabar/component.rb
 lib/ruby/cabar/component/set.rb
 lib/ruby/cabar/configuration.rb
 lib/ruby/cabar/constraint.rb
-lib/ruby/cabar/context.rb
+lib/ruby/cabar/resolver.rb
 lib/ruby/cabar/debian.rb
 lib/ruby/cabar/error.rb
 lib/ruby/cabar/facet.rb

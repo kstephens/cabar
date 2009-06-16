@@ -29,10 +29,11 @@ module Cabar
       # software platform components, e.g.: Ruby, Perl and Rubygems.
       #
       # See cabar/comp in the source distribution.
-      def attach_component! c
+      def attach_component! c, resolver
         super
         # $stderr.puts "adding component search path #{abs_path.inspect}"
-        c.context.loader.add_component_search_path! abs_path
+        # FIXME: components should not know about a single Resolver.
+        resolver.loader.add_component_search_path! abs_path
       end
     end # class
 

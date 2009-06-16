@@ -39,8 +39,8 @@ module Cabar
     attr_accessor :owner
     alias :component :owner
 
-    # The Context object.
-    attr_accessor :context
+    # The Resolver object.
+    attr_accessor :resolver
 
     # The configuration hash.
     attr_accessor :configuration
@@ -231,8 +231,8 @@ module Cabar
     # Called when a Facet is going to be attached
     # to a Component.
     # Subclasses may override this.
-    def attach_component! c
-      c.attach_facet! self
+    def attach_component! c, resolver
+      c.attach_facet!(self, resolver)
     end
 
     # Called to compose Facets across Components.
@@ -254,26 +254,26 @@ module Cabar
     # it constrains.
     #
     # Subclasses may override this.
-    def select_component!
+    def select_component! resolver
     end
 
     # Ask the Facet to resolve and Components that
     # it may depend on.
     #
     # Subclasses may override this.
-    def resolve_component!
+    def resolve_component! resolver
     end
 
     # Ask the Facet to require and any Components that
     # it may depend on.
     #
     # Subclasses may override this.
-    def require_component!
+    def require_component! resolver
     end
 
     # Called when a component owning this facet
     # has resolved component dependency.
-    def component_dependency_resolved!
+    def component_dependency_resolved! resolver
     end
 
     # Used for YAML formatting and general inspection.

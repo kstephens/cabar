@@ -2,8 +2,8 @@
 
 Cabar::Plugin.new :name => 'cabar', :documentation => <<"DOC" do
 Cabar standard plugin.
-Includes all plugins named 'cabar/plugin/*.rb' 
-found in $: (#{$:.inspect}).
+
+Includes all plugins named 'cabar/plugin/*.rb' found in $:.
 DOC
 
   # Pull any files named cabar/plugin/*.rb
@@ -23,7 +23,7 @@ DOC
   doc "Internals and introspection."
   cmd_group :cabar do
     doc "[ - <component> ]
-Starts an interactive shell on Cabar::Context."
+Starts an interactive shell on Cabar::Main."
     cmd :shell do
       selection.select_required = true
       selection.to_a

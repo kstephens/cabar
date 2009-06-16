@@ -43,7 +43,7 @@ module Cabar
     # A CommandManager for subcommands.
     attr_accessor :subcommands
 
-    # The context that undefined methods will delegate to.
+    # The object that undefined methods will delegate to.
     attr_accessor :main
 
     # The plugin this command was defined in.
@@ -166,11 +166,11 @@ module Cabar
       ! @supercommand
     end
 
-    # Returns a Selection object for the command.
+    # Returns a cached Selection object for the main Resolver with the cmd_opts.
+    # FIXME: THIS SHOULD CLONE THE Main#resolver.
     def selection
-      @selection ||= 
-        Cabar::Selection.factory.
-        new(:context => @main.context, :cmd_opts => cmd_opts)
+      @selection ||=
+        @main.resolver.selection(:cmd_opts => cmd_opts)
     end
 
     # Defer to @main.

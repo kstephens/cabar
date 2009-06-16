@@ -67,8 +67,8 @@ module Cabar
     
     # Associations.
     
-    # The Context object.
-    attr_accessor :context
+    # The Resolver object.
+    attr_accessor :resolver
 
     # A list of all Facets in the Component.
     attr_reader :facets
@@ -203,9 +203,9 @@ module Cabar
       self
     end
     
-    def validate!
+    def validate! resolver
       requires.each do | r |
-        r.validate!
+        r.validate! resolver
       end
     end
     
@@ -283,7 +283,7 @@ module Cabar
           when 'component'
             v.each do | name, opts |
               opts[:name] ||= name
-              context.select_component opts
+              resolver.select_component opts # FIXME
             end
           end
         end
@@ -327,32 +327,32 @@ module Cabar
       end
     end
     
-    def select_component!
+    def select_component! resolver
       facets.each do | f |
-        f.select_component!
+        f.select_component! resolver
       end
     end
     
-    def resolve_component!
+    def resolve_component! resolver
       facets.each do | f |
-        f.resolve_component!
+        f.resolve_component! resolver
       end
     end
     
-    def require_component!
+    def require_component! resolver
       facets.each do | f |
-        f.require_component!
+        f.require_component! resolver
       end
     end
     
     # Called when a RequiredComponent facet resolves to
     # this Component; dependent is the Component
     # that depended on this Component.
-    def add_dependent! dependent
+    def add_dependent! dependent, resolver
       notify_observers :before_add_dependent!, dependent
 
       @dependents << dependent
-      context.add_required_component! self
+      resolver.add_required_component! self
 
       notify_observers :after_add_dependent!, dependent
 
@@ -362,13 +362,13 @@ module Cabar
     # Returns all the immediate Component dependencies.
     #
     # Assumes dependencies have been resolved.
-    # See Context#resolve_components!
+    # See Resolver#resolve_components!
     #
-    # See Context#component_dependencies for a recursive
+    # See Resolver#component_dependencies for a recursive
     # dependency set.
     def dependencies recursive = nil
       if recursive
-        context.component_dependencies self
+        resolver.component_dependencies self # FIXME
       else
         requires.map { |f| f.resolved_component }
       end
@@ -391,7 +391,7 @@ module Cabar
     end
 
     # Called when a new facet is attached to this component.
-    def attach_facet! f
+    def attach_facet! f, resolver
       return f unless f
 
       notify_observers :before_attach_facet!, f
@@ -426,7 +426,7 @@ module Cabar
       return f unless f
       
       f.owner = self
-      f.context = self.context
+      f.resolver = resolver # FIXME
 
       # Attach inferrable Facets only if inferred.
       attach = true
@@ -437,7 +437,7 @@ module Cabar
         attach = false
       end
 
-      f.attach_component! self if attach 
+      f.attach_component!(self, resolver) if attach 
 
       f
     end

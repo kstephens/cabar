@@ -1,6 +1,6 @@
 require 'cabar/base'
 
-require 'cabar/context'
+require 'cabar/resolver'
 require 'cabar/command/helper' # Standard command support.
 require 'cabar/facet/standard' # Cabar::Facet::Path
 require 'cabar/main'
@@ -142,7 +142,7 @@ module Cabar
 
       def register_plugin! plugin
         # Overlay configuration options.
-        config_opts = main.context.configuration.config['plugin']
+        config_opts = main.resolver.configuration.config['plugin']
         config_opts &&= config_opts[plugin.name]
 
         _logger.debug "plugin: #{plugin} configuration #{config_opts.inspect}"
@@ -194,8 +194,8 @@ module Cabar
       attr_accessor :default_doc
 
       def initialize *args, &blk
-        @context = nil
-        @context_stack = [ ]
+        @target = nil
+        @target_stack = [ ]
         @doc = nil
         @doc_default = nil
         super
@@ -230,7 +230,7 @@ module Cabar
 
         # Initialize it.
         if block_given?
-          _with_context facet do 
+          _with_target facet do 
             instance_eval &blk
           end
         end
@@ -247,7 +247,7 @@ module Cabar
       # Define a new command.
       def define_command name, opts = nil, &blk
         opts = _take_doc(opts)
-        # $stderr.puts "@context = #{@context.inspect}"
+        # $stderr.puts "@target = #{@target.inspect}"
         # $stderr.puts "define_command #{name.inspect}, #{opts.inspect}"
 
         cmd = _command_manager.define_command(name, opts, &blk)
@@ -264,7 +264,7 @@ module Cabar
       # Creates a new command group.
       def define_command_group name, opts = nil, &blk
         opts = _take_doc(opts)
-        # $stderr.puts "@context = #{@context.inspect}"
+        # $stderr.puts "@target = #{@target.inspect}"
         # $stderr.puts "define_command_group #{name.inspect}, #{opts.inspect}"
  
         cmd = _command_manager.define_command_group(name, opts)
@@ -273,7 +273,7 @@ module Cabar
 
         @plugin.commands << cmd
 
-        _with_context cmd.subcommands, &blk
+        _with_target cmd.subcommands, &blk
 
         cmd
       end
@@ -295,20 +295,20 @@ module Cabar
         opts
       end
 
-      def _with_context object
-        @context_stack.push @context
-        @context = object
+      def _with_target object
+        @target_stack.push @target
+        @target = object
         yield
       ensure
-        @context = @context_stack.pop
+        @target = @target_stack.pop
       end
 
       # Gets the current command manager depending
-      # on the context.
+      # on the target.
       def _command_manager
-        case @context
+        case @target
         when Cabar::Command::Manager
-          cmd_mgr = @context
+          cmd_mgr = @target
         else
           # Default to top-level command.
           cmd_mgr = Cabar::Main.current.commands

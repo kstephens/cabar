@@ -57,13 +57,13 @@ module Cabar
           end
       end
       
-      # Returns the resolved component for this dependency.
+      # Returns the resolved Component for this dependency.
       def resolved_component
         @resolved_component ||= 
           begin 
             
-            if c = context.resolve_component(to_constraint)
-              resolved_component! c
+            if c = resolver.resolve_component(to_constraint)
+              resolved_component!(c, resolver)
             end
             
             c
@@ -76,15 +76,15 @@ module Cabar
       # Notify the resolved component of a dependency.
       #
       # Append additional configuration to the component.
-      def resolved_component! c
+      def resolved_component! c, resolver
         @resolved_component = c
-        c.add_dependent! self.owner
+        c.add_dependent!(self.owner, resolver)
         c.append_configuration! self.configuration
 
         # This is very ugly.
-        c.context.available_components.each do | comp |
+        resolver.available_components.each do | comp |
           comp.facets.each do | facet |
-            facet.component_dependency_resolved!
+            facet.component_dependency_resolved!(resolver)
           end
         end
       end
@@ -93,45 +93,45 @@ module Cabar
       # Pass 1:
       # If we can resolve a component now,
       # ask it to select it's dependencies.
-      def select_component!
+      def select_component! resolver
         super
         
         return if @_select_component
         @_select_component = true
         
-        context.select_component to_constraint
+        resolver.select_component to_constraint
         
         if r = resolved_component
-          context._require_component r
+          resolver._require_component(r)
         end
       end
       
       # Pass 2: attempt to resolve unique version
       # if not already resolved.
-      def resolve_component!
+      def resolve_component! resolver
         super
         
         return if @_resolve_component
         @_resolve_component = true
         
         if c = resolved_component
-          c.select_component!
+          c.select_component! resolver
         end
       end
       
       # Pass 3: select latest component version
       # if not already resolved.
-      def require_component!
+      def require_component! resolver
         super
         
         return if @_require_component
         @_require_component = true
         
         unless resolved_component
-          if c = context._require_component(to_constraint) 
+          if c = resolver._require_component(to_constraint) 
             @resolved_component = c
           else
-            context.
+            resolver.
               unresolved_component!(
                                     :name => name, 
                                     :component_type => component_type,
@@ -143,7 +143,7 @@ module Cabar
       end
       
       # Will fail of dependency cannot be resolved.
-      def validate!
+      def validate! resolver
         if resolved_component.nil?
           raise("Cannot resolve component for #{self.inspect}") 
         end

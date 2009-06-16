@@ -32,7 +32,7 @@ module Cabar
 
       # Creates individual EnvVar facets for each
       # key/value pair in the option Hash.
-      def attach_component! c
+      def attach_component! c, resolver
         vars.each do | n, v |
           # $stderr.puts "   env: #{n} #{v}" # FIXME LOGGING
           c.create_facet(:env_var, { :env_var => n, :value => v })

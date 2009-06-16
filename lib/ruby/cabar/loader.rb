@@ -15,8 +15,8 @@ module Cabar
   class Loader < Base
     include Cabar::Observer::Observed
 
-    # The Cabar::Context to load Components into.
-    attr_accessor :context
+    # The Cabar::Resolver to load Components into.
+    attr_accessor :resolver
 
     attr_reader :component_search_path
     attr_reader :component_directories
@@ -35,7 +35,7 @@ module Cabar
     def _logger
       @_logger ||=
         Cabar::Logger.new(:name => :loader, 
-                          :delegate => @context.main._logger)
+                          :delegate => @resolver.main._logger)
     end
 
     def add_component_search_path! path, opts = nil
@@ -207,7 +207,7 @@ module Cabar
     # Helper method to create a Component.
     def create_component opts
       c = Component.factory.new opts
-      c.context = @context
+      c.resolver = @resolver # YUCK! components know about Resolvers.
       c
     end
 
@@ -221,7 +221,7 @@ private
         "  loading #{conf_file.inspect}"
       end
 
-      conf = @context.configuration.read_config_file conf_file
+      conf = @resolver.configuration.read_config_file conf_file
       conf = conf['cabar']
       
       # Enabled?
@@ -326,7 +326,7 @@ private
       comps.each do | name, opts |
         # Overlay configuration.
         comp_config = 
-          (x = context.configuration.config['component']) && 
+          (x = resolver.configuration.config['component']) && 
           x['configure']
         comp_config ||= EMPTY_HASH
         comp_config = comp_config[name] || EMPTY_HASH
@@ -340,7 +340,7 @@ private
         opts[:_config_file] = conf_file
         opts[:plugins] = @plugins
         # puts "comp opts #{name.inspect} => "; pp opts
-        opts[:context] = self
+        opts[:resolver] = self # HUH: is this right?
 
         comp = create_component opts
         

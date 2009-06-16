@@ -31,7 +31,7 @@ module Cabar
 
       # The environment variable associated with this Facet.
       # If set, is_env_var? is true and
-      # this Facet is composable in Context#compose_facets.
+      # this Facet is composable in Resolver#compose_facets.
       attr_accessor :env_var
 
       # If set, the generated abs_path will
