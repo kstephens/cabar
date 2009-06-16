@@ -10,6 +10,8 @@ For more info see:
 * http://cabar.rubyforge.org
 * lib/ruby/cabar.rb
 
+Cabar is sponsored by CashNetUSA (http://cashnetusa.com).
+
 = Quick Cabar Demo
 
 * Go to cabar/example.

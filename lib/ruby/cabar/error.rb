@@ -7,7 +7,7 @@ module Cabar
     # The original error, if any.
     attr_accessor :error
 
-    # The error chaing, if any.
+    # The error chain, if any.
     attr_accessor :error_chain
 
     # Option hash, if any.
