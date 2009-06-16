@@ -5,7 +5,7 @@ Cabar::Plugin.new :documentation => 'Support for rubygems repository components.
         :path_proc => 
           lambda { | f | 
             'gems-' + 
-            Cabar::Main.current.context.
+            Cabar::Main.current.resolver.
             selected_components.to_a.
             select { | c | c.name =~ /^rubygems/ }.
             first.version.to_s
@@ -13,7 +13,7 @@ Cabar::Plugin.new :documentation => 'Support for rubygems repository components.
         :env_var => :GEM_PATH,
         :standard_path_proc => lambda { | f |
           x = `ruby -r rubygems -e 'puts Gem.path.inspect' 2>/dev/null`.chomp
-          x = $?.success? ? eval(x) : ''
+          x = $?.success? ? eval(x) : [ ]
         }
 
   cmd_group [ :rubygems, :gems ] do
@@ -100,10 +100,12 @@ Example:
         ENV.delete('GEM_HOME') if ENV['GEM_HOME'] && ENV['GEM_HOME'].empty?
 
         unless ENV['GEM_PATH'] && ENV['GEM_HOME']
-          ENV['GEM_PATH'] ||= begin
-            x = `ruby -r rubygems -e 'puts Gem.path.inspect' 2>/dev/null`.chomp
-            x = $?.success? ? eval(x) : nil # WHAT TO DO IF THIS FAILS? -- kurt 2009/06/15
-          end
+          ENV['GEM_PATH'] ||= 
+            begin
+              x = `ruby -r rubygems -e 'puts Gem.path.inspect' 2>/dev/null`.chomp
+              x = $?.success? ? eval(x) : [ ] # WHAT TO DO IF THIS FAILS? -- kurt 2009/06/15
+              Cabar.path_join(x)
+            end
 
           ENV['GEM_HOME'] ||= Cabar.path_split(ENV['GEM_PATH']).first
         end
