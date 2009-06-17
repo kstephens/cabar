@@ -13,7 +13,7 @@ Cabar::Plugin.new :name => 'cabar/debian',
     unless @debian_components
       @debian_components = [ ]
 
-      _logger.info "Parsing Debian packages: ", :write => true
+      _logger.info(:write => true) { "Parsing Debian packages: " } 
       dpkgs = Cabar::Debian.debian_parse_dpkg_file
 
       dpkgs.each do | dpkg |
@@ -31,7 +31,7 @@ Cabar::Plugin.new :name => 'cabar/debian',
         @debian_components << c
       end
 
-      _logger.info "#{@debian_components.size}", :prefix => false
+      _logger.info(:prefix => false) { "#{@debian_components.size}" }
     end
 
     @debian_components
@@ -42,14 +42,14 @@ Cabar::Plugin.new :name => 'cabar/debian',
   def after_load_components! loader, args
     debs = debian_available_components(loader)
 
-    _logger.info "Adding available Debian packages: ", :write => true
+    _logger.info(:write => true) { "Adding available Debian packages: " }
 
     debs.each do | c |
       loader.add_available_component! c
       _logger.debug :".", :write => true, :prefix => false
     end
 
-    _logger.info " #{debs.size}", :prefix => false
+    _logger.info(:prefix => false) { " #{debs.size}" }
   end
   
   # Callback after other components have been loaded.

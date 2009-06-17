@@ -141,11 +141,7 @@ module Cabar
     def resolver
       @resolver ||=
       begin
-        @resolver =
-          Resolver.factory.
-          new(:main => self,
-              :configuration => configuration,
-              :directory => File.expand_path('.'))
+        @resolver = new_resolver
 
         # Force loading of cabar itself early.
         @resolver.load_component!(Cabar.cabar_base_directory, 
@@ -155,6 +151,16 @@ module Cabar
         @resolver
       end
     end
+
+
+    # Returns a new Resolver.
+    def new_resolver opts = { }
+      opts[:main] ||= self
+      opts[:configuration] ||= configuration
+      opts[:directory] ||= File.expand_path('.')
+      Resolver.factory.new(opts)
+    end
+
 
 
     ##################################################################

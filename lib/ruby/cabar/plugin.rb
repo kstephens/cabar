@@ -145,13 +145,13 @@ module Cabar
         config_opts = main.resolver.configuration.config['plugin']
         config_opts &&= config_opts[plugin.name]
 
-        _logger.debug "plugin: #{plugin} configuration #{config_opts.inspect}"
+        _logger.debug { "plugin: #{plugin} configuration #{config_opts.inspect}" }
 
         if config_opts
           opts = plugin._options.dup
           opts.cabar_merge!(config_opts)
           plugin._options = opts
-          _logger.info "plugin: #{plugin} configuration #{opts.inspect}"
+          _logger.info { "plugin: #{plugin} configuration #{opts.inspect}" }
         end
 
         # Do not register if disabled.

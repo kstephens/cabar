@@ -173,7 +173,7 @@ module Cabar
       @available_components ||=
         begin
           x = loader.available_components
-          _logger.info "available components: #{x.size}"
+          _logger.info { "available components: #{x.size}" }
           x
         end
     end
@@ -274,7 +274,7 @@ module Cabar
       case r.size
       when 0
         constraint = opts
-        _logger.error "Cannot find required component #{opts.inspect}"
+        _logger.error { "Cannot find required component #{opts.inspect}" }
         opts = opts.to_constraint if Cabar::Component === opts
         opts = opts.to_hash unless Hash === opts
         # $stderr.puts "opts = #{opts.inspect}"

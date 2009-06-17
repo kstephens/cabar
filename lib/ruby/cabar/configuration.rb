@@ -370,7 +370,7 @@ module Cabar
       return cfg if visited[file]
       visited[file] = 1
 
-      _logger.info "config: loading #{file.inspect}"
+      _logger.info { "config: loading #{file.inspect}" }
 
       y = read_config_file file
       validate_config_hash y
@@ -381,14 +381,14 @@ module Cabar
 
       # Handle deprecated formats.
       if old_format = ((x = conf['select']) && x['component'])
-        _logger.warn "config: in #{file}: use component: select: ..., instead of select: component: ..."
+        _logger.warn { "config: in #{file}: use component: select: ..., instead of select: component: ..." }
         (conf['component'] ||= { })['select'] = old_format
         x.delete('component')
       end
       
       # Handle deprecated formats.
       if old_format = ((x = conf['require']) && x['component'])
-        _logger.warn "config: in #{file}: use component: require: ..., instead of require: component: ..."
+        _logger.warn { "config: in #{file}: use component: require: ..., instead of require: component: ..." }
         (conf['component'] ||= { })['require'] = old_format
         x.delete('component')
       end
@@ -411,7 +411,7 @@ module Cabar
         ENV[k] = v
       end
 
-      _logger.info "config: loading #{file.inspect}: DONE"
+      _logger.info { "config: loading #{file.inspect}: DONE" }
 
       cfg
     rescue Exception => err

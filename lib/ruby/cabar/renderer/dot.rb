@@ -143,7 +143,7 @@ DOC
           "components specified: #{@components.size}"
         end
         if @components.size < 100
-          _logger.info "components: "
+          _logger.info { "components: " }
           _logger.info do
             @components.map{|c| "  " + c.to_s}
           end
@@ -153,7 +153,7 @@ DOC
         if require_selection
           @components.each do | x |
             next unless x
-            _logger.info "requiring #{x.class} #{x.inspect}"
+            _logger.info { "requiring #{x.class} #{x.inspect}" }
             @resolver.require_component x
           end
           @resolver.resolve_components!
@@ -350,7 +350,7 @@ DOC
         _logger.debug :D, :prefix => false, :write => true
 
         c1 = d.component
-        c2 = d.resolved_component
+        c2 = d.resolved_component(@resolver)
 
         return unless c1 && c2 &&
           @components.include?(c1) &&
