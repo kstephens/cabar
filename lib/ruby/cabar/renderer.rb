@@ -50,7 +50,7 @@ module Cabar
     def render x, *args
       x.class.ancestors.each do | cls |
         next if cls == Kernel
-        meth = "render_#{cls.name.sub(/^.*::/, '')}" 
+        meth = :"render_#{cls.name.sub(/^.*::/, '')}" 
         return send(meth, x, *args) if respond_to? meth
       end
       raise ArgumentError, "Cannot find render_* for #{x.class}"
@@ -65,31 +65,78 @@ module Cabar
     #   x = [ 4, 4.5 ]
     #   renderer.render x, :xyz
     #
-    # Would attempt to send:
+    # Would send to the first method where self.respond_to? is true.
     #
-    #   renderer.render_Array_Precision x, :xyz
-    #   renderer.render_Array_Numeric x, :xyz
-    #   renderer.render_Array_Comparable x, :xyz
-    #   renderer.render_Array_Object x, :xyz
+    #   renderer.render_Array_of_Precision x, :xyz
+    #   renderer.render_Array_of_Numeric x, :xyz
+    #   renderer.render_Array_of_Comparable x, :xyz
+    #   renderer.render_Array_of_Object x, :xyz
     #
     # Kernel is avoided and namespaces are removed from ancestor names.
     def render_Array x, *args
-      # Get a set of common ancestors of all elements.
-      ancestors = x.inject(x.first.class.ancestors) do | a, xi | 
+      # Get a set of common ancestors of all element values.
+      val_ancestors = x.inject(x.first.class.ancestors) do | a, xi | 
         a & xi.class.ancestors
       end
+      val_ancestors.delete(::Kernel)
 
       # Find first method for ancestor named "render_Array_<<ancestor>>".
-      ancestors.each do | cls |
-        next if cls == Kernel
-        meth = "render_Array_#{cls.name.sub(/^.*::/, '')}" 
+      val_ancestors.each do | cls |
+        meth = :"render_Array_of_#{cls.name.sub(/^.*::/, '')}" 
         return send(meth, x, *args) if respond_to? meth
       end
 
-      raise ArgumentError, "Cannot find render_Array_* for #{x.class} using common ancestors #{ancestors.inspect}"
+      raise ArgumentError, "Cannot find render_Array_of_* for #{x.class} using common ancestors #{val_ancestors.inspect}"
     end
 
 
+    # Multimethod dispatching based on common ancestors
+    # of all elements in the Hash.
+    #
+    # For example:
+    # 
+    #   x = { :a=> 4, :b => 4.5 }
+    #   renderer.render x, :xyz
+    #
+    # Would send to the first method where self.respond_to? is true.
+    #
+    #   renderer.render_Hash_of_Symbol_and_Precision x, :xyz
+    #   renderer.render_Hash_of_Symbol_and_Numeric x, :xyz
+    #   renderer.render_Hash_of_Symbol_and_Comparable x, :xyz
+    #   renderer.render_Hash_of_Symbol_and_Object x, :xyz
+    #   renderer.render_Hash_of_Object_and_Precision x, :xyz
+    #   renderer.render_Hash_of_Object_and_Numeric x, :xyz
+    #   renderer.render_Hash_of_Object_and_Comparable x, :xyz
+    #   renderer.render_Hash_of_Object_and_Object x, :xyz
+    #
+    # Kernel is avoided and namespaces are removed from ancestor names.
+    def render_Hash x, *args
+      # Get a set of common ancestors of all key elements.
+      key_ancestors = x.keys.inject(x.keys.first.class.ancestors) do | a, xi | 
+        a & xi.class.ancestors
+      end
+      key_ancestors.delete(::Kernel)
+
+      # Get a set of common ancestors of all value elements.
+      val_ancestors = x.values.inject(x.values.first.class.ancestors) do | a, xi | 
+        a & xi.class.ancestors
+      end
+      val_ancestors.delete(::Kernel)
+
+      # Find first method for ancestor named "render_Hash_of_<<key_ancestor>>_and_<<val_ancestor>>".
+      key_ancestors.each do | key_cls |
+        val_ancestors.each do | val_cls |
+          meth = :"render_Hash_of_#{key_cls.name.sub(/^.*::/, '')}_and__#{val_cls.name.sub(/^.*::/, '')}" 
+          return send(meth, x, *args) if respond_to? meth
+        end
+      end
+
+      raise ArgumentError, "Cannot find render_Hash_of_*_and_* for #{x.class} using common key ancestors #{key_ancestors.inspect} and value ancestors #{val_ancestors.inspect}"
+    end
+
+
+    # Default Selection rendering method.
+    # Renders via #render_Array_of_Component.
     def render_Selection x, *args
       render x.to_s, *args
     end

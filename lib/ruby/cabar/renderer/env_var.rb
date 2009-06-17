@@ -52,7 +52,7 @@ module Cabar
       end
 
 
-      def render_Array_Component comps, opts = EMPTY_HASH
+      def render_Array_of_Component comps, opts = EMPTY_HASH
         comps.each do | c |
           comment nil
           comment "Cabar component #{c.name}"
@@ -74,7 +74,7 @@ module Cabar
       end
 
 
-      def render_Array_Facet facets, opts = EMPTY_HASH
+      def render_Array_of_Facet facets, opts = EMPTY_HASH
         self.env_var_prefix = ''
 
         facets.each do | facet |
