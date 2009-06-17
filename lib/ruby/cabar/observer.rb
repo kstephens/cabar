@@ -23,6 +23,10 @@ module Cabar
         @notifying = { }
       end
 
+      # FIXME!!
+      #def dup
+      #end
+
       # Adds an observer for an action.
       # If action is nil, the observer observes all actions.
       # callback can be a Proc or a method Symbol.
@@ -58,7 +62,7 @@ module Cabar
       #
       # If the callback is a not a Proc, it is invoked as:
       #
-      #  observer.send(callback, observed, *args)
+      #   observer.send(callback, observed, *args)
       #
       # If action is nil, observers of all actions are notified.
       #

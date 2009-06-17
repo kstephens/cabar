@@ -16,6 +16,7 @@ Cabar::Plugin.new :name => 'cabar/action' do
   #
   # See "cbr action list".
   class Cabar::Facet::Action < Cabar::Facet
+    # The Hash of action names to action commands.
     attr_accessor :action
     
     def component_associations
@@ -76,7 +77,7 @@ Cabar::Plugin.new :name => 'cabar/action' do
         if str =~ /^\s*!exec\s+(\S+)*/
           exec_args = str.split(/\s+/)
           exec_args.shift #get rid of !exec
-          exec_args=exec_args + args
+          exec_args = exec_args + args
           exec *exec_args
         end
         unless args.empty?

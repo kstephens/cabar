@@ -14,7 +14,7 @@ module Cabar
       include Cabar::Observer::Observed
 
       # Cabar::Main object.
-      attr_accessor :context
+      attr_accessor :main
       
       # Cabar::Command::State
       attr_accessor :state
@@ -26,16 +26,17 @@ module Cabar
       attr_accessor :manager
 
       def _logger
-        @context._logger
+        @main._logger
       end
 
       # Returns the Cabar::Command::Manager
       def manager
         @manager ||= 
-          context.commands
+          main.commands
       end
       
       # Parses arguments from command line.
+      # Returns self.
       def parse_args args
         
         state = self.state = State.factory.new
@@ -105,6 +106,7 @@ module Cabar
 
 
       # Executes the selected Command.
+      # Returns the exit_code.
       def run
         cmd = self.cmd
         
@@ -113,6 +115,7 @@ module Cabar
         end
         
         # Command is not executable?
+        # Show the help!
         unless cmd.proc
           parse_args [ 'help', '--error=', 'command has subcommands', *state.cmd_path ]
           return run 
@@ -122,8 +125,8 @@ module Cabar
         # $stderr.puts "original cmd = #{cmd.inspect}"
         cmd = cmd.dup
         
-        # Attach to the context.
-        cmd.main = @context
+        # Attach Command object to Main.
+        cmd.main = self.main
         
         # Merge the current state.
         state.merge! cmd.state

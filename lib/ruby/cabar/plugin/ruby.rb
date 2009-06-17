@@ -7,26 +7,27 @@ Cabar::Plugin.new :name => 'cabar/ruby', :documentation => "Support for Ruby." d
   # Ruby library facet
   #
 
+  def ruby_attr attr
+    ruby_comp =
+      Cabar::Main.current.resolver.required_components['ruby']
+    ruby_comp &&= ruby_comp.size == 1 && ruby_comp.first
+    # $stderr.puts "ruby_comp = #{ruby_comp}"
+    x = ruby_comp && ruby_comp.ruby[attr.to_s]
+  end
+
+
   facet 'lib/ruby', 
     :env_var => :RUBYLIB, 
     :inferrable => true,
     :arch_dir => lambda { | facet |
       # Get the arch_dir 
-      ruby_comp =
-        Cabar::Main.current.resolver.required_components['ruby']
-      ruby_comp &&= ruby_comp.size == 1 && ruby_comp.first
-      # $stderr.puts "ruby_comp = #{ruby_comp}"
-      arch = ruby_comp && ruby_comp.ruby['arch']
+      arch = ruby_attr(:arch)
       # $stderr.puts "arch = #{arch.inspect}"
       arch
     },
     :standard_path_proc => lambda { | facet |
       # Get the standard ruby load_path. 
-      ruby_comp =
-        Cabar::Main.current.resolver.required_components['ruby']
-      ruby_comp &&= ruby_comp.size == 1 && ruby_comp.first
-      # $stderr.puts "ruby_comp = #{ruby_comp}"
-      path = ruby_comp && ruby_comp.ruby['load_path']
+      path = ruby_attr(:load_path)
       # $stderr.puts "path = #{path.inspect}"
       path &&= path.map{|x| x =~ /^\./ ? x : File.expand_path(x) } 
       # $stderr.puts "  path = #{path.inspect}"

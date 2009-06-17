@@ -110,10 +110,15 @@ module Cabar
           # Force loading of plugins.
           resolver.available_components
 
-          @command_runner = Command::Runner.factory.new(:context => self)
+          @command_runner = new_command_runner
           
           @command_runner
         end
+    end
+
+
+    def new_command_runner
+      Command::Runner.factory.new(:main => self)
     end
 
 
