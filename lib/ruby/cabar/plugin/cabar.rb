@@ -21,7 +21,7 @@ DOC
     end
 
   doc "Internals and introspection."
-  cmd_group :cabar do
+  cmd_group [ :cabar, :cbr ] do
     doc "[ - <component> ]
 Starts an interactive shell on Cabar::Main."
     cmd :shell do
@@ -34,7 +34,7 @@ Starts an interactive shell on Cabar::Main."
       err = nil
       while line = Readline.readline(prompt, true)
         begin
-          _ = context.instance_eval do
+          _ = main.instance_eval do
             eval line
           end
           puts _.inspect
