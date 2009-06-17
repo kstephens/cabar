@@ -5,9 +5,19 @@ Cabar::Plugin.new :name => 'cabar/env', :documentation => 'Environment variable 
   facet :env,     :class => Cabar::Facet::EnvVarGroup
   facet :env_var, :class => Cabar::Facet::EnvVar
 
-  doc "[ --verbose ]
+  doc "[ --verbose | --selected ]
 Lists the environment variables for required components
-as a sourceable /bin/sh script."
+as a sourceable /bin/sh script.
+
+Options:
+  --verbose
+  --selected - renders only the selected objects
+
+Examples
+  cbr env - ruby 
+  cbr env - ruby --selected
+  cbr env --selected -T
+"
   cmd :env do
     selection.select_required = true
     selection.to_a

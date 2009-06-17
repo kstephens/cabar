@@ -42,6 +42,15 @@ module Cabar
       end
       
 
+      def render_Selection x
+        if _options[:selected]
+          render x.to_a
+        else
+          render x.resolver
+        end
+      end
+
+
       def render_Array_Component comps, opts = EMPTY_HASH
         comps.each do | c |
           comment nil
@@ -70,11 +79,6 @@ module Cabar
           comment "facet #{facet.key.inspect} owner #{facet.owner}"
           facet.render self
         end
-      end
-
-
-      def render_Selection x
-        render x.resolver
       end
 
 
