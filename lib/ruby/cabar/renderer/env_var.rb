@@ -54,7 +54,10 @@ module Cabar
         self.env_var_prefix = ''
         comment nil
         comment "Cabar General Environment"
-        
+       
+        #render application level env_vars 
+        x.configuration.application_env_vars.each_pair{|k,v|setenv(k,v)}
+        #render facet level env_vars 
         x.facets.values.each do | facet |
           comment nil
           comment "facet #{facet.key.inspect} owner #{facet.owner}"

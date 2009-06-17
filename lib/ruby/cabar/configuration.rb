@@ -112,6 +112,12 @@ module Cabar
     # Path to search for configuration files.
     attr_accessor :config_file_path
 
+    # hash of environment variables specified in the app config
+    attr_accessor :application_env_vars
+    def application_env_vars
+      @application_env_vars||={}
+    end
+
 
     def component_search_path
       config unless @config
@@ -406,8 +412,8 @@ module Cabar
       cfg.cabar_merge!(y)
       
       # Handle environment variables.
-      env = y['cabar']['configuration']['env_var'] || EMPTY_HASH
-      env.each do | k, v |
+      self.application_env_vars.merge!(y['cabar']['configuration']['env_var'] || EMPTY_HASH)
+      application_env_vars.each do | k, v |
         ENV[k] = v
       end
 
