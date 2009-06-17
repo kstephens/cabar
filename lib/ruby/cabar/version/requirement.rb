@@ -131,6 +131,10 @@ class Cabar::Version::Requirement
 
   VERSION_RX_STR = Cabar::Version::VERSION_RX_STR
 
+  RX1 = /^\s*(#{OP_RE})\s*(#{VERSION_RX_STR})\s*$/o
+  RX2 = /^\s*(#{VERSION_RX_STR})\s*$/
+  RX3 = /^\s*(#{OP_RE})\s*$/o
+
   ##
   # Parse the version requirement obj returning the operator and version.
   #
@@ -139,11 +143,11 @@ class Cabar::Version::Requirement
   # first.
   def parse(obj)
     case obj
-    when /^\s*(#{OP_RE})\s*(#{VERSION_RX_STR})\s*$/o then
+    when RX1 then
       [$1, Cabar::Version.new($2)]
-    when /^\s*(#{VERSION_RX_STR})\s*$/ then
+    when RX2 then
       ['=', Cabar::Version.new($1)]
-    when /^\s*(#{OP_RE})\s*$/o then
+    when RX3 then
       [$1, Cabar::Version.new('0')]
     when Cabar::Version then
       ['=', obj]
