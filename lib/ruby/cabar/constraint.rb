@@ -108,7 +108,7 @@ module Cabar
             y = y.gsub("\001", ".*")
             y = y.gsub("\002", ".")
             y = y.gsub("\003", "\\.")
-            y = Regexp.new("^#{y}$") 
+            y = Regexp.new("\A#{y}\Z") 
           end
       end
       # $stderr.puts "#{x.inspect} => #{str.inspect}"

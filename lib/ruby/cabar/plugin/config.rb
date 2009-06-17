@@ -7,7 +7,7 @@ Cabar::Plugin.new :name => 'cabar/config', :documentation => 'Configuration supp
 Show current configuration.
 "
     cmd [ :show, :list ] do
-      puts context.configuration.config_raw.to_yaml
+      puts main.configuration.config_raw.to_yaml
     end
 
   end # cmd_group
