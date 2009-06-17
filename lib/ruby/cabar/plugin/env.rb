@@ -5,10 +5,9 @@ Cabar::Plugin.new :name => 'cabar/env', :documentation => 'Environment variable 
   facet :env,     :class => Cabar::Facet::EnvVarGroup
   facet :env_var, :class => Cabar::Facet::EnvVar
 
-  doc "
+  doc "[ --verbose ]
 Lists the environment variables for required components
-as a sourceable /bin/sh script.
-"
+as a sourceable /bin/sh script."
   cmd :env do
     selection.select_required = true
     selection.to_a

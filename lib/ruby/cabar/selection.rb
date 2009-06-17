@@ -191,10 +191,12 @@ module Cabar
         end
     end
 
+
     def render r
-      resolver.render r
+      r.render self
     end
     
+
     # Delegate other methods to #to_a.
     def method_missing sel, *args, &blk  
       if (target = self.to_a).respond_to?(sel)

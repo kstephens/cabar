@@ -16,16 +16,19 @@ module Cabar
       super
     end
     
+
     def _logger
       @_logger ||=
         Cabar::Logger.new(:name => self.class.name,
                           :delegate => super)
     end
 
+
     # Same as output.puts *args.
     def puts *args
       @output.puts(*args)
     end
+
 
     # Multimethod dispatching based on first argument's
     # ancestors.
@@ -71,7 +74,7 @@ module Cabar
     #
     # Kernel is avoided and namespaces are removed from ancestor names.
     def render_Array x, *args
-      # Get a set of common ancestors.
+      # Get a set of common ancestors of all elements.
       ancestors = x.inject(x.first.class.ancestors) do | a, xi | 
         a & xi.class.ancestors
       end
@@ -83,7 +86,12 @@ module Cabar
         return send(meth, x, *args) if respond_to? meth
       end
 
-      raise ArgumentError, "Cannot find render_Array_* for #{x.class}"
+      raise ArgumentError, "Cannot find render_Array_* for #{x.class} using common ancestors #{ancestors.inspect}"
+    end
+
+
+    def render_Selection x, *args
+      render x.to_s, *args
     end
 
   end # class

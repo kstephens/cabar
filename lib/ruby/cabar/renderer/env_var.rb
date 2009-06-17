@@ -32,10 +32,22 @@ module Cabar
         setenv "TOP_LEVEL_COMPONENTS", x.top_level_components.map{ | c | c.name }.join(" ")
         
         setenv "REQUIRED_COMPONENTS", comps.map{ | c | c.name }.join(" ")
+        render comps
+
+        self.env_var_prefix = ''
+        comment nil
+        comment "Cabar General Environment"
+        
+        render x.facets.values
+      end
+      
+
+      def render_Array_Component comps, opts = EMPTY_HASH
         comps.each do | c |
           comment nil
           comment "Cabar component #{c.name}"
           self.env_var_prefix = "CABAR_#{c.name}_"
+          setenv :NAME, c.name
           setenv :VERSION, c.version
           setenv :DIRECTORY, c.directory
           setenv :BASE_DIRECTORY, c.base_directory
@@ -47,21 +59,25 @@ module Cabar
           c.configuration.each do | k, v |
             comment "config #{k.to_s.inspect}"
             setenv "CONFIG_#{k}", "#{v}"
-          end
-          
+          end          
         end
-        
-        self.env_var_prefix = ''
-        comment nil
-        comment "Cabar General Environment"
-        
-        x.facets.values.each do | facet |
+      end
+
+
+      def render_Array_Facet facets, opts = EMPTY_HASH
+        facets.each do | facet |
           comment nil
           comment "facet #{facet.key.inspect} owner #{facet.owner}"
           facet.render self
         end
       end
-      
+
+
+      def render_Selection x
+        render x.resolver
+      end
+
+
       # Low-level rendering.
       
       # Renders a comment if verbose.
