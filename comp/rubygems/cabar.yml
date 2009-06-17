@@ -12,11 +12,15 @@
   else 
     rubygems_info = { :installed => false }
   end
-#  require 'pp'	  
-#  pp rubygems_info
   # Jer: WHAT IS THIS WORKING-AROUND? -- kurt 2009/06/15
   # This entire mechanisim for introspecting on rubygems is flawed, it happens too early in
   # in the component resolution. -- Jer
+  # How about breaking the plugin up into 2 pieces:  
+  # 1 for the rubygems ENV var,
+  # and 1 for the interface to the gem path.  
+  # We can have 1 plugin depend on the other, and verify the either
+  # the system or the rubygems lib contains a rubygem implementation
+  # before we realize the gem facet
   rubygems_info[:installed] = true
  %>
 cabar:
