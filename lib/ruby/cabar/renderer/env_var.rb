@@ -15,10 +15,12 @@ module Cabar
         super
       end
 
+
       # Calls Cabar.path_sep.
       def path_sep
         Cabar.path_sep
       end
+
 
       # Renders a Resolver object,
       # Using the Resolver's current required_components_dependencies.
@@ -34,7 +36,6 @@ module Cabar
         setenv "REQUIRED_COMPONENTS", comps.map{ | c | c.name }.join(" ")
         render comps
 
-        self.env_var_prefix = ''
         comment nil
         comment "Cabar General Environment"
         
@@ -74,6 +75,8 @@ module Cabar
 
 
       def render_Array_Facet facets, opts = EMPTY_HASH
+        self.env_var_prefix = ''
+
         facets.each do | facet |
           comment nil
           comment "facet #{facet.key.inspect} owner #{facet.owner}"
@@ -99,6 +102,7 @@ module Cabar
       def normalize_env_name name
         name = name.to_s.gsub(/[^A-Z0-9_]/i, '_')
       end
+
 
       # Render a basic environment variable set.
       def setenv name, val
