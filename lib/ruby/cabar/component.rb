@@ -67,8 +67,8 @@ module Cabar
     
     # Associations.
     
-    # The Resolver object.
-    attr_accessor :resolver
+    # The Loader object that loaded this Component.
+    attr_accessor :_loader
 
     # A list of all Facets in the Component.
     attr_reader :facets
@@ -203,6 +203,9 @@ module Cabar
       self
     end
     
+
+    # Validates the Component.
+    # See Resolver#validate_components!
     def validate! resolver
       requires.each do | r |
         r.validate! resolver
@@ -391,7 +394,7 @@ module Cabar
     end
 
     # Called when a new facet is attached to this component.
-    def attach_facet! f, resolver
+    def attach_facet! f
       return f unless f
 
       notify_observers :before_attach_facet!, f
@@ -426,7 +429,7 @@ module Cabar
       return f unless f
       
       f.owner = self
-      f.resolver = resolver # FIXME
+      f._loader ||= self._loader
 
       # Attach inferrable Facets only if inferred.
       attach = true
@@ -437,7 +440,7 @@ module Cabar
         attach = false
       end
 
-      f.attach_component!(self, resolver) if attach 
+      f.attach_component!(self) if attach 
 
       f
     end

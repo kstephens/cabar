@@ -1,7 +1,7 @@
 #!/usr/bin/env cbr-run
 #!ruby
 
-puts Cabar::Resolver.current
+puts Cabar::Main.resolver
 
 puts ENV.inspect
 

@@ -90,6 +90,7 @@ END
       x
     end
 
+
     # Deepens any @_option elements.
     # Subclasses may need to override and call super.
     def deepen_dup!
@@ -102,6 +103,7 @@ END
       end
       self
     end
+
 
     # Returns @_options[sel] if it exists.
     def method_missing sel, *args, &blk

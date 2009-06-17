@@ -3,7 +3,6 @@ require 'cabar/base'
 require 'cabar/version'
 require 'cabar/version/requirement'
 require 'cabar/version/set'
-require 'cabar/resolver'
 require 'cabar/renderer'
 require 'cabar/facet'
 require 'cabar/facet/standard'
@@ -11,8 +10,6 @@ require 'cabar/relationship'
 require 'cabar/component'
 require 'cabar/component/set'
 
-require 'cabar/configuration'
-require 'cabar/loader'
 require 'cabar/facet'
 require 'cabar/observer'
 require 'cabar/sort'
@@ -33,6 +30,13 @@ module Cabar
     # The Cabar::Main object.
     attr_accessor :main
 
+    # The Cabar::Configuration object.
+    attr_accessor :configuration
+
+    # The Cabar::Loader object.
+    # Defaults to main.loader.
+    attr_accessor :loader
+
     # Set of all components availiable.
     attr_reader :available_components
 
@@ -47,16 +51,6 @@ module Cabar
 
     # Set of components that are unresolved due to constraints.
     attr_reader :unresolved_components
-
-    def self.current
-      @@current
-    end
-    def self.current= x
-      @@current = x
-    end
-    def make_current!
-      Cabar::Resolver.current = self
-    end
 
 
     def initialize opts = EMPTY_HASH
@@ -112,6 +106,7 @@ module Cabar
     #
 
     # Creates a new Selection associated with this Resolver.
+    # FIXME: This should clone self.
     def selection opts = nil
       opts ||= { }
       opts[:resolver] = self
@@ -123,21 +118,9 @@ module Cabar
     # Configuration
     #
 
-    # Returns the Cabar::Configuration object.
     def configuration
-      @configuration ||= 
-        Cabar::Configuration.new
-    end
-
-    # Returns the configuration hash.
-    def config
-      configuration.config
-    end
-
-    # Returns the entire configuration Hash,
-    # including the cabar version header).
-    def config_raw
-      configuration.config_raw
+      @configuration ||=
+        main.configuration
     end
 
     # Applies the current configuration to this Resolver.
@@ -146,7 +129,7 @@ module Cabar
     end
 
     # Applies the component requires configuration to this Resolver.
-    # This will try CABAR_TOP_LEVEL environment variable
+    # This will try CABAR_REQUIRE environment variable
     # first.
     # If not defined, apply the configuration file's
     # component require contraint options.
@@ -166,14 +149,10 @@ module Cabar
     # Loading Components.
     #
 
-    # Returns the component loader.
     def loader
-      @loader ||= 
-        Cabar::Loader.factory.new(:resolver => self).
-        # Prime the component search path queue.
-        add_component_search_path!(configuration.component_search_path)
+      @loader ||=
+        main.loader
     end
-
 
     # Force loading of a component directory.
     # Used to force cabar to load itself.
@@ -582,7 +561,6 @@ END
               f
             else
               f = coll[facet.key] = facet.dup
-              f.resolver = self
               f.owner = c
             end
           else
@@ -623,14 +601,12 @@ END
         end
       end
 
-
       # Append the facet's default_path to the end 
       # of the collected facets.
       coll.each do | facet_key, f |
         fp = Facet.proto_by_key(facet_key)
         if fp.is_composable? && fp.standard_path_proc
           f_standard = f.dup
-          f_standard.resolver = self
           f_standard.owner = self
           f_standard.abs_path = f.standard_path
           # $stderr.puts "  f_default #{facet_key.inspect} = #{f_standard.abs_path.inspect}"
@@ -667,6 +643,11 @@ END
       validate_components!
       r.render self
       r
+    end
+
+
+    def inspect
+      to_s
     end
 
   end # class

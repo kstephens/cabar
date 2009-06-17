@@ -94,6 +94,13 @@ module Cabar
           @avail.select(:name => name)
       end
 
+
+      # Returns the size of the set.
+      def size
+        to_a.size
+      end
+
+
       # Returns a set of components by name or contrstaint.
       def [](constraint)
         return constraint unless constraint

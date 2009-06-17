@@ -58,10 +58,11 @@ module Cabar
       end
       
       # Returns the resolved Component for this dependency.
-      def resolved_component
+      def resolved_component(resolver = nil)
         @resolved_component ||= 
           begin 
-            
+            raise TypeError, 'no resolver' unless resolver
+
             if c = resolver.resolve_component(to_constraint)
               resolved_component!(c, resolver)
             end
@@ -101,7 +102,7 @@ module Cabar
         
         resolver.select_component to_constraint
         
-        if r = resolved_component
+        if r = resolved_component(resolver)
           resolver._require_component(r)
         end
       end
@@ -114,7 +115,7 @@ module Cabar
         return if @_resolve_component
         @_resolve_component = true
         
-        if c = resolved_component
+        if c = resolved_component(resolver)
           c.select_component! resolver
         end
       end
@@ -127,7 +128,7 @@ module Cabar
         return if @_require_component
         @_require_component = true
         
-        unless resolved_component
+        unless resolved_component(resolver)
           if c = resolver._require_component(to_constraint) 
             @resolved_component = c
           else
@@ -144,13 +145,13 @@ module Cabar
       
       # Will fail of dependency cannot be resolved.
       def validate! resolver
-        if resolved_component.nil?
+        if resolved_component(resolver).nil?
           raise("Cannot resolve component for #{self.inspect}") 
         end
       end
       
       def to_a
-        c = resolved_component
+        c = @resolved_component
         super +
           [
            [ :version,   version.to_s ],

@@ -1,6 +1,5 @@
 require 'cabar/base'
 
-require 'cabar/configuration'
 require 'cabar/component'
 require 'cabar/observer'
 
@@ -15,13 +14,24 @@ module Cabar
   class Loader < Base
     include Cabar::Observer::Observed
 
-    # The Cabar::Resolver to load Components into.
-    attr_accessor :resolver
+    # The Cabar::Main object.
+    attr_accessor :main
 
+    # The Cabar::Configuration object.
+    attr_accessor :configuration
+
+    # The Cabar::Resolver to load Components into.
+    # attr_accessor :resolver
+
+    # The directories to search for Components.
     attr_reader :component_search_path
+
+    # The component directories parsed.
     attr_reader :component_directories
   
+    # Cabar::Version::Set of available Components.
     attr_reader :available_components
+
 
     def initialize opts = EMPTY_HASH
       @component_search_path = [ ]
@@ -29,15 +39,20 @@ module Cabar
       @component_directories = [ ]
       @component_directories_pending = [ ]
       @component_parse_pending = [ ]
-     super
+      super
+
+      raise TypeError, "main is not defined" unless Main === main
     end
+
 
     def _logger
       @_logger ||=
         Cabar::Logger.new(:name => :loader, 
-                          :delegate => @resolver.main._logger)
+                          :delegate => (main || Main.current)._logger)
     end
 
+
+    # Returns self.
     def add_component_search_path! path, opts = nil
       opts ||= EMPTY_HASH
 
@@ -70,6 +85,7 @@ module Cabar
       self
     end
 
+
     def add_component_directory! path
       path = Cabar.path_expand(path)
       return self if @component_directories.include? path
@@ -78,16 +94,18 @@ module Cabar
       self
     end
 
+
     # Force loading of a component directory.
     def load_component! directory, opts = nil
       add_component_search_path!("@#{directory}", opts)
     end
 
+
     # Load components from the component_search_path
     # and component_directory queues.
     #
     # A queue is used because some components
-    # may add addition component search paths during
+    # may add component search paths during
     # loading, to implement recursive component repositories.
     #
     def load_components!
@@ -134,6 +152,7 @@ module Cabar
       notify_observers(:after_load_components!)
 
       self
+
     rescue Exception => err
       raise Error.new('Loading components', 
                       :error => err, 
@@ -141,6 +160,7 @@ module Cabar
                       :pending_paths => @component_search_path_pending,
                       :pending_directories => @component_directories_pending)
     end
+
 
     # Returns a list of all component directories.
     def search_for_component_directories *path
@@ -183,7 +203,7 @@ module Cabar
     ##################################################################
 
     #
-    # Returns a set of all availabe components
+    # Returns a set of all available Components
     # found through the component_directories search path.
     #
     def available_components
@@ -198,22 +218,33 @@ module Cabar
 
     # Called when a component has been added.
     def add_available_component! c
-      @available_components << c
-      @component_parse_pending << c
-      notify_observers(:available_component_added!, c)
+      unless @available_components.include?(c)
+        @available_components << c
+        @component_parse_pending << c
+        notify_observers(:available_component_added!, c)
+      end
     end
 
 
     # Helper method to create a Component.
     def create_component opts
+      opts[:_loader] = self
       c = Component.factory.new opts
-      c.resolver = @resolver # YUCK! components know about Resolvers.
+      # c.resolver = self.resolver # YUCK! components know about Resolvers.
       c
     end
+
+
+    def inspect
+      "#<#{self.class}:#{'0x%0x' % self.object_id}>"
+    end
+    
 
 private
 
     def parse_component_config directory, conf_file = nil
+      raise TypeError, "main is not defined" unless Main === main
+
       conf_file ||= 
         File.join(directory, "cabar.yml")
       
@@ -221,7 +252,7 @@ private
         "  loading #{conf_file.inspect}"
       end
 
-      conf = @resolver.configuration.read_config_file conf_file
+      conf = configuration.read_config_file conf_file
       conf = conf['cabar']
       
       # Enabled?
@@ -261,7 +292,7 @@ private
       end
       
       # Handle plugins.
-      # Use component name as the default name.
+      # Use component name as the default Plugin name.
       if plugin = conf['plugin']
         begin
           plugin = [ plugin ] unless Array === plugin
@@ -269,7 +300,7 @@ private
           save_name = Cabar::Plugin.default_name = name
 
           # Observe when plugins are installed.
-          Cabar::Main.current.plugin_manager.add_observer(self, :plugin_installed, :plugin_installed!)
+          main.plugin_manager.add_observer(self, :plugin_installed, :plugin_installed!)
 
           plugin.each do | file |
             next unless file
@@ -288,7 +319,7 @@ private
           end
         ensure
           Cabar::Plugin.default_name = save_name
-          Cabar::Main.current.plugin_manager.delete_observer(self, :plugin_installed)
+          main.plugin_manager.delete_observer(self, :plugin_installed)
         end
       end
 
@@ -299,6 +330,7 @@ private
       [ conf, comps, conf_file ]
     end
 
+
     # Observer callback for newly installed plugins.
     def plugin_installed! plugin_manager, plugin
       _logger.debug do
@@ -306,6 +338,7 @@ private
       end
       (@plugins ||= [ ]) << plugin
     end
+
 
     def parse_component! directory, conf_file = nil
       # The component.
@@ -326,7 +359,7 @@ private
       comps.each do | name, opts |
         # Overlay configuration.
         comp_config = 
-          (x = resolver.configuration.config['component']) && 
+          (x = configuration.config['component']) && 
           x['configure']
         comp_config ||= EMPTY_HASH
         comp_config = comp_config[name] || EMPTY_HASH
@@ -340,7 +373,8 @@ private
         opts[:_config_file] = conf_file
         opts[:plugins] = @plugins
         # puts "comp opts #{name.inspect} => "; pp opts
-        opts[:resolver] = self # HUH: is this right?
+        opts[:_loader] = self
+        # opts[:resolver] = self # HUH: is this right?
 
         comp = create_component opts
         
@@ -394,7 +428,7 @@ private
       # Infer component name/version from directory name.
       unless comps['name'] && comps['version']
         case directory
-          # name/version
+          # name/version OR name-version
         when /\/([a-z_][^\/]*)[\/-]([0-9]+(\.[0-9])*)$/i
           comps['name'] ||= $1
           comps['version'] ||= $2
@@ -414,7 +448,7 @@ private
       String === str && ! str.empty?
     end
 
-    
+
   end # class
 
 end # module

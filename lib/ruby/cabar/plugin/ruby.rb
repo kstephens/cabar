@@ -13,9 +13,7 @@ Cabar::Plugin.new :name => 'cabar/ruby', :documentation => "Support for Ruby." d
     :arch_dir => lambda { | facet |
       # Get the arch_dir 
       ruby_comp =
-        facet.
-        resolver.
-        required_components['ruby']
+        Cabar::Main.current.resolver.required_components['ruby']
       ruby_comp &&= ruby_comp.size == 1 && ruby_comp.first
       # $stderr.puts "ruby_comp = #{ruby_comp}"
       arch = ruby_comp && ruby_comp.ruby['arch']
@@ -25,9 +23,7 @@ Cabar::Plugin.new :name => 'cabar/ruby', :documentation => "Support for Ruby." d
     :standard_path_proc => lambda { | facet |
       # Get the standard ruby load_path. 
       ruby_comp =
-        facet.
-        resolver.
-        required_components['ruby']
+        Cabar::Main.current.resolver.required_components['ruby']
       ruby_comp &&= ruby_comp.size == 1 && ruby_comp.first
       # $stderr.puts "ruby_comp = #{ruby_comp}"
       path = ruby_comp && ruby_comp.ruby['load_path']
@@ -35,7 +31,7 @@ Cabar::Plugin.new :name => 'cabar/ruby', :documentation => "Support for Ruby." d
       path &&= path.map{|x| x =~ /^\./ ? x : File.expand_path(x) } 
       # $stderr.puts "  path = #{path.inspect}"
       path
-   }
+    }
 
 
   cmd_group :ruby do

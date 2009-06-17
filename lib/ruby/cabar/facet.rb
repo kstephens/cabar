@@ -28,10 +28,10 @@ module Cabar
     # The prototype used to create this object.
     attr_accessor :_proto
 
-    # The plugin that defined this facet.
+    # The Plugin that defined this Facet.
     attr_accessor :_defined_in
 
-    # True if the facet is inferrable.
+    # True if the Facet is inferrable.
     attr_accessor :inferrable
     alias :inferrable? :inferrable
 
@@ -39,29 +39,34 @@ module Cabar
     attr_accessor :owner
     alias :component :owner
 
-    # The Resolver object.
-    attr_accessor :resolver
+    # The Loader object.
+    attr_accessor :_loader
 
     # The configuration hash.
     attr_accessor :configuration
+
 
     def initialize *args
       @inferrable = false
       super
     end
 
+
     @@key_to_proto = { }
+
 
     # Returns all the current Facet prototype object.
     def self.prototypes
       @@key_to_proto.values
     end
 
+
     # Returns the Facet prototype by its key.
     def self.proto_by_key key
       key = key.to_s
       @@key_to_proto[key]
     end
+
 
     # Registers a Facet prototype by its key.
     def self.register_prototype facet_proto, key = nil
@@ -76,6 +81,7 @@ module Cabar
         @@key_to_proto[key] ||= facet_proto
       end
     end
+
 
     # Returns true if the Facet is actually inferred.
     def infer?
@@ -93,10 +99,12 @@ module Cabar
       result
     end
 
+
     # Returns true if Facet is inferred by some component attribute.
     def inferred?
       false
     end
+
 
     # Expands String in context of the Facet's Component.
     def expand_string str
@@ -135,6 +143,7 @@ module Cabar
       self
     end
 
+
     # Creates a new Facet instance by cloning a Facet prototype.
     def self.create proto_name, conf = EMPTY_HASH, opts = EMPTY_HASH
       _logger.debug2 do
@@ -160,7 +169,7 @@ module Cabar
         return nil if proto.configure_early?
       end
 
-      # Ask prototype to reformat its configuration options.
+      # Ask prototype to reformat and normalize its configuration options.
       # $stderr.puts "\nconf = #{conf.inspect}"
       conf = proto._reformat_options! conf
       # $stderr.puts "\nconf = #{conf.inspect}"
@@ -183,7 +192,9 @@ module Cabar
       obj
     end
 
+
     DISABLED_HASH = { :enabled => false }.freeze
+
 
     def _reformat_options! opts
       # Handle short-hand options.
@@ -204,23 +215,28 @@ module Cabar
       x
     end
 
+
     def to_s
       @key.to_s
     end
+
 
 #    def <=> f
 #      @key <=> f.key
 #    end
 
-    # Returns true if the Facet is composable across components.
+
+    # Returns true if the Facet is composable across Components.
     def is_composable?
       true
     end
+
 
     # Returns true if the Facet can be configured early.
     def configure_early?
       false
     end
+
 
     # Returns true if the Facet is enabled.
     def enabled?
@@ -228,14 +244,16 @@ module Cabar
       o[:enabled].nil? || o[:enabled]
     end
 
+
     # Called when a Facet is going to be attached
     # to a Component.
     # Subclasses may override this.
-    def attach_component! c, resolver
-      c.attach_facet!(self, resolver)
+    def attach_component! c
+      c.attach_facet!(self)
     end
 
     # Called to compose Facets across Components.
+    #
     # For example: module search paths from each Component
     # might be concatenated.
     #
@@ -244,11 +262,13 @@ module Cabar
       raise "not implemented"
     end
 
+
     # Render the Facet with the Renderer.
     #
     # Subclasses may override this.
     def render r
     end
+
 
     # Ask the Facet to selected any Components that
     # it constrains.
@@ -257,12 +277,14 @@ module Cabar
     def select_component! resolver
     end
 
+
     # Ask the Facet to resolve and Components that
     # it may depend on.
     #
     # Subclasses may override this.
     def resolve_component! resolver
     end
+
 
     # Ask the Facet to require and any Components that
     # it may depend on.
@@ -271,10 +293,12 @@ module Cabar
     def require_component! resolver
     end
 
+
     # Called when a component owning this facet
     # has resolved component dependency.
     def component_dependency_resolved! resolver
     end
+
 
     # Used for YAML formatting and general inspection.
     #

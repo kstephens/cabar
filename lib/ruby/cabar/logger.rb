@@ -4,22 +4,39 @@ module Cabar
 
   # Common logger.
   class Logger < Base
+    # The Logger to delegate to.
     attr_accessor :delegate
 
-    def initialize opts = EMPTY_HASH
-      @levels = {
+    # The mapping between Symbols and levels.
+    attr_accessor :levels
+
+    # The IO stream to write to.
+    attr_accessor :output
+
+    
+    # The default logger level Hash.
+    # Can be modified.
+    def self.default_levels
+      @@default_levels ||= {
         :fatal   => 1,
         :error   => 2,
         :warn    => 3,
         :info    => 4,
         :verbose => 5,
         :debug1  => 6,
-        :debug   => 6,
-        :debug2  => 7,
-        :debug3  => 8,
-        :debug4  => 9,
+        :debug   => 7,
+        :debug2  => 8,
+        :debug3  => 9,
+        :debug4  => 10,
       }
+    end
+
+
+    def initialize opts = EMPTY_HASH
+      @levels = Logger.default_levels
+
       super
+
       # Default level.
       @level ||= 
         ENV['CABAR_LOG_LEVEL'] || 
@@ -45,6 +62,7 @@ module Cabar
       end
     end
 
+
     # Options:
     #
     # :force  -- output regardless of current log level. 
@@ -61,6 +79,7 @@ module Cabar
       end
     end
     
+
     # Log raw message to delegate our output.
     def log_raw(level, msg, opts = EMPTY_HASH)
       msg = [ msg ] unless Array === msg
@@ -95,6 +114,7 @@ module Cabar
       end
     end
 
+
     class Null < self
       def method_missing sel, *args, &blk
         if @levels[sel]
@@ -104,8 +124,10 @@ module Cabar
         end
       end
 
+
       def log_at_level *args
       end
+
 
       def log_raw *args
       end
