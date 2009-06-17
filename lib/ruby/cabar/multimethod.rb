@@ -43,7 +43,11 @@ module Cabar
     #   x = [ 4, 4.5 ]
     #   rcvr.render x, :xyz
     #
-    # Would send to the first method where self.respond_to? is true.
+    # Dispatches to:
+    #
+    #   rcvr.render_Array x, :xyz
+    #
+    # Which will send to the first method where self.respond_to? is true:
     #
     #   rcvr.render_Array_of_Precision x, :xyz
     #   rcvr.render_Array_of_Numeric x, :xyz
@@ -55,7 +59,11 @@ module Cabar
     #   x = { :a=> 4, :b => 4.5 }
     #   rcvr.render x, :xyz
     #
-    # Would send to the first method where self.respond_to? is true.
+    # Dispatches to:
+    #
+    #   rcvr.render_Hash x, :xyz
+    #
+    # Which would send to the first method where self.respond_to? is true:
     #
     #   rcvr.render_Hash_of_Symbol_and_Precision x, :xyz
     #   rcvr.render_Hash_of_Symbol_and_Numeric x, :xyz

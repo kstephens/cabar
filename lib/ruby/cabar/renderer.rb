@@ -36,8 +36,9 @@ module Cabar
     # Define render_* dispatching methods.
     multimethod :render
 
+
     # Default Selection rendering method.
-    # Renders via #render_Array_of_Component.
+    # Renders via #render_Array_of_Component on Selection#to_a.
     def render_Selection x, *args
       render x.to_s, *args
     end
