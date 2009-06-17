@@ -15,7 +15,7 @@ as a sourceable /bin/sh script.
     
     r = Cabar::Renderer::ShellScript.new cmd_opts
     
-    context.render r
+    selection.resolver.render r
   end # cmd
 
 end # plugin
