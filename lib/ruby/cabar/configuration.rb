@@ -1,12 +1,10 @@
 require 'cabar/base'
 require 'cabar/error'
-
+require 'cabar/file' # File.cabar_expand_softlink
 
 require 'cabar/version/requirement'
 require 'cabar/command/runner'
-require 'yaml'
-require 'ostruct'
-require 'erb'
+require 'cabar/yaml' # Cabar::Yaml::Loader
 
 
 module Cabar
@@ -120,6 +118,8 @@ module Cabar
 
     
     def initialize opts = EMPTY_HASH
+      @yaml_loader = Cabar::Yaml::Loader.new
+
       super
       self.config_file_path      = ENV['CABAR_CONFIG'] || '~/.cabar_conf.yml'
 
@@ -300,6 +300,7 @@ module Cabar
       x
     end
     
+
     # Returns the configuration Hash overlayed from all YAML documents
     # listed in config_file_path.
     def config
@@ -418,36 +419,16 @@ module Cabar
       raise Error, "Problem reading config file #{file.inspect}: #{err.inspect}"
     end
 
+
     # Read a YAML file after processing it as an ERB template and initializing config OpenStruct.
     # Use:
     # 
     def read_config_file file
-      file = File.expand_path(file)
+      cfg = @yaml_loader.read_erb_yaml(file, 'configuration' => self)
 
-      # File.readlink does not iteratively expand symlinks as you would expect.
-      # "Neither does this." -- Kurt
-      file_readlink = file
-      file_readlink = File.readlink(file_readlink) while File.symlink?(file_readlink)
-      cfg = nil
-
-      File.open(file) do | fh |
-        # ERb Interface.
-        cabar = OpenStruct.new('current_file'      => file,
-	                       'current_file_points_to' => file_readlink,
-                               'current_directory' => File.dirname(file),
-			       'current_directory_points_to' => File.dirname(file_readlink),
-                               'configuration'     => self)
-
-        template = ERB.new fh.read
-        yaml = template.result binding
-        cfg = YAML::load yaml
-
-        validate_yaml_hash cfg
-      end
+      validate_yaml_hash cfg
 
       cfg
-    rescue Exception => err
-      raise Error, "Problem reading config file #{file.inspect}: #{err.inspect}"
     end
 
 
