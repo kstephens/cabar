@@ -63,15 +63,23 @@ module Cabar
     end
 
 
+    # If msg is nil, the msg is the yield of the block given.
+    #
     # Options:
     #
     # :force  -- output regardless of current log level. 
     # :prefix -- do not generate standard prefix.
     # :write  -- use write and flush, instead of puts.
     #
-    def log_at_level(level, msg = nil, opts = EMPTY_HASH)
+    def log_at_level(level, msg = nil, opts = nil)
+      if ! opts && Hash === msg 
+        opts = msg
+        msg = nil
+      end
+      opts ||= EMPTY_HASH
+
       if @level >= @levels[level] || opts[:force]
-        if msg == nil && block_given?
+        if msg == nil
           msg = yield
         end
         
@@ -115,6 +123,7 @@ module Cabar
     end
 
 
+    # A Null Logger that generates no output.
     class Null < self
       def method_missing sel, *args, &blk
         if @levels[sel]
@@ -137,13 +146,13 @@ module Cabar
 
   class Base 
     # Returns the current Main object's Logger.
-    # Subclasses should override this method.
+    # Subclasses can override this method.
     def self._logger
       Cabar::Main.current._logger
     end
 
     # Returns the current Main object's Logger.
-    # Subclasses should override this method.
+    # Subclasses can override this method.
     def _logger
       Cabar::Main.current._logger
     end
