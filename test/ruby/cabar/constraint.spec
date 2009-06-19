@@ -47,6 +47,10 @@ describe Cabar::Constraint do
     constraint_count({ :name => "foo" }, 3)
   end
 
+  it "should generate a correct Regexp for foo*" do
+    Cabar::Constraint.string_to_matcher('foo*').inspect.should == "/\\Afoo.*\\Z/"
+  end
+
   it "should match 'foo*'" do
     constraint_count 'foo*', 4
   end
