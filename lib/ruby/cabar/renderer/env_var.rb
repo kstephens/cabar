@@ -38,7 +38,7 @@ module Cabar
 
         render x.facets.values
         
-        render_configuration_env_vars x.resolver.configuration
+        render_configuration_env_var x.resolver.configuration
       end
       
 
@@ -47,7 +47,7 @@ module Cabar
           comment "Cabar Selection Environment"
           setenv "SELECTED_COMPONENTS", x.map{ | c | c.name }.join(" ")
           render x.to_a
-          render_configuration_env_vars x.resolver.configuration
+          render_configuration_env_var x.resolver.configuration
         else
           render x.resolver
         end
@@ -91,11 +91,11 @@ module Cabar
       end
 
 
-      # render application level env_vars
-      def render_configuration_env_vars configuration
+      # render configuration.env_var
+      def render_configuration_env_var configuration
         comment nil
         comment "Cabar Configuration Environment"
-        configuration.application_env_vars.each do | k, v |
+        configuration.env_var.each do | k, v |
           setenv k, v
         end
       end
