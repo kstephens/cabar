@@ -104,6 +104,9 @@ Example:
             begin
               x = `ruby -r rubygems -e 'puts Gem.path.inspect' 2>/dev/null`.chomp
               x = $?.success? ? eval(x) : [ ] # WHAT TO DO IF THIS FAILS? -- kurt 2009/06/15
+              # Do we need to do anything?  This means you didn't have a GEM_PATH we could figure out
+              # We should either punt entirely (raise) or assume gem will handle it.
+              # I'd prefer we assume gem will take care of it. --jwl 2009/06/16
               Cabar.path_join(x)
             end
 

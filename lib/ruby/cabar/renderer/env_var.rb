@@ -26,7 +26,7 @@ module Cabar
       # Using the Resolver's current required_components_dependencies.
       #
       def render_Resolver x
-        comment "Cabar config"
+        comment "Cabar Resolver Environment"
 
         comps = x.required_component_dependencies
         
@@ -36,16 +36,17 @@ module Cabar
         setenv "REQUIRED_COMPONENTS", comps.map{ | c | c.name }.join(" ")
         render comps
 
-        comment nil
-        comment "Cabar General Environment"
-        
         render x.facets.values
+        
+        render_configuration_env_vars x.resolver.configuration
       end
       
 
       def render_Selection x
         if _options[:selected]
+          comment "Cabar Selection Environment"
           render x.to_a
+          render_configuration_env_vars x.resolver.configuration
         else
           render x.resolver
         end
@@ -53,6 +54,9 @@ module Cabar
 
 
       def render_Array_of_Component comps, opts = EMPTY_HASH
+        comment nil
+        comment "Cabar Component Environment"
+
         comps.each do | c |
           comment nil
           comment "Cabar component #{c.name}"
@@ -75,8 +79,9 @@ module Cabar
 
 
       def render_Array_of_Facet facets, opts = EMPTY_HASH
+        comment nil
+        comment "Cabar Facet Environment"        
         self.env_var_prefix = ''
-
         facets.each do | facet |
           comment nil
           comment "facet #{facet.key.inspect} owner #{facet.owner}"
@@ -84,6 +89,15 @@ module Cabar
         end
       end
 
+
+      # render application level env_vars
+      def render_configuration_env_vars configuration
+        comment nil
+        comment "Cabar Configuration Environment"
+        configuration.application_env_vars.each do | k, v |
+          setenv k, v
+        end
+      end
 
       # Low-level rendering.
       
