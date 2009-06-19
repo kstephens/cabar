@@ -12,7 +12,9 @@ cabar:
     bin: true
     lib/ruby: true
     components: 
-      path: 'comp'
+      path: 
+        - 'comp'
+        - 'contrib'
     action:
       test: 'rake test'
       show_env: '/usr/bin/env | sort'
