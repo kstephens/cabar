@@ -42,7 +42,7 @@ module Cabar
     end
 
     # Format a Error in cabar YAML format.
-    def self.cabar_format err
+    def self.cabar_format err, opt = EMPTY_HASH
       msg = [ ]
 
       msg << Cabar.yaml_header(:error)

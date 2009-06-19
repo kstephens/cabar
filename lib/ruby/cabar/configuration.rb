@@ -111,6 +111,8 @@ module Cabar
     attr_accessor :config_file_path
 
     # Hash of environment variables specified in the app config.
+    # These are merged from all the config files as loaded.
+    # See cabar: configuration: env_var: in the cabar config YAML files.
     attr_accessor :env_var
     def env_var
       @env_var ||= { }
@@ -415,7 +417,11 @@ module Cabar
       # Handle environment variables.
       env_var.merge!(y['cabar']['configuration']['env_var'] || EMPTY_HASH)
       env_var.each do | k, v |
-        ENV[k] = v
+        if v == nil
+          ENV.delete(k)
+        else
+          ENV[k] = v
+        end
       end
 
       _logger.info { "config: loading #{file.inspect}: DONE" }

@@ -12,5 +12,6 @@ cabar:
     env_var:
       TEST1: test1
       TEST2: test2
+      TEST3: ~
 
 

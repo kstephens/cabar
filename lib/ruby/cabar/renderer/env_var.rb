@@ -123,7 +123,7 @@ module Cabar
       def setenv name, val
         name = normalize_env_name name
         name = name.to_s
-        val = val.to_s
+        val = val.nil? ? val : val.to_s
         if env_var_prefix == ''
           _setenv "CABAR_ENV_#{name}", val
         end
@@ -132,6 +132,7 @@ module Cabar
 
 
       # Renders low-level environment variable set.
+      # If val is nil, the environment variable is unset.
       # Subclass should override this.
       def _setenv name, val
         # NOTHING
@@ -142,6 +143,8 @@ module Cabar
     
     # Renders environment variables directly into
     # this Ruby process.
+    #
+    # $: is modified if RUBYLIB is defined.
     class InMemory < EnvVar
       def initialize *args
         @env = ENV
@@ -163,9 +166,13 @@ module Cabar
         if (v = @env[name]) && ! @env[save_name = "CABAR_BEFORE_#{name}"]
           @env[save_name] = v
         end
-        @env[name] = val
+        if val == nil
+          @env.delete(name)
+        else
+          @env[name] = val
+        end
 
-        if name == 'RUBYLIB' && @env.object_id == ENV.object_id
+        if name == 'RUBYLIB' && @env.object_id == ENV.object_id && val != nil
           $:.clear
           $:.push(*Cabar.path_split(val))
           # $stderr.puts "Changed $: => #{$:.inspect}"
@@ -178,7 +185,11 @@ module Cabar
     class ShellScript < EnvVar
       def _setenv name, val 
         name = normalize_env_name name
-        puts "#{name}=#{val.inspect}; export #{name};"
+        if val == nil
+          puts "unset #{name};"
+        else
+          puts "#{name}=#{val.inspect}; export #{name};"
+        end
       end
     end # class
 
@@ -187,7 +198,11 @@ module Cabar
     class RubyScript < EnvVar
       def _setenv name, val
         name = normalize_env_name name
-        puts "ENV[#{name.inspect}] = #{val.inspect};"
+        if val == nil
+          puts "ENV.delete(#{name.inspect});"
+        else
+          puts "ENV[#{name.inspect}] = #{val.inspect};"
+        end
       end
     end # class
 
