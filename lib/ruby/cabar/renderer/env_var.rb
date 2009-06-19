@@ -45,6 +45,7 @@ module Cabar
       def render_Selection x
         if _options[:selected]
           comment "Cabar Selection Environment"
+          setenv "SELECTED_COMPONENTS", x.map{ | c | c.name }.join(" ")
           render x.to_a
           render_configuration_env_vars x.resolver.configuration
         else

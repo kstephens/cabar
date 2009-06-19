@@ -9,4 +9,8 @@ cabar:
           version: <%= (ENV['c2_VERSION'] || '>1.1').inspect %>
       require:
         boc: true
+    env_var:
+      TEST1: test1
+      TEST2: test2
+
 
