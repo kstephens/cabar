@@ -25,31 +25,32 @@ module Cabar
       # Renders a Resolver object,
       # Using the Resolver's current required_components_dependencies.
       #
-      def render_Resolver x
+      def render_Resolver resolver
         comment "Cabar Resolver Environment"
 
-        comps = x.required_component_dependencies
+        comps = resolver.required_component_dependencies
         
         self.env_var_prefix = "CABAR_"
-        setenv "TOP_LEVEL_COMPONENTS", x.top_level_components.map{ | c | c.name }.join(" ")
+        setenv "TOP_LEVEL_COMPONENTS", resolver.top_level_components.map{ | c | c.name }.join(" ")
         
         setenv "REQUIRED_COMPONENTS", comps.map{ | c | c.name }.join(" ")
         render comps
 
-        render x.facets.values
+        render resolver.facets.values
         
-        render_configuration_env_var x.resolver.configuration
+        render_configuration_env_var resolver.configuration
       end
       
 
-      def render_Selection x
+      def render_Selection selection
         if _options[:selected]
           comment "Cabar Selection Environment"
-          setenv "SELECTED_COMPONENTS", x.map{ | c | c.name }.join(" ")
-          render x.to_a
-          render_configuration_env_var x.resolver.configuration
+          setenv "SELECTED_COMPONENTS", selection.map{ | c | c.name }.join(" ")
+          render selection.to_a
+
+          render_configuration_env_var selection.resolver.configuration
         else
-          render x.resolver
+          render selection.resolver
         end
       end
 
