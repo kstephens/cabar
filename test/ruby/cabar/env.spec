@@ -6,15 +6,6 @@ describe 'Cabar env' do
 
   it 'should generate correct env' do
     generated = ''
-    main(:cd => "CABAR_BASE_DIR/example", 
-         :args => 'env', 
-         :env => {
-           :CABAR_PATH   => "repo/dev:repo/prod:repo/plat:@repo/..",
-           :CABAR_CONFIG => "cabar_conf.yml",
-         },
-         :stdout => generated) do
-    end
-
     expected = <<'EOF'
 CABAR_TOP_LEVEL_COMPONENTS="boc"; export CABAR_TOP_LEVEL_COMPONENTS;
 CABAR_REQUIRED_COMPONENTS="boc todo c1 boc_customer gems c3 c2 boc_locale boc_config rubygems cabar ruby"; export CABAR_REQUIRED_COMPONENTS;
@@ -118,18 +109,14 @@ unset CABAR_ENV_TEST3;
 unset TEST3;
 EOF
 
-    expected = expected.gsub('<<CABAR_BASE_DIR>>', Cabar::CABAR_BASE_DIR)
-    expected = expected.split("\n")
-    generated = generated.split("\n")
-    expected.zip(generated).each do | (e, g) |
-      e = Regexp.escape(e)
-      e = e.gsub('<<ANY>>', '.*')
-      e = /^#{e}$/
-      if false
-        $stderr.puts "expected = #{e.inspect}"
-        $stderr.puts "generate = #{g.inspect}"
-      end
-      g.should match(e)
+    main(:cd => "CABAR_BASE_DIR/example", 
+         :args => 'env', 
+         :env => {
+           :CABAR_PATH   => "repo/dev:repo/prod:repo/plat:@repo/..",
+           :CABAR_CONFIG => "cabar_conf.yml",
+         },
+         :match_stdout => expected) do
     end
+
   end
 end
