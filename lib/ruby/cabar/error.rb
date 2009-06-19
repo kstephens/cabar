@@ -13,6 +13,7 @@ module Cabar
     # Option hash, if any.
     attr_accessor :options
 
+
     def initialize msg, *args
       # $stderr.puts "#{self.class}.initialize(#{msg.inspect}, #{args.inspect})"
       @options = EMPTY_HASH
@@ -41,8 +42,10 @@ module Cabar
       end
     end
 
+
     # Format a Error in cabar YAML format.
-    def self.cabar_format err, opt = EMPTY_HASH
+    def self.cabar_format err, opt = nil
+      opts ||= EMPTY_HASH
       msg = [ ]
 
       msg << Cabar.yaml_header(:error)
@@ -58,6 +61,7 @@ module Cabar
         msg << "    #{k}: #{v.inspect}"
       end
 
+      if opts[:error_chain]
       i = -1
       err_chain = err.respond_to?(:error_chain) && err.error_chain
       err_chain && err_chain.each do | suberr |
@@ -68,6 +72,7 @@ module Cabar
         suberr.backtrace.each do | x |
           msg << "      - #{x.to_s.inspect}"
         end
+      end
       end
 
       if backtrace = err.respond_to?(:backtrace) && err.backtrace
@@ -81,12 +86,13 @@ module Cabar
       msg.join("\n")
     end
 
-    def self.cabar_error_handler &blk
+
+    def self.cabar_error_handler opts = nil, &blk
       yield
     rescue SystemExit => err
       raise err
     rescue Exception => err
-      $stderr.puts Cabar::Error.cabar_format(err)
+      $stderr.puts Cabar::Error.cabar_format(err, opts)
       Kernel.exit 10
     end
 
