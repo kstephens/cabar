@@ -104,7 +104,7 @@ module Cabar
         return send(meth, x, *args) if respond_to? meth
       end
 
-      raise ArgumentError, "Cannot find #{name}_Array_of_* for \#{x.class} using common ancestors \#{val_ancestors.inspect}"
+      raise ArgumentError, "Cannot find #{name}_Array_of_* for \#{x.class} using common ancestors \#{val_ancestors.inspect}" unless x.empty?
     end # def
       
       
@@ -129,7 +129,7 @@ module Cabar
         end
       end
 
-      raise ArgumentError, "Cannot find #{name}_Hash_of_*_and_* for \#{x.class} using common key ancestors \#{key_ancestors.inspect} and value ancestors \#{val_ancestors.inspect}"
+      raise ArgumentError, "Cannot find #{name}_Hash_of_*_and_* for \#{x.class} using common key ancestors \#{key_ancestors.inspect} and value ancestors \#{val_ancestors.inspect}" unless x.empty?
     end # def
 
 RUBY
