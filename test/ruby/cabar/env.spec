@@ -15,7 +15,7 @@ describe 'Cabar env' do
          :stdout => generated) do
     end
 
-    expected = %q{
+    expected = <<'EOF'
 CABAR_TOP_LEVEL_COMPONENTS="boc"; export CABAR_TOP_LEVEL_COMPONENTS;
 CABAR_REQUIRED_COMPONENTS="boc todo c1 boc_customer gems c3 c2 boc_locale boc_config rubygems cabar ruby"; export CABAR_REQUIRED_COMPONENTS;
 CABAR_boc_NAME="boc"; export CABAR_boc_NAME;
@@ -116,11 +116,10 @@ CABAR_ENV_TEST2="test2"; export CABAR_ENV_TEST2;
 TEST2="test2"; export TEST2;
 unset CABAR_ENV_TEST3;
 unset TEST3;
-}
+EOF
 
     expected = expected.gsub('<<CABAR_BASE_DIR>>', Cabar::CABAR_BASE_DIR)
     expected = expected.split("\n")
-    expected.shift # remove leading newline.
     generated = generated.split("\n")
     expected.zip(generated).each do | (e, g) |
       e = Regexp.escape(e)
