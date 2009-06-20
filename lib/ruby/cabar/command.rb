@@ -72,6 +72,14 @@ module Cabar
     end
 
 
+    # Returns an Array of all ancestor commands (via supercommand) including self.
+    def ancestors
+      x = [ self ]
+      x.push(*supercommand.ancestors) if supercommand
+      x
+    end
+
+
     # Returns all the valid names and aliases for this command.
     def names
       @aliases.dup << @name
@@ -112,12 +120,12 @@ module Cabar
     def === x
       case x
       when String
-        x === @name || @aliases.any?{|x| n === x} 
+        x === @name || @aliases.any?{|a| x === a} 
       when Array
-        path = names_path.dup
+        path = ancestors.reverse
         x.all? do | x |
           p = path.shift
-          p.nil? || p.any?{|p| x === p }
+          p.nil? || x === p.name || p.aliases.any?{|a| x === a}
         end
       when
         false
