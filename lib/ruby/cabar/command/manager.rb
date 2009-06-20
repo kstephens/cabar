@@ -11,6 +11,7 @@ module Cabar
     # Manages a list of commands.
     class Manager < Base
       # The owner of this manager.
+      # nil if this is the root Manager.
       attr_accessor :owner
 
       # A list of all commands.
@@ -20,7 +21,9 @@ module Cabar
       # A commands names and aliases must be unique
       attr_reader :command_by_name
       
+      # The default documentation for the next Command created.
       attr_accessor :default_documentation
+
 
       def initialize *args
         @commands = [ ]
@@ -28,28 +31,34 @@ module Cabar
         @default_documentation = nil
         super
       end
+
       
       def _logger
-        owner.logger
+        owner ? owner.logger : Cabar::Main.current._logger
       end
+
 
       def command_names
         @commands.map{|c| c.name}.sort
       end
+
       
       def command_names_and_aliases
         @commands.map{|c| c.names}.flatten.sort
       end
 
+
       def empty?
         @commands.empty?
       end
+
       
       def deepen_dup!
         super
         @commands = @commands.dup
         @command_by_name = @command_by_name.dup
       end
+
       
       # Returns the command for a command name.
       # Using aliases and abbreviations.
@@ -64,6 +73,7 @@ module Cabar
 
         cmd
       end
+
 
       # If a command with the same name or alias has been
       # register, raise an error.
@@ -88,6 +98,7 @@ module Cabar
 
         cmd
       end
+
       
       def create_command! name, opts, blk
         opts = { :documentation => opts } unless Hash === opts
@@ -112,6 +123,7 @@ module Cabar
         
         cmd
       end
+
       
       # Define a command.
       def define_command name, opts = nil, &blk
@@ -120,6 +132,7 @@ module Cabar
         cmd
       end
       alias :cmd :define_command
+
       
       # Define a command group.
       def define_command_group name, opts = nil, &blk
@@ -166,6 +179,7 @@ DOC
         end
       end
       
+
       def inspect
         "#<#{self.class} #{object_id} #{owner} #{commands.map{|x| x.name}.inspect}>"
       end

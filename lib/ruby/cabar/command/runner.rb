@@ -16,14 +16,15 @@ module Cabar
       # Cabar::Main object.
       attr_accessor :main
       
+      # Cabar::Command::Manager to resolve top-level commands.
+      attr_accessor :manager
+
       # Cabar::Command::State
       attr_accessor :state
       
       # Cabar::Command resolved by parse_args.
       attr_accessor :cmd
       
-      # Cabar::Command::Manager to resolve top-level commands.
-      attr_accessor :manager
 
       def _logger
         @main._logger
@@ -38,7 +39,15 @@ module Cabar
       # Parses arguments from command line.
       # Returns self.
       def parse_args args
-        
+        orig_args = args
+
+        @parse_args ||= 0
+        @parse_args += 1
+
+        # $stderr.puts "  parse_args #{args.inspect}"
+        # $stderr.puts "    main #{main}"
+        # $stderr.puts "    manager #{manager.inspect}"
+
         state = self.state = State.factory.new
         # Avoid modifying ARGV and its String elements.
         args = state.args = args.map{|x| x.dup}
@@ -51,6 +60,7 @@ module Cabar
         until args.empty?
           arg = args.shift
           arg = arg.dup rescue arg
+          # $stderr.puts "    arg = #{arg.inspect}"
 
           case arg
           when '--'
@@ -69,16 +79,16 @@ module Cabar
           when /\A\+\+?([^\s+=]+)\Z/
             options[_to_sym($1)] = false
           else
+            # puts "    cmd_path = #{state.cmd_path.inspect}"
+            # puts "    manager = #{manager.inspect}"
             # Check for command.
-            # puts "cmd_path = #{state.cmd_path.inspect}"
-            # puts "manager = #{manager.inspect}"
             if ! manager.empty?
               cmd_name = arg.to_s
               state.cmd_path << cmd_name
               if self.cmd = manager.command_for_name(cmd_name)
                 manager = self.cmd.subcommands
               else
-                raise Cabar::Error, "Invalid command path #{state.cmd_path.inspect}"
+                raise Cabar::Error, "Invalid command path #{state.cmd_path.inspect}, given arguments #{orig_args.inspect}"
               end
             else
               args.unshift arg
@@ -89,7 +99,11 @@ module Cabar
         end
         
         if state.cmd_path.empty?
-          parse_args [ 'help', '--error=', 'command not specified'  ]
+          if @parse_args < 2
+            parse_args [ 'help', '--error=', 'command not specified' ]
+          else
+            raise Error, "Recursion into parse_args?, given arguments #{orig_args.inspect}"
+          end
         end
 
         notify_observers(:command_parse_args_after)
@@ -108,6 +122,8 @@ module Cabar
       # Executes the selected Command.
       # Returns the exit_code.
       def run
+        cmd_state_save = nil
+
         cmd = self.cmd
         
         unless cmd
@@ -132,7 +148,7 @@ module Cabar
         state.merge! cmd.state
         
         # Attach to this cmd state.
-        state_save = cmd.state
+        cmd_state_save = cmd.state
         cmd.state = state
         
         # We need to define the singleton method here
@@ -151,8 +167,9 @@ module Cabar
 
         # Return the command's exit code.
         cmd.state.exit_code
+
       ensure 
-        cmd.state = state_save
+        cmd.state = cmd_state_save if cmd_state_save
       end # run
 
     end # class

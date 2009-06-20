@@ -32,6 +32,7 @@ module Cabar
       old
     end
 
+
     # The manager for this plugin.
     attr_accessor :manager
 
@@ -56,6 +57,7 @@ module Cabar
     # The Component that this plugin belongs to.
     attr_accessor :component
 
+
     def initialize *args, &blk
       @file = caller[1]
       @facets = [ ]
@@ -75,9 +77,11 @@ module Cabar
       register!
     end
     
+
     def _logger
       @manager._logger
     end
+
 
     # Installs the parts of the plugin.
     def register!
@@ -116,6 +120,7 @@ module Cabar
       "plugin #{name}"
     end
 
+
     # Manages plugins.
     class Manager < Base
       include Cabar::Observer::Observed
@@ -129,16 +134,19 @@ module Cabar
       # Plugin by name.
       attr_reader :plugin_by_name
 
+
       def initialize *args
         @plugins = [ ]
         @plugin_by_name = { }
         super
       end
 
+
       def _logger
-        @_logger ||= 
+        @_logger ||
           @main._logger
       end
+
 
       def register_plugin! plugin
         # Overlay configuration options.
@@ -202,12 +210,14 @@ module Cabar
         instance_eval &blk if block_given?
       end
 
+
       def _logger
         @_logger ||=
           @plugin._logger
       end
 
-     # Define :documentation for the next item.
+
+      # Define :documentation for the next item.
       def doc text
         text << "\n" unless /\n\Z/ =~ text
         if @doc
@@ -215,6 +225,7 @@ module Cabar
         end
         @doc = text.dup.freeze
       end
+
 
       # Define a Facet.
       def facet name, opts = nil, &blk
@@ -243,7 +254,8 @@ module Cabar
 
         facet
       end
-      
+
+   
       # Define a new command.
       def define_command name, opts = nil, &blk
         opts = _take_doc(opts)
@@ -279,6 +291,7 @@ module Cabar
       end
       alias :cmd_group :define_command_group
 
+
       private
 
       def _take_doc opts = nil
@@ -295,6 +308,7 @@ module Cabar
         opts
       end
 
+
       def _with_target object
         @target_stack.push @target
         @target = object
@@ -302,6 +316,7 @@ module Cabar
       ensure
         @target = @target_stack.pop
       end
+
 
       # Gets the current command manager depending
       # on the target.

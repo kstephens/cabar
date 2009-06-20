@@ -38,21 +38,31 @@ module Cabar
 
     # Returns the global Main instance.
     def self.current
-      @@current || raise(Error, "Cabar::Main not initialized")
+      Thread.current[:'Cabar::Main.current'] || 
+        raise(Error, "Cabar::Main not initialized")
     end
 
 
-    def initialize *args
-      @commands = Command::Manager.factory.
-        new(:main => self, 
-            :owner => self)
+    def as_current
+      save_current = Thread.current[:'Cabar::Main.current']
+      Thread.current[:'Cabar::Main.current'] = self
+      yield self
+    ensure
+      Thread.current[:'Cabar::Main.current'] = save_current
+    end
 
+
+    def initialize *args, &blk
       @_logger = Logger.factory.
         new(:name => 'cabar')
 
       super
 
-      @@current = self
+      if block_given? 
+        as_current do
+          instance_eval &blk
+        end
+      end
     end
 
 
@@ -94,13 +104,31 @@ module Cabar
     # Returns the cached Cabar::Plugin::Manager object.
     def plugin_manager
       @plugin_manager ||=
-        Plugin::Manager.factory.new(:main => self)
+        begin
+          @@plugin_manager ||=
+            Plugin::Manager.factory.new(:main => self)
+          x = @@plugin_manager # .dup
+          x.main = self
+          x
+        end
     end
 
 
     ##################################################################
-    # Command runner
+    # Command
     #
+
+    def commands
+      @commands ||= 
+        begin
+          @@commands ||= 
+            Command::Manager.factory.
+            new()
+          x = @@commands # .dup
+          x
+        end
+    end
+
 
     # The cached Cabar::Command::Runner that handles parsing arguments
     # and running the selected command.
@@ -118,7 +146,7 @@ module Cabar
 
 
     def new_command_runner
-      Command::Runner.factory.new(:main => self)
+      Command::Runner.factory.new(:main => self, :manager => commands)
     end
 
 
@@ -128,13 +156,20 @@ module Cabar
     end
 
 
-    # Interface for bin/cbr.
+    # Executes the command parsed by #parse_args.
+    # Returns the exit_code of the command.
     def run
       notify_observers :before_run
 
-      command_runner.run
+      @exit_code = command_runner.run
     ensure
       notify_observers :after_run
+    end
+
+
+    # Returns the exit_code of the last command executed.
+    def exit_code
+      @exit_code
     end
 
 

@@ -42,10 +42,10 @@ require 'cabar/error'
 
 Kernel.exit(
             Cabar::Error.cabar_error_handler do
-              Cabar::Main.
-                new(:args => ARGV).
-                parse_args.
+              Cabar::Main.new(:args => ARGV) do
+                parse_args
                 run
+              end.exit_code
             end
             )
 

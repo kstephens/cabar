@@ -49,6 +49,7 @@ module Cabar
     # The plugin this command was defined in.
     attr_accessor :_defined_in
 
+
     def initialize *args, &blk
       @state = State.factory.new
       @subcommands = Manager.factory.new(:owner => self)
@@ -56,11 +57,13 @@ module Cabar
       instance_eval if block_given?
     end
 
+
     def deepen_dup!
       super
       @state = @state.dup
       self
     end
+
 
     def _logger
       @_logger ||=
@@ -68,10 +71,12 @@ module Cabar
                           :delegate => @manager._logger)
     end
 
+
     # Returns all the valid names and aliases for this command.
     def names
       @aliases.dup << @name
     end
+
 
     # Returns all the valid abbreviations for this command.
     #
@@ -97,6 +102,7 @@ module Cabar
       end
     end
 
+
     def aliases_and_abbreviations
       (abbreviations + @aliases).sort.uniq
     end
@@ -118,11 +124,13 @@ module Cabar
       end
     end
 
+
     # Returns the lines of documentation.
     def documentation_lines
       raise Cabar::Error, "no documentation for command #{(name_path * ' ').inspect}" unless @documentation
       @documentation_lines ||= @documentation.split("\n")
     end
+
 
     # Return the full path to this command.
     def name_path
@@ -133,6 +141,7 @@ module Cabar
         end
     end
 
+
     # Returns the path via aliases to this command.
     # Array of name aliases Arrays.
     def names_path
@@ -142,6 +151,7 @@ module Cabar
           path.push names
         end
     end
+
 
     # The full name for this command.
     def name_full
@@ -155,16 +165,19 @@ module Cabar
       "#{name_full} " + documentation_lines[0]
     end
 
+
     # Returns the description of this command from
     # the second line of documentation.
     def description
       documentation_lines[1]
     end
 
+
     # Returns true if this command is a top-level command.
     def top_level_command?
       ! @supercommand
     end
+
 
     # Returns a cached Selection object for the main Resolver with the cmd_opts.
     # FIXME: THIS SHOULD CLONE THE Main#resolver.
@@ -173,15 +186,18 @@ module Cabar
         @main.resolver.selection(:cmd_opts => cmd_opts)
     end
 
+
     # Defer to @main.
     def method_missing sel, *args, &blk
       @main.send(sel, *args, &blk)
     end
 
+
     # Trap for bogus commands.
     def execute_command!
       raise Error, "Command instance #{self.inspect} must define execute_command!"
     end
+
 
     ##################################################################
 
@@ -194,6 +210,7 @@ module Cabar
     end
     alias :cmd :define_command
 
+
     # Define a subcommand group.
     def define_command_group name, opts = nil, &blk
       opts = { :documentation => opts } unless Hash === opts
@@ -203,6 +220,7 @@ module Cabar
     end
     alias :cmd_group :define_command_group
   
+
     def inspect
       "#<#{self.class} #{object_id} #{name.inspect} #{aliases.inspect} #{description.inspect}>"
     end
