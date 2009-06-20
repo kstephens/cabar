@@ -61,7 +61,7 @@ module Cabar
         msg << "    #{k}: #{v.inspect}"
       end
 
-      if opts[:error_chain]
+      if opts[:error_chain] != false
       i = -1
       err_chain = err.respond_to?(:error_chain) && err.error_chain
       err_chain && err_chain.each do | suberr |
@@ -89,11 +89,17 @@ module Cabar
 
     def self.cabar_error_handler opts = nil, &blk
       yield
+
     rescue SystemExit => err
       raise err
+
     rescue Exception => err
       $stderr.puts Cabar::Error.cabar_format(err, opts)
-      Kernel.exit 10
+      if opts[:rethrow]
+        raise err
+      else
+        Kernel.exit 10 
+      end
     end
 
   end # class

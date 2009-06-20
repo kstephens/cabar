@@ -1,7 +1,8 @@
 require 'cabar'
 require 'cabar/main'
-require 'shellwords'
+require 'cabar/error'
 
+require 'shellwords'
 require 'cabar/environment'
 require 'cabar/test/io_helper'
 
@@ -17,6 +18,8 @@ module Cabar
 
 
       def main opts, &blk
+        generated = expected = nil
+
         if cwd = opts.delete(:cd)
           cwd = cwd.to_s.gsub('CABAR_BASE_DIR', CABAR_BASE_DIR)
           return Dir.chdir(cwd) do
@@ -24,11 +27,8 @@ module Cabar
           end
         end
 
-        generated = expected = nil
-
         if expected = opts.delete(:match_stdout)
-          generated = ''
-          opts[:stdout] = generated
+          opts[:stdout] = generated = ''
         end
 
         if opts[:stdin] || opts[:stdout] || opts[:stderr]
@@ -51,28 +51,38 @@ module Cabar
 
         if args = opts[:args]
           args = Shellwords.shellwords(args) unless Array === args
-          @main.args = args
-          @main.parse_args
-          result = @main.run
+          result = Cabar::Error.cabar_error_handler(:rethrow => true) do
+            @main.as_current do
+              @main.args = args
+              @main.parse_args
+              @main.run
+            end
+          end
         end
 
         yield @main if block_given?
 
+        result
+      ensure
+        # $stderr.puts "expected:\n#{expected}\n----"
         if generated and expected
           match_output generated, expected
         end
-
-        result
       end
 
+
       def match_output generated, expected
-        expected = expected.gsub('<<CABAR_BASE_DIR>>', Cabar::CABAR_BASE_DIR)
+        e = expected.gsub('<<CABAR_BASE_DIR>>', Cabar::CABAR_BASE_DIR)
         e = Regexp.escape(e)
         e = e.gsub('<<ANY>>', '[^\n]*')
         e = e.gsub('<<ANY-LINES>>', '.*')
-        e = /^#{e}$/m
+        e = /\A#{e}\Z/m
         g = generated
         g.should match(e)
+
+      rescue Exception => err
+        $stderr.puts "generated:\n#{generated}\n----"
+        raise err.class.new(err.message + "\n#{err.backtrace * "\n"}")
       end
 
     end # module
