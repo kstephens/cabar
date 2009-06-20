@@ -17,6 +17,19 @@ module Cabar
       include Cabar::Environment
 
 
+      def example_main opts = { }, &blk
+        opts = {
+          :cd => "CABAR_BASE_DIR/example", 
+          :env => {
+            :CABAR_PATH   => "repo/dev:repo/prod:repo/plat:@repo/..",
+            :CABAR_CONFIG => "cabar_conf.yml",
+          },
+        }.merge(opts)
+        
+        main(opts, &blk)
+      end
+
+
       def main opts, &blk
         generated = expected = nil
 

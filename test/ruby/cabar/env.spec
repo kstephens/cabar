@@ -4,19 +4,6 @@ require 'cabar/test/main_helper'
 describe 'cbr env' do
   include Cabar::Test::MainHelper
 
-  def example_main opts = { }, &blk
-    opts = {
-      :cd => "CABAR_BASE_DIR/example", 
-      :env => {
-        :CABAR_PATH   => "repo/dev:repo/prod:repo/plat:@repo/..",
-        :CABAR_CONFIG => "cabar_conf.yml",
-      },
-    }.merge(opts)
-
-    main(opts, &blk)
-  end
-
-
   it 'cbr env # no args' do
     example_main(:args => 'env', 
                  :match_stdout => <<'EOF')

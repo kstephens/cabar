@@ -6,3 +6,10 @@ cabar:
   requires:
     component: 
       ruby: true
+
+  facet:
+    action:
+      dir: "pwd"
+      foo: "echo foo"
+      bar: "!exec /bin/bash -c 'exit 123'"
+
