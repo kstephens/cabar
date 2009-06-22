@@ -47,14 +47,25 @@ Cabar::Plugin.new :name => 'cabar/action' do
     # then substituted via Ruby #{...} expansion.
     #
     def execute_action! action, args, opts = EMPTY_HASH
-      expr = @action[action.to_s] || raise("cannot find action #{action.inspect}")
-      puts "component:"
-      puts "  #{component.to_s(:short)}:"
-      puts "    action: "
-      puts "      #{action.inspect}:"
-      puts "        expr: #{expr.inspect}"
+      expr = @action[action.to_s] or raise ArgumentError, "cannot find action #{action.inspect}"
+
+      out =
+        case
+        when opts[:out]
+          opts[:out]
+        when opts[:quiet]
+          StringIO.new
+        else
+          $stdout
+        end
+ 
+      out.puts "component:"
+      out.puts "  #{component.to_s(:short)}:"
+      out.puts "    action: "
+      out.puts "      #{action.inspect}:"
+      out.puts "        expr: #{expr.inspect}"
       unless args.empty?
-        puts "        args: #{args.inspect}"
+        out.puts "        args: #{args.inspect}"
       end
       
       result = nil
@@ -70,16 +81,6 @@ Cabar::Plugin.new :name => 'cabar/action' do
         
       when String
         str = expr.dup
-        # TODO: 
-        # * Use unshellwords?!?
-        # * Move this down before system so process is in component.directory
-        # and :dry_run is honored.
-        if str =~ /^\s*!exec\s+(\S+)*/
-          exec_args = str.split(/\s+/)
-          exec_args.shift #get rid of !exec
-          exec_args = exec_args + args
-          exec *exec_args
-        end
         unless args.empty?
           str += ' ' + Shellwords.shellwords(args.join(' ')).join(' ')
         end
@@ -89,23 +90,28 @@ Cabar::Plugin.new :name => 'cabar/action' do
         Dir.chdir(component.directory) do
           # Interpolate #{...} in String.
           str = expand_string(str)          
-          puts "        command: #{str.inspect}"
-          puts "        output: |"
+          out.puts "        command: #{str.inspect}"
+          out.puts "        output: |"
           unless opts[:dry_run]
+            if str =~ /^\s*!exec\s+(\S+.*)/
+              exec_args = Shellwords.shellwords($1)
+              exec_args = exec_args + args
+              exec *exec_args
+              raise Error, "exec failed: #{exec_args.inspect}"
+            end
             result = system(str)
           end
-          puts "                |"
+          out.puts "                |"
         end
         
-        puts "        result: #{result.inspect}"
-        puts "\n"
+        out.puts "        result: #{result.inspect}"
+        out.puts "\n"
         
         unless error_ok
-          raise "action: failed #{result.inspect}" unless result
+          raise Error, "action: failed #{result.inspect}" unless result
         end
       end
 
-      
       result
     end
     
@@ -125,7 +131,7 @@ Cabar::Plugin.new :name => 'cabar/action' do
   # action facet
   #
 
-  cmd_group :action, <<'DOC' do
+  doc <<"DOC"
 Actions are commands that can be run on a component:
 
 Defined by:
@@ -138,12 +144,13 @@ Defined by:
 If an action command begins with '-' it's error code is ignored.
 
 DOC
+  # 'emacs
 
-    cmd :list, <<'DOC' do
-[ <action> ] 
+  cmd_group :action do
+    doc '[ <action> ] 
 List actions available on all components.
-
-DOC
+'
+    cmd [ :list, :ls ] do
       selection.select_available = true
       selection.to_a
 
@@ -165,10 +172,9 @@ DOC
       }
     end # cmd
 
-    cmd [ :run, :exec, 'do' ], <<'DOC' do
-[ --dry-run ] <action> <args> ...
-Executes an action on all required components.
-DOC
+    doc '[ --dry-run, --quiet ] <action> <args> ...
+Executes an action on all required components.'
+    cmd [ :run, :exec, 'do' ] do
       selection.select_required = true
       selection.to_a
 
@@ -184,6 +190,7 @@ DOC
       end
 
     end # cmd
+
 
     class Cabar::Command
       def get_actions action = nil
