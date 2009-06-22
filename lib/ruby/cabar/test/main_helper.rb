@@ -17,6 +17,7 @@ module Cabar
       include Cabar::Environment
 
 
+      # Runs commands under the cabar/example/ directory using the repo/ and cabar_config.yml
       def example_main opts = { }, &blk
         opts = {
           :cd => "CABAR_BASE_DIR/example", 
@@ -44,18 +45,18 @@ module Cabar
           opts[:stdout] = generated = ''
         end
 
-        if opts[:stdin] || opts[:stdout] || opts[:stderr]
-          return redirect_io(opts) do 
-            main(opts, &blk)
-          end
-        end
-
         if env = opts.delete(:env)
           return with_env(env) do 
             main(opts, &blk)
           end
         end
 
+
+        if opts[:stdin] || opts[:stdout] || opts[:stderr]
+          return redirect_io(opts) do 
+            main(opts, &blk)
+          end
+        end
 
         @main =    
           Cabar::Main.new
@@ -85,12 +86,26 @@ module Cabar
 
 
       def match_output generated, expected
-        e = expected.gsub('<<CABAR_BASE_DIR>>', Cabar::CABAR_BASE_DIR)
-        e = Regexp.escape(e)
-        e = e.gsub('<<ANY>>', '[^\n]*')
-        e = e.gsub('<<ANY-LINES>>', '.*')
-        e = /\A#{e}\Z/m
+#        require 'rubygems'
+#        gem 'diff-lcs'
+#        require 'diff-lcs'
+
+        e = match_output_rx expected
         g = generated
+        g = g.gsub(/(:|")test\/ruby:/) { $1 }
+
+        unless e === g
+          e = expected.split("\n")
+          g = generated.split("\n")2
+          e.zip(g) do | (el, gl) |
+            el_rx = match_output_rx el, :eol
+            unless el_rx === gl
+              $stderr.puts "- #{el_rx.inspect}"
+              $stderr.puts "+  #{gl.inspect}"
+            end
+          end
+        end
+
         g.should match(e)
 
       rescue Exception => err
@@ -98,7 +113,16 @@ module Cabar
         raise err.class.new(err.message + "\n#{err.backtrace * "\n"}")
       end
 
+      def match_output_rx expected, eol = false
+        e = expected.gsub('<<CABAR_BASE_DIR>>', Cabar::CABAR_BASE_DIR)
+        e = Regexp.escape(e)
+        e = e.gsub('<<ANY>>', '[^\n]*')
+        e = e.gsub('<<ANY-LINES>>', '.*')
+        e = eol ? /^#{e}$/ : /\A#{e}\Z/m
+      end
+
     end # module
+
   end # module
 end # module
 
