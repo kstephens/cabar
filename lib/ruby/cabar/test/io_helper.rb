@@ -6,6 +6,7 @@ module Cabar
   module Test
     module IoHelper
       
+      # Redirect standard IO streams.
       def redirect_io opts, &blk
         @@uid ||= 0
         uid = @@uid += 1
@@ -24,7 +25,7 @@ module Cabar
           old_stdout = $stdout.clone
           tmp_stdout_file = "#{base_file}.out"
           tmp_stdout = File.open(tmp_stdout_file, "w+")
-          $stdout.reopen(tmp_stdout_file)
+          $stdout.reopen(tmp_stdout)
         end
 
         if stderr = opts.delete(:stderr)

@@ -33,6 +33,9 @@ component:
         command: "echo foo"
         output: |
 foo
+                |
+        result: true
+
 EOF
   end
 end
