@@ -19,6 +19,7 @@ module Cabar
         super
       end
 
+
       # Parse a yaml file after processing it as an ERB template.
       # The following are available as ERB bindings:
       #

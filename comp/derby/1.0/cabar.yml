@@ -1,0 +1,8 @@
+cabar:
+  version: '1.0'
+  component:
+    name: derby
+    version: v1.0
+    description: "derby - de-ERBify files in a template directory structure to a target directory"
+#  plugin: 'cabar.rb'
+

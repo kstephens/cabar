@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+# -*- ruby -*-
+$: << File.expand_path(File.join(File.dirname($0), '..', 'lib', 'ruby'))
+
+require 'derby/main'
+
+Kernel.exit(Derby::Main.new(:args => ARGV).run!)
+
+
