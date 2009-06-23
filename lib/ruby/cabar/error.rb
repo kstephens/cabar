@@ -44,7 +44,7 @@ module Cabar
 
 
     # Format a Error in cabar YAML format.
-    def self.cabar_format err, opt = nil
+    def self.cabar_format err, opts = nil
       opts ||= EMPTY_HASH
       msg = [ ]
 
@@ -88,6 +88,8 @@ module Cabar
 
 
     def self.cabar_error_handler opts = nil, &blk
+      opts ||= EMPTY_HASH
+
       yield
 
     rescue SystemExit => err
