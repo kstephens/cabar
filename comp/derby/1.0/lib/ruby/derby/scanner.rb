@@ -2,6 +2,7 @@ require 'derby'
 
 require 'pp'
 
+
 module Derby
   # Scans src_dir for pattern[0] and calls processor to process each input ERB file.
   class Scanner
@@ -9,9 +10,17 @@ module Derby
 
     attr_accessor :src_dir, :dst_dir, :pattern
 
+    attr_accessor :verbose
+
+    def pre_initialize
+      @verbose = 0
+    end
+
+
     def pattern
       @pattern ||= [ '**/*.erb', /\.erb$/, '' ]
     end
+
 
     def files
       @files ||= 
@@ -22,8 +31,6 @@ module Derby
 
           src_dir_rx = /\A#{src_dir}\//
           src_pattern = "#{src_dir}/#{glob}"
-          $stderr.puts "src_pattern = #{src_pattern.inspect}"
-          # exit 0
 
           Dir[src_pattern].each do | src_path |
             src_file = src_path.sub(src_dir_rx, '')
@@ -36,7 +43,7 @@ module Derby
               :dst_file => dst_file,
               :dst_path => "#{dst_dir}/#{dst_file}",
             }
-            pp file
+            pp file if @verbose > 1
             files << file
           end
           files

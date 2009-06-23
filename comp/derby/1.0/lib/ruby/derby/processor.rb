@@ -4,7 +4,7 @@ require 'cabar/file' # File.cabar_expand_softlink
 require 'cabar/hash' # Hash.cabar_merge!
 require 'ostruct'
 require 'erb'
-
+require 'pp'
 
 
 module Derby
@@ -20,8 +20,12 @@ module Derby
     # A Proc to call to compute the ERB Binding.
     attr_accessor :binding_proc
 
-    
+    # Sets the verbosity level.
+    attr_accessor :verbose
+
+
     def pre_initialize
+      @verbose = 0
       @visited = { }
       @path = [ ]
       @current_path = EMPTY_ARRAY
@@ -76,6 +80,8 @@ module Derby
           process_include!(file, process_erb!(file), data)
         end
         
+        $stderr.puts "#{File.basename($0)}: reading #{file.inspect}" if @verbose > 0
+
         template = ERB.new fh.read
         data = template.result(get_binding(derby))
         data = process_data! file, data

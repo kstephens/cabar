@@ -4,6 +4,7 @@ require 'derby/scanner'
 require 'derby/processor'
 
 require 'fileutils' # mkdir_p
+require 'pp'
 
 
 module Derby
@@ -11,9 +12,12 @@ module Derby
     include InitializeFromHash
 
     attr_accessor :args, :src_dir, :dst_dir, :defines
+    attr_accessor :verbose
+
     attr_accessor :errors
 
     def pre_initialize
+      @verbose = 0
       @errors = [ ]
       @src_dir = nil
       @dst_dir = '.'
@@ -35,6 +39,8 @@ module Derby
           key = args.shift or raise ArgumentError
           val = args.shift or raise ArgumentError
           define! key, val
+        when /^--?v$/
+          self.verbose += 1
         when /^--?C$/
           self.src_dir = args.shift
         else
@@ -67,14 +73,18 @@ module Derby
 
 
     def process_dst! dst_dir
-      Scanner.new(:src_dir => src_dir, :dst_dir => dst_dir).
+      if @verbose > 0
+        $stderr.puts "#{File.basename($0)}: binding:"
+        pp @defines
+      end
+      Scanner.new(:src_dir => src_dir, :dst_dir => dst_dir, :verbose => verbose).
         process_files!(processor)
     end
 
 
     def processor
       @processor ||=
-        DerbyProcessor.new(:defines => defines)
+        DerbyProcessor.new(:defines => defines, :verbose => verbose)
     end
 
 
@@ -91,13 +101,14 @@ module Derby
       end
 
       def post_initialize
-        pp @defines
+        # pp @defines
       end
 
       def process_file! file
+        result = process_erb! file[:src_path]
         FileUtils.mkdir_p File.dirname(file[:dst_path])
         File.open(file[:dst_path], "w+") do | fh |
-          result = process_erb! file[:src_path]
+          $stderr.puts "#{File.basename($0)}: generating #{file[:dst_path].inspect}" if @verbose > 0
           fh.write(result)
         end
       end
@@ -108,9 +119,8 @@ module Derby
       end
 
       def method_missing sel, *args, &blk
-        $stderr.puts "  method_missing #{sel.inspect}, #{args.inspect}: caller #{caller[0]}"
-        sel = sel.to_s
-        if args.empty? && ! block_given? && @defines.key?(sel)
+        # $stderr.puts "  method_missing #{sel.inspect}, #{args.inspect}: caller #{caller[0]}"
+        if args.empty? && ! block_given? && @defines.key?(sel = sel.to_s)
           @defines[sel]
         else
           super
