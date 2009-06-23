@@ -1,4 +1,3 @@
-$: << File.expand_path(File.dirname(__FILE__) + '/../../../../../lib/ruby')
 
 module Derby
   EMPTY_ARRAY = [ ].freeze unless defined? EMPTY_ARRAY
@@ -49,4 +48,17 @@ module Derby
   end # module
 
 end # module
+
+
+# Use to add comp/... directories to search path when its too early for
+# cabar to require itself.
+def cabar_comp_require name, version = nil
+  path = File.expand_path(File.dirname(__FILE__) + "../../../../../../comp/#{name}/#{version}/lib/ruby")
+  $:.insert(0, path) unless $:.include?(path)
+  # $stderr.puts "#{$:.inspect} #{path.inspect}"
+  require name
+end
+
+
+cabar_comp_require 'cabar_core'
 

@@ -514,11 +514,9 @@ end
 def cabar_comp_require name, version = nil
   path = File.expand_path(Cabar.cabar_base_directory + "/comp/#{name}/#{version}/lib/ruby")
   $:.insert(0, path) unless $:.include?(path)
-  require name
   # $stderr.puts "#{$:.inspect} #{path.inspect}"
+  require name
 end
-
-# require 'pp'
 
 
 cabar_comp_require 'cabar_core'
