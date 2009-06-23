@@ -38,4 +38,5 @@ foo
 
 EOF
   end
-end
+
+end # describe

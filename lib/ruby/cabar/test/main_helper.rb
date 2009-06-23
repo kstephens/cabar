@@ -96,7 +96,7 @@ module Cabar
 
         unless e === g
           e = expected.split("\n")
-          g = generated.split("\n")2
+          g = generated.split("\n")
           e.zip(g) do | (el, gl) |
             el_rx = match_output_rx el, :eol
             unless el_rx === gl
