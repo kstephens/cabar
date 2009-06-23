@@ -147,7 +147,7 @@ module Derby
         @result ||= { }
       end
 
-      def process_file! file, data
+      def process_data! file, data
         @result.cabar_merge!(YAML::load(data))
       end
 

@@ -447,6 +447,7 @@ module Cabar
     # Validate a cabar Hash.
     def validate_yaml_hash cfg, supported_version = nil
       supported_version ||= Cabar.version
+      # $stderr.puts "  validate_yaml_hash #{cfg.inspect}"
       unless Hash === cfg
         raise Error, "is not a Hash"
       end

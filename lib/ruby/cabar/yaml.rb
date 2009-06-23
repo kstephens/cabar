@@ -1,25 +1,15 @@
-require 'cabar/base'
+require 'cabar'
 
-require 'cabar/file' # File.cabar_expand_softlink
-require 'yaml'
-require 'ostruct'
-require 'erb'
+# It's too early to simply wait for cabar to depend on itself
+# and its dependency on derby.
+cabar_comp_require 'derby', '1.0'
+
+require 'derby/processor'
 
 
 module Cabar
   module Yaml
-    class Loader < Base
-      # Directory search path.
-      attr_accessor :path
-
-      def initialize opts = EMPTY_HASH
-        @visited = { }
-        @path = [ ]
-        @current_path = EMPTY_ARRAY
-        super
-      end
-
-
+    class Loader < Derby::Processor::Yaml
       # Parse a yaml file after processing it as an ERB template.
       # The following are available as ERB bindings:
       #
@@ -33,67 +23,14 @@ module Cabar
       #   <% cabar.include file %>
       #
       def read_erb_yaml file, opts = EMPTY_HASH
-        # Handle relative includes.
-        current_path_save = @current_path
-
-        file = find_file_in_path(file)
-
-        if data = @visited[file]
-          return data
-        end
-
-        # Recursion lock.
-        @visited[file] = data = { }
-
-        # Jeremy likes softlinks and so to I.
-        file_readlink = File.cabar_expand_symlink(file)
-        
-        File.open(file) do | fh |
-          # ERb Interface.
-          cabar = {
-            'current_file'                => file,
-            'current_file_points_to'      => file_readlink,
-            'current_directory'           => File.dirname(file),
-            'current_directory_points_to' => File.dirname(file_readlink),
-            '_yaml_loader'                => self,
-          }
-
-          cabar = OpenStruct.new(cabar.merge(opts))
-
-          # Handle relative includes.
-          @current_path = [ cabar.current_directory ]
-
-          def cabar.include file
-            data.cabar_merge!(read_erb_yaml(file))
-          end
-
-          template = ERB.new fh.read
-          yaml = template.result binding
-          data = YAML::load yaml
-
-          @visited[file] = data
-        end
-        
-        data
-      rescue Exception => err
-        raise Error, "Problem reading file #{file.inspect}: #{err.inspect}" # + ":\n#{err.backtrace * "\n"}"
-
-      ensure
-        @current_path = current_path_save
+        process_erb! file, opts
       end
-
-
-      CURRENT_DIRECTORY_PATH = [ '.' ].freeze
-
-      # Find the file in path.
-      #
-      def find_file_in_path file, path = self.path
-        (@current_path + path + CURRENT_DIRECTORY_PATH).
-          map { | dir | File.expand_path(file, dir) }.
-          uniq.
-          find { | f | File.exist?(f) && File.readable?(f) }
+      
+      # Also bind "cabar" to the derby context object. 
+      def get_binding derby
+        cabar = derby = derby
+        binding
       end
-
     end # class
   end # module
 end # module

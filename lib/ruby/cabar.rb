@@ -508,6 +508,16 @@ cabar:
   end
 end
 
+
+# Use to add comp/... directories to search path when its too early for
+# cabar to require itself.
+def cabar_comp_require name, version = nil
+  path = File.expand_path(Cabar.cabar_base_directory + "/comp/#{name}/#{version}/lib/ruby")
+  $:.insert(0, path) unless $:.include?(path)
+  require name
+  # $stderr.puts "#{$:.inspect} #{path.inspect}"
+end
+
 # require 'pp'
 
 require 'cabar/array'

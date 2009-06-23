@@ -11,7 +11,7 @@ class ::Hash
         self[k.to_sym] = v
       end
     end
-    each do | k, v |
+    keys.each do | k |
       delete(k) if String === k
     end
     self
@@ -32,7 +32,7 @@ class ::Hash
         end
       end
     else
-      raise ArgumentError, "Expected Hash at #{path.join('.')}"
+      raise ArgumentError, "expected Hash at #{path.join('.')}, given #{h.class}"
     end
     self
   end
