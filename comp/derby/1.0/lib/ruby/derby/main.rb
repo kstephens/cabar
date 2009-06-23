@@ -156,6 +156,8 @@ module Derby
 
       def get_binding derby
         derby = derby
+        # Provide backward-compatibilty with <%= cabar.current_directory %>, etc.
+        cabar = derby 
         binding
       end
 
