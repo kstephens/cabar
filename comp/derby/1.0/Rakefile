@@ -1,0 +1,5 @@
+
+task :test do
+  sh "bin/derby -v -D a1.foo a1.foo -Dbin.script.message=YO -C example gen"
+  sh "gen/bin/script"
+end

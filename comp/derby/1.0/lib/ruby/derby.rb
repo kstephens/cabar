@@ -11,19 +11,25 @@ module Derby
   #     attr_accessor :foo, :bar
   #   end
   #
-  #   Foo.new(:foo => 'foo')
+  #   obj = Foo.new(:foo => 'foo', :baz => 'baz')
+  #   obj.foo => 'foo'
+  #   obj.bar => 'nil'
+  #   obj.options => { :baz => 'baz' }
   #
   module InitializeFromHash
+    def options
+      @options
+    end
+
     def initialize opts = nil
       opts ||= EMPTY_HASH
-      @options = { }
+      @options = opts.dup
       pre_initialize if respond_to?(:pre_initialize)
       opts.each do | k, v |
         s = :"#{k}="
         if respond_to?(s)
           send(s, v) 
-        else
-          @options[k] = v
+          @options.delete(k)
         end
       end
       post_initialize if respond_to?(:post_initialize)

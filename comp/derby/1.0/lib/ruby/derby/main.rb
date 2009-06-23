@@ -33,6 +33,12 @@ module Derby
       until args.empty?
         arg = args.shift
         case arg
+        when /^--?u$/
+          options[:preserve_user] = true
+        when /^--?g$/
+          options[:preserve_group] = true
+        when /^--?p$/
+          options[:preserve_perms] = true
         when /^--?D([^=]+)=(.*)$/
           define! $1, $2
         when /^--?D$/
@@ -57,7 +63,7 @@ module Derby
 
     def run!
       parse_args!
-      @errors ? 1 : 0
+      @errors.empty? ? 0 : 1
     end
 
 
@@ -84,7 +90,11 @@ module Derby
 
     def processor
       @processor ||=
-        DerbyProcessor.new(:defines => defines, :verbose => verbose)
+        DerbyProcessor.new(
+                           options.merge(
+                                         :defines => defines, 
+                                         :verbose => verbose
+                                         ))
     end
 
 
@@ -92,6 +102,7 @@ module Derby
     class DerbyProcessor < Processor::Generic
       attr_accessor :preserve_user, :preserve_group, :preserve_mode
       attr_accessor :defines
+
       
       def pre_initialize
         @preserve_user = true
@@ -100,23 +111,35 @@ module Derby
         super
       end
 
+
       def post_initialize
         # pp @defines
       end
 
+      
       def process_file! file
-        result = process_erb! file[:src_path]
-        FileUtils.mkdir_p File.dirname(file[:dst_path])
-        File.open(file[:dst_path], "w+") do | fh |
-          $stderr.puts "#{File.basename($0)}: generating #{file[:dst_path].inspect}" if @verbose > 0
+        src_path, dst_path = file[:src_path], file[:dst_path]
+
+        result = process_erb! src_path
+
+        FileUtils.mkdir_p(File.dirname(dst_path))
+        File.open(dst_path, "w+") do | fh |
+          $stderr.puts "#{File.basename($0)}: generating #{dst_path.inspect}" if @verbose > 0
           fh.write(result)
         end
+      
+        src_stat = File.stat(src_path)
+        File.chown(src_stat.uid, nil, dst_path)  if @preserve_user && Process.euid == 0
+        File.chown(nil, src_stat.gid, dst_path)  if @preserve_group
+        File.chmod(src_stat.mode, dst_path) if @preserve_mode
       end
  
+
       def get_binding derby
         derby = derby
         binding
       end
+
 
       def method_missing sel, *args, &blk
         # $stderr.puts "  method_missing #{sel.inspect}, #{args.inspect}: caller #{caller[0]}"
