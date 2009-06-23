@@ -4,10 +4,16 @@ cabar:
     name: derby
     version: v1.0
     description: "derby - de-ERBify files in a template directory structure to a target directory"
+
 #  plugin: 'cabar.rb'
+
   facet:
     bin: true
     lib/ruby: true
     action:
       test: 'rake test'
+
+  requires:
+    component:
+      cabar_core: true
 

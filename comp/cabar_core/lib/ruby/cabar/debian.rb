@@ -1,7 +1,4 @@
 
-require 'cabar'
-
-
 module Cabar
 
   # Debian support module.

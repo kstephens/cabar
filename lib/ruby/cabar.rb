@@ -520,10 +520,7 @@ end
 
 # require 'pp'
 
-require 'cabar/array'
-require 'cabar/hash'
 
-require 'cabar/base'
-require 'cabar/error'
+cabar_comp_require 'cabar_core'
 
 

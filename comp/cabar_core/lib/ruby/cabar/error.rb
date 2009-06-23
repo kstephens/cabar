@@ -1,4 +1,3 @@
-require 'cabar'
 
 module Cabar
 

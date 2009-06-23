@@ -4,6 +4,21 @@ module Cabar
 
   # Common logger.
   class Logger < Base
+    # Returns the default Cabar::Logger.
+    def self.default
+      x = Thread.current[:'Cabar::Logger.default'] || @@default
+      x = x.call if Proc === x
+      x
+    end
+
+
+    # Sets the default Cabar::Logger.
+    def self.default= x
+      @@default ||=
+      (Thread.current[:'Cabar::Logger.default'] = x)
+    end
+
+
     # The Logger to delegate to.
     attr_accessor :delegate
 
@@ -147,12 +162,14 @@ module Cabar
   class Base 
     # Returns the current Main object's Logger.
     # Subclasses can override this method.
+    # FIXME: use Cabar::Logger.default
     def self._logger
       Cabar::Main.current._logger
     end
 
     # Returns the current Main object's Logger.
     # Subclasses can override this method.
+    # FIXME: use Cabar::Logger.default
     def _logger
       Cabar::Main.current._logger
     end

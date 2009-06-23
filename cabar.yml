@@ -21,6 +21,7 @@ cabar:
 
   requires:
     component:
+      cabar_core: true
       ruby: true 
       derby: true
 

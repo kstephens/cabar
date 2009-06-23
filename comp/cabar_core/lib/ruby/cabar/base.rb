@@ -1,5 +1,3 @@
-require 'cabar'
-
 module Cabar
   # Common base class for Cabar classes.
   # Handles common stuff, should probably
