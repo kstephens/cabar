@@ -8,6 +8,7 @@ require 'pp'
 
 
 module Derby
+  # Base class for processing ERb source files.
   class Processor
     include InitializeFromHash
 
@@ -129,8 +130,6 @@ module Derby
     def process_include! file, data, target_data
       data
     end
-
-
 
 
     class Generic < self

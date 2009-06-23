@@ -90,7 +90,7 @@ module Derby
 
     def processor
       @processor ||=
-        DerbyProcessor.new(
+        MainProcessor.new(
                            options.merge(
                                          :defines => defines, 
                                          :verbose => verbose
@@ -99,7 +99,7 @@ module Derby
 
 
     # Main processor generates new files.
-    class DerbyProcessor < Processor::Generic
+    class MainProcessor < Processor::Generic
       attr_accessor :preserve_user, :preserve_group, :preserve_mode
       attr_accessor :defines
 
@@ -118,20 +118,39 @@ module Derby
 
       
       def process_file! file
+        $stderr.write "process_file:\n  "
+        pp file
+
         src_path, dst_path = file[:src_path], file[:dst_path]
 
-        result = process_erb! src_path
-
         FileUtils.mkdir_p(File.dirname(dst_path))
-        File.open(dst_path, "w+") do | fh |
-          $stderr.puts "#{File.basename($0)}: generating #{dst_path.inspect}" if @verbose > 0
-          fh.write(result)
+        File.unlink(dst_path) rescue nil
+
+        case type = file[:pattern][:type]
+        when :directory
+          return
+
+        when :symlink
+          File.symlink(file[:linkname], dst_path)
+
+        when :erb
+          result = process_erb! src_path
+          
+          File.open(dst_path, "w+") do | fh |
+            $stderr.puts "#{File.basename($0)}: generating #{dst_path.inspect}" if @verbose > 0
+            fh.write(result)
+          end
+
+        else
+          FileUtils.cp(src_path, dst_path)
         end
       
-        src_stat = File.stat(src_path)
-        File.chown(src_stat.uid, nil, dst_path)  if @preserve_user && Process.euid == 0
-        File.chown(nil, src_stat.gid, dst_path)  if @preserve_group
-        File.chmod(src_stat.mode, dst_path) if @preserve_mode
+        unless type == :symlink
+          src_stat = file[:src_stat]
+          File.chown(src_stat.uid, nil, dst_path)  if @preserve_user && Process.euid == 0
+          File.chown(nil, src_stat.gid, dst_path)  if @preserve_group
+          File.chmod(src_stat.mode, dst_path) if @preserve_mode
+        end
       end
  
 
