@@ -118,8 +118,10 @@ module Derby
 
       
       def process_file! file
-        $stderr.write "process_file:\n  "
-        pp file
+        if @verbose > 0
+          $stderr.write "process_file:\n  "
+          pp file
+        end
 
         src_path, dst_path = file[:src_path], file[:dst_path]
 
