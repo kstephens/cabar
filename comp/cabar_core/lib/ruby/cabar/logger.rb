@@ -120,7 +120,7 @@ module Cabar
       else
         if opts[:write]
           unless opts[:prefix] == false
-            @output.write "  #{level.to_s.upcase}: "
+            @output.write "  #{'%8s' % level.to_s.upcase}: "
           end
           msg.each do | msg |
             @output.write msg.to_s
@@ -129,7 +129,7 @@ module Cabar
         else
           msg.each do | msg |
             unless opts[:prefix] == false
-              @output.write "  #{level.to_s.upcase}: "
+              @output.write "  #{'%8s' % level.to_s.upcase}: "
             end
             @output.puts msg.to_s
           end

@@ -65,7 +65,10 @@ module Cabar
       super
 
       @file = $1 if /^(.*):\d+:in / === @file
+
       @name ||= @@default_name
+      raise ArgumentError, "Component in #{@file} does not have a name" unless @name
+
       @component ||= @@default_component
 
       @block = blk
@@ -150,7 +153,7 @@ module Cabar
 
       def register_plugin! plugin
         # Overlay configuration options.
-        config_opts = main.resolver.configuration.config['plugin']
+        config_opts = main.configuration.config['plugin']
         config_opts &&= config_opts[plugin.name]
 
         _logger.debug { "plugin: #{plugin} configuration #{config_opts.inspect}" }
@@ -163,13 +166,17 @@ module Cabar
         end
 
         # Do not register if disabled.
-        return unless plugin.enabled?
+        unless plugin.enabled?
+          _logger.debug { "plugin: #{plugin} named #{name} disabled" }
+          return
+        end
 
         name = plugin.name.to_s
 
         # Unfortunately we need to allow multiple plugins to be
         # loaded but not registered.
         if @plugin_by_name[name]
+          _logger.debug { "plugin: #{plugin} named #{name} already exists" }
           return
         end
 
@@ -182,6 +189,8 @@ module Cabar
 
         notify_observers(:plugin_installed, plugin)
         
+        _logger.info { "plugin: #{plugin} installed #{opts.inspect}" }
+
         self
       end
     end

@@ -119,7 +119,7 @@ module Cabar
       # While there are still component paths to search.
       @component_search_path_pending.cabar_each! do | path |
         _logger.debug do
-          "search path #{path.inspect}"
+          "  search path #{path.inspect}"
         end
         @component_search_path << path
         
@@ -131,7 +131,7 @@ module Cabar
         @component_directories_pending.cabar_each! do | dir |
           @component_directories << dir
           _logger.debug do
-            "component dir #{dir.inspect}"
+            "  component dir #{dir.inspect}"
           end
 
           parse_component! dir
@@ -193,7 +193,7 @@ module Cabar
       x = x.cabar_uniq_return!
 
       _logger.debug do
-        "result #{x.inspect}"
+        "search_for_component_directories #{path.inspect} => #{x.inspect}"
       end
 
       x
@@ -230,7 +230,6 @@ module Cabar
     def create_component opts
       opts[:_loader] = self
       c = Component.factory.new opts
-      # c.resolver = self.resolver # YUCK! components know about Resolvers.
       c
     end
 
@@ -291,8 +290,24 @@ private
         comps = { name => comps }
       end
       
-      # Handle plugins.
-      # Use component name as the default Plugin name.
+
+      # Load plugins.
+      load_component_plugins! name, conf, directory
+
+
+      _logger.info do
+        "    loading #{conf_file.inspect}: DONE"
+      end
+
+      [ conf, comps, conf_file ]
+    end
+
+    
+    # Loads a component's plugins.
+    # Use component name as the default Plugin name.
+    def load_component_plugins! name, conf, directory
+
+      # Install plugins.
       if plugin = conf['plugin']
         begin
           plugin = [ plugin ] unless Array === plugin
@@ -322,12 +337,6 @@ private
           main.plugin_manager.delete_observer(self, :plugin_installed)
         end
       end
-
-      _logger.info do
-        "    loading #{conf_file.inspect}: DONE"
-      end
-
-      [ conf, comps, conf_file ]
     end
 
 
