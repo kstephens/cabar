@@ -64,7 +64,8 @@ module Cabar
       @commands = [ ]
       super
 
-      @file = $1 if /^(.*):\d+:in / === @file
+      @file = $1 if /^(.*):\d+/ === @file
+      # $stderr.puts "Plugin file #{@file.inspect}"
 
       @name ||= @@default_name
       raise ArgumentError, "Component in #{@file} does not have a name" unless @name
@@ -141,6 +142,7 @@ module Cabar
       def initialize *args
         @plugins = [ ]
         @plugin_by_name = { }
+        @plugin_by_file = { }
         super
       end
 
@@ -151,7 +153,24 @@ module Cabar
       end
 
 
+      def load_plugin! file
+        file += ".rb" unless /\.rb$/ === file
+        file = File.expand_path(file)
+        return :already if @plugin_by_file[file]
+
+        @plugin_by_file[file] = [ ]
+        _logger.info { "plugin: loading plugin #{file.inspect}" }
+        require file
+        _logger.info { "plugin: loading plugin #{file.inspect}: DONE" }
+        self
+      end
+
+
       def register_plugin! plugin
+        unless @plugin_by_file[plugin.file]
+          raise Error, "Plugin not loaded via Plugin::Manager#load_plugin!"
+        end
+
         # Overlay configuration options.
         config_opts = main.configuration.config['plugin']
         config_opts &&= config_opts[plugin.name]
@@ -186,6 +205,7 @@ module Cabar
         plugin.manager = self
         @plugins << plugin
         @plugin_by_name[name] = plugin
+        @plugin_by_file[plugin.file] << plugin
 
         notify_observers(:plugin_installed, plugin)
         
@@ -210,6 +230,7 @@ module Cabar
       # The default documentation.
       attr_accessor :default_doc
 
+
       def initialize *args, &blk
         @target = nil
         @target_stack = [ ]
@@ -223,6 +244,18 @@ module Cabar
       def _logger
         @_logger ||=
           @plugin._logger
+      end
+      
+
+      # Returns the Plugin Manager.
+      def manager
+        @plugin.manager
+      end
+
+
+      # Returns the current Main objects.
+      def main
+        Cabar::Main.current
       end
 
 

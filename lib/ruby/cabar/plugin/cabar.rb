@@ -13,13 +13,12 @@ DOC
   $:.map { | dir | Dir["#{dir}/cabar/plugin/*.rb"] }.
     flatten.
     reject { | fn | fn == __FILE__ }.
-    map { | fn | %r{/(cabar/plugin/[a-z0-9_-]+)\.rb$}i =~ fn ? $1 : nil }.
     compact.
     sort.
     uniq.
     each do | n |
       # $stderr.puts "loading #{n}"
-      require n
+      manager.load_plugin! n
     end
 
   doc "Internals and introspection."

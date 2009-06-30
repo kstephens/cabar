@@ -86,32 +86,60 @@ module Cabar
 
 
       def match_output generated, expected
+
+        if Array === expected and (Regexp === expected[0] or String === expected[0])
+          g = generated
+          expected.each do | e |
+            case e
+            when String
+              e.split("\n").each do | e |
+                e_rx = match_output_rx(e, :eol)
+                unless e_rx === g
+                  $stderr.puts "expected:\n#{e}\n----"
+                  case e
+                  when /^([a-z0-9_]+=)/i
+                    g_rx = /^(#{$1}.*)^/
+                    # $stderr.puts "g_rx = #{g_rx.inspect}"
+                    
+                    $stderr.puts "generated:\n#{g_rx === g ? $1 : generated}\n----"
+                  else
+                    $stderr.puts "generated:\n#{generated}\n----"
+                  end
+                end
+                g.should match(e_rx)
+              end
+            when Regexp
+              g.should match(e)
+            end
+          end
+        else
 #        require 'rubygems'
 #        gem 'diff-lcs'
 #        require 'diff-lcs'
 
-        e = match_output_rx expected
-        g = generated
-        g = g.gsub(/(:|")test\/ruby:/) { $1 }
-
-        unless e === g
-          e = expected.split("\n")
-          g = generated.split("\n")
-          e.zip(g) do | (el, gl) |
-            el_rx = match_output_rx el, :eol
-            unless el_rx === gl
-              $stderr.puts "- #{el_rx.inspect}"
-              $stderr.puts "+  #{gl.inspect}"
+          e = match_output_rx expected
+          g = generated
+          g = g.gsub(/(:|")test\/ruby:/) { $1 }
+          
+          unless e === g
+            e = expected.split("\n")
+            g = generated.split("\n")
+            e.zip(g) do | (el, gl) |
+              el_rx = match_output_rx el, :eol
+              unless el_rx === gl
+                $stderr.puts "- #{el_rx.inspect}"
+                $stderr.puts "+  #{gl.inspect}"
+              end
             end
           end
+          
+          g.should match(e)
         end
-
-        g.should match(e)
-
       rescue Exception => err
         $stderr.puts "generated:\n#{generated}\n----"
         raise err.class.new(err.message + "\n#{err.backtrace * "\n"}")
       end
+
 
       def match_output_rx expected, eol = false
         e = expected.gsub('<<CABAR_BASE_DIR>>', Cabar::CABAR_BASE_DIR)

@@ -315,28 +315,25 @@ private
           save_name = Cabar::Plugin.default_name = name
 
           # Observe when plugins are installed.
-          main.plugin_manager.add_observer(self, :plugin_installed, :plugin_installed!)
+          plugin_manager.add_observer(self, :plugin_installed, :plugin_installed!)
 
           plugin.each do | file |
             next unless file
 
             file = Cabar.path_expand(file, directory)
 
-            _logger.debug do
-              "    loading plugin #{file.inspect}"
-            end
-
-            require file
-
-            _logger.debug do
-              "    loading plugin #{file.inspect}: DONE"
-            end
+            plugin_manager.load_plugin! file
           end
         ensure
           Cabar::Plugin.default_name = save_name
-          main.plugin_manager.delete_observer(self, :plugin_installed)
+          plugin_manager.delete_observer(self, :plugin_installed)
         end
       end
+    end
+
+
+    def plugin_manager
+      main.plugin_manager
     end
 
 

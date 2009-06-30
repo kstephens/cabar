@@ -6,9 +6,10 @@ describe 'cbr env' do
 
   it 'cbr env # no args' do
     example_main(:args => 'env', 
-                 :match_stdout => <<'EOF')
+                 :match_stdout => [ 
+<<"EOF"
 CABAR_TOP_LEVEL_COMPONENTS="boc"; export CABAR_TOP_LEVEL_COMPONENTS;
-CABAR_REQUIRED_COMPONENTS="boc todo c1 boc_customer gems c3 c2 boc_locale boc_config rubygems cabar ruby"; export CABAR_REQUIRED_COMPONENTS;
+CABAR_REQUIRED_COMPONENTS="boc todo c1 boc_customer gems c3 c2 boc_locale boc_config rubygems cabar ruby derby cabar_core"; export CABAR_REQUIRED_COMPONENTS;
 CABAR_boc_NAME="boc"; export CABAR_boc_NAME;
 CABAR_boc_VERSION="1.1"; export CABAR_boc_VERSION;
 CABAR_boc_DIRECTORY="<<CABAR_BASE_DIR>>/example/repo/dev/boc"; export CABAR_boc_DIRECTORY;
@@ -81,7 +82,7 @@ CABAR_ruby_NAME="ruby"; export CABAR_ruby_NAME;
 CABAR_ruby_VERSION="<<ANY>>"; export CABAR_ruby_VERSION;
 CABAR_ruby_DIRECTORY="<<CABAR_BASE_DIR>>/comp/ruby/std"; export CABAR_ruby_DIRECTORY;
 CABAR_ruby_BASE_DIRECTORY="/usr"; export CABAR_ruby_BASE_DIRECTORY;
-CABAR_ruby_RUBYLIB="<<CABAR_BASE_DIR>>/lib/ruby:<<ANY>>:."; export CABAR_ruby_RUBYLIB;
+CABAR_ruby_RUBYLIB="<<ANY>><<CABAR_BASE_DIR>>/lib/ruby:<<ANY>>:."; export CABAR_ruby_RUBYLIB;
 CABAR_ruby_PATH="/usr/bin"; export CABAR_ruby_PATH;
 CABAR_ENV_PERL5LIB="<<ANY>>"; export CABAR_ENV_PERL5LIB;
 PERL5LIB="<<ANY>>"; export PERL5LIB;
@@ -93,10 +94,11 @@ CABAR_ENV_BOC_LOCALE_PATH="<<CABAR_BASE_DIR>>/example/repo/prod/boc_customer/1.2
 BOC_LOCALE_PATH="<<CABAR_BASE_DIR>>/example/repo/prod/boc_customer/1.2/locale"; export BOC_LOCALE_PATH;
 CABAR_ENV_INCLUDE_PATH="<<CABAR_BASE_DIR>>/example/repo/prod/c3/include"; export CABAR_ENV_INCLUDE_PATH;
 INCLUDE_PATH="<<CABAR_BASE_DIR>>/example/repo/prod/c3/include"; export INCLUDE_PATH;
-CABAR_ENV_RUBYLIB="<<CABAR_BASE_DIR>>/example/repo/dev/c1/lib/ruby:<<CABAR_BASE_DIR>>/example/repo/prod/boc_customer/1.2/lib:<<CABAR_BASE_DIR>>/example/repo/dev/c2/1.2/lib/ruby:<<CABAR_BASE_DIR>>/example/repo/prod/boc_locale/1.1/lib:<<CABAR_BASE_DIR>>/example/repo/prod/boc_config/1.0/lib:test/ruby:<<CABAR_BASE_DIR>>/example:<<CABAR_BASE_DIR>>/lib/ruby:<<ANY>>:."; export CABAR_ENV_RUBYLIB;
-RUBYLIB="<<CABAR_BASE_DIR>>/example/repo/dev/c1/lib/ruby:<<CABAR_BASE_DIR>>/example/repo/prod/boc_customer/1.2/lib:<<CABAR_BASE_DIR>>/example/repo/dev/c2/1.2/lib/ruby:<<CABAR_BASE_DIR>>/example/repo/prod/boc_locale/1.1/lib:<<CABAR_BASE_DIR>>/example/repo/prod/boc_config/1.0/lib:test/ruby:<<CABAR_BASE_DIR>>/example:<<CABAR_BASE_DIR>>/lib/ruby:<<ANY>>:."; export RUBYLIB;
-CABAR_ENV_CABAR_RAKE_FILE="<<CABAR_BASE_DIR>>/example/repo/dev/boc/Rakefile!boc:<<CABAR_BASE_DIR>>/example/repo/dev/c1/Rakefile!c1:<<CABAR_BASE_DIR>>/example/repo/prod/boc_config/1.0/Rakefile!boc_config:<<CABAR_BASE_DIR>>/Rakefile!cabar"; export CABAR_ENV_CABAR_RAKE_FILE;
-CABAR_RAKE_FILE="<<CABAR_BASE_DIR>>/example/repo/dev/boc/Rakefile!boc:<<CABAR_BASE_DIR>>/example/repo/dev/c1/Rakefile!c1:<<CABAR_BASE_DIR>>/example/repo/prod/boc_config/1.0/Rakefile!boc_config:<<CABAR_BASE_DIR>>/Rakefile!cabar"; export CABAR_RAKE_FILE;
+CABAR_ENV_RUBYLIB="<<ANY>>:."; export CABAR_ENV_RUBYLIB;
+RUBYLIB="test/ruby:<<CABAR_BASE_DIR>>/example/repo/dev/c1/lib/ruby:<<CABAR_BASE_DIR>>/example/repo/prod/boc_customer/1.2/lib:<<CABAR_BASE_DIR>>/example/repo/dev/c2/1.2/lib/ruby:<<CABAR_BASE_DIR>>/example/repo/prod/boc_locale/1.1/lib:<<CABAR_BASE_DIR>>/example/repo/prod/boc_config/1.0/lib:<<CABAR_BASE_DIR>>/comp/derby/1.0/lib/ruby:<<CABAR_BASE_DIR>>/comp/cabar_core/lib/ruby:<<CABAR_BASE_DIR>>/example:<<CABAR_BASE_DIR>>/lib/ruby:<<ANY>>:."; export RUBYLIB;
+RUBYLIB="test/ruby:<<CABAR_BASE_DIR>>/example/repo/dev/c1/lib/ruby:<<CABAR_BASE_DIR>>/example/repo/prod/boc_customer/1.2/lib:<<CABAR_BASE_DIR>>/example/repo/dev/c2/1.2/lib/ruby:<<CABAR_BASE_DIR>>/example/repo/prod/boc_locale/1.1/lib:<<CABAR_BASE_DIR>>/example/repo/prod/boc_config/1.0/lib:<<CABAR_BASE_DIR>>/comp/derby/1.0/lib/ruby:<<CABAR_BASE_DIR>>/comp/cabar_core/lib/ruby:<<CABAR_BASE_DIR>>/example:<<CABAR_BASE_DIR>>/lib/ruby:<<ANY>>:."; export RUBYLIB;
+CABAR_ENV_CABAR_RAKE_FILE="<<CABAR_BASE_DIR>>/example/repo/dev/boc/Rakefile!boc:<<CABAR_BASE_DIR>>/example/repo/dev/c1/Rakefile!c1:<<CABAR_BASE_DIR>>/example/repo/prod/boc_config/1.0/Rakefile!boc_config:<<CABAR_BASE_DIR>>/Rakefile!cabar:<<CABAR_BASE_DIR>>/comp/derby/1.0/Rakefile!derby:<<CABAR_BASE_DIR>>/example/repo/dev/boc/Rakefile!boc!:<<CABAR_BASE_DIR>>/example/repo/dev/c1/Rakefile!c1!:<<CABAR_BASE_DIR>>/example/repo/prod/boc_config/1.0/Rakefile!boc_config!:<<CABAR_BASE_DIR>>/Rakefile!cabar!:<<CABAR_BASE_DIR>>/comp/derby/1.0/Rakefile!derby!:<<CABAR_BASE_DIR>>/example/repo/dev/boc/Rakefile!boc!!:<<CABAR_BASE_DIR>>/example/repo/dev/c1/Rakefile!c1!!:<<CABAR_BASE_DIR>>/example/repo/prod/boc_config/1.0/Rakefile!boc_config!!:<<CABAR_BASE_DIR>>/Rakefile!cabar!!:<<CABAR_BASE_DIR>>/comp/derby/1.0/Rakefile!derby!!"; export CABAR_ENV_CABAR_RAKE_FILE;
+CABAR_RAKE_FILE="<<CABAR_BASE_DIR>>/example/repo/dev/boc/Rakefile!boc:<<CABAR_BASE_DIR>>/example/repo/dev/c1/Rakefile!c1:<<CABAR_BASE_DIR>>/example/repo/prod/boc_config/1.0/Rakefile!boc_config:<<CABAR_BASE_DIR>>/Rakefile!cabar:<<CABAR_BASE_DIR>>/comp/derby/1.0/Rakefile!derby:<<CABAR_BASE_DIR>>/example/repo/dev/boc/Rakefile!boc!:<<CABAR_BASE_DIR>>/example/repo/dev/c1/Rakefile!c1!:<<CABAR_BASE_DIR>>/example/repo/prod/boc_config/1.0/Rakefile!boc_config!:<<CABAR_BASE_DIR>>/Rakefile!cabar!:<<CABAR_BASE_DIR>>/comp/derby/1.0/Rakefile!derby!:<<CABAR_BASE_DIR>>/example/repo/dev/boc/Rakefile!boc!!:<<CABAR_BASE_DIR>>/example/repo/dev/c1/Rakefile!c1!!:<<CABAR_BASE_DIR>>/example/repo/prod/boc_config/1.0/Rakefile!boc_config!!:<<CABAR_BASE_DIR>>/Rakefile!cabar!!:<<CABAR_BASE_DIR>>/comp/derby/1.0/Rakefile!derby!!"; export CABAR_RAKE_FILE;
 CABAR_ENV_PATH="<<CABAR_BASE_DIR>>/example/repo/dev/boc/bin:<<CABAR_BASE_DIR>>/example/repo/dev/c1/bin:<<CABAR_BASE_DIR>>/example/repo/prod/c3/bin:<<CABAR_BASE_DIR>>/example/repo/dev/c2/1.2/bin:<<CABAR_BASE_DIR>>/bin:<<ANY>>"; export CABAR_ENV_PATH;
 PATH="<<CABAR_BASE_DIR>>/example/repo/dev/boc/bin:<<CABAR_BASE_DIR>>/example/repo/dev/c1/bin:<<CABAR_BASE_DIR>>/example/repo/prod/c3/bin:<<CABAR_BASE_DIR>>/example/repo/dev/c2/1.2/bin:<<CABAR_BASE_DIR>>/bin:<<ANY>>"; export PATH;
 CABAR_ENV_GEM_PATH="<<CABAR_BASE_DIR>>/example/repo/plat/gems/1.0/gems-<<ANY>>"; export CABAR_ENV_GEM_PATH;
@@ -108,6 +110,8 @@ TEST2="test2"; export TEST2;
 unset CABAR_ENV_TEST3;
 unset TEST3;
 EOF
+]
+)
   end
 
 
