@@ -33,28 +33,28 @@ module Cabar
     end
 
 
-    # The manager for this plugin.
+    # The Plugin::Manager for this Plugin.
     attr_accessor :manager
 
-    # Name of this plugin.
+    # Name of this Plugin.
     attr_accessor :name
 
-    # If false, the plugin is disabled by default.
+    # If false, the Plugin is disabled by default.
     attr_accessor :enabled
 
-    # Source of this plugin.
+    # Source of this Plugin.
     attr_accessor :file
 
     # Block to install the plugin components using the Builder.
     attr_accessor :block
 
-    # Array of Facets defined by this plugin.
+    # Array of Facet objects defined by this Plugin.
     attr_accessor :facets
     
-    # Array of commands defined by this plugin.
+    # Array of Command objects defined by this Plugin.
     attr_accessor :commands
 
-    # The Component that this plugin belongs to.
+    # The Component that this Plugin is declared in.
     attr_accessor :component
 
 
@@ -132,11 +132,14 @@ module Cabar
       # The Cabar::Main object.
       attr_accessor :main
 
-      # The list of plugins in installed order.
+      # The Array of Plugin objects in installed order.
       attr_reader :plugins
 
-      # Plugin by name.
+      # Hash of Plugin objects by name.
       attr_reader :plugin_by_name
+
+      # Hash of Array of Plugin objects by absolute file name.
+      attr_reader :plugin_by_file
 
 
       def initialize *args
@@ -156,13 +159,23 @@ module Cabar
       def load_plugin! file
         file += ".rb" unless /\.rb$/ === file
         file = File.expand_path(file)
-        return :already if @plugin_by_file[file]
 
-        @plugin_by_file[file] = [ ]
-        _logger.info { "plugin: loading plugin #{file.inspect}" }
-        require file
-        _logger.info { "plugin: loading plugin #{file.inspect}: DONE" }
-        self
+        if plugins = @plugin_by_file[file]
+          # Notify any active observers (i.e. Loader) so
+          # it can associate existing plugins with the proper Components.
+          # See comp.spec.
+          plugins.each do | plugin |
+            notify_observers(:plugin_installed, plugin)
+          end
+          :already
+        else
+          @plugin_by_file[file] = [ ]
+          _logger.info { "plugin: loading plugin #{file.inspect}" }
+          require file
+          _logger.info { "plugin: loading plugin #{file.inspect}: DONE" }
+
+          self
+        end
       end
 
 
@@ -325,7 +338,7 @@ module Cabar
 
         cmd._defined_in = @plugin
 
-        @plugin.commands << cmd
+        # @plugin.commands << cmd
 
         _with_target cmd.subcommands, &blk
 

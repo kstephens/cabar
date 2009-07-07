@@ -65,7 +65,7 @@ module Cabar
     #attr_accessor :directory
     attr_accessor :base_directory
     
-    # Associations.
+    # Associations:
     
     # The Loader object that loaded this Component.
     attr_accessor :_loader
@@ -79,7 +79,7 @@ module Cabar
     # All the RequiredComponent Facets.
     attr_reader :requires
     
-    # Computed
+    # Computed:
     
     # Components that depend on this Component.
     attr_reader :dependents
@@ -90,10 +90,10 @@ module Cabar
     # General configuration settings for this Component.
     attr_accessor :configuration
     
-    # Array of plugins defined by this component.
-    attr_accessor :plugins
+    # Array of Plugin objects defined by this Component.
+    attr_accessor :plugins, :plugins_status
 
-    # The temporary configuration Hash.
+    # The configuration Hash loaded by the Loader.
     attr_accessor :_config
     
 
@@ -112,26 +112,16 @@ module Cabar
       end
     end
 
-    def self.current
-      @@current
-    end
 
-    def as_current 
-      current_save = @@current
-      @@current = self
-      yield
-    ensure
-      @@current = current_save
-    end
-
-    
     # The CABAR type.
     CABAR_STR = 'cabar'.freeze
+
 
     def initialize *args
       @component_type = CABAR_STR
 
       @plugins = [ ]
+      @plugins_status = nil
       super
       
       # See component_associations.
@@ -147,6 +137,7 @@ module Cabar
       @configuration = { }
     end
     
+
     def deepen_dup!
       super
       @facets = [ ]
@@ -155,17 +146,21 @@ module Cabar
       self
     end
     
+
     def plugins= x
+      raise TypeError, "expected Array, given #{x.class}" unless Array === x
       @plugins = x
       x.each { | x | x.component = self }
       x
     end
+
 
     # Returns the base directory for facet artifacts.
     def base_directory
       @base_directory ||=
         directory
     end
+
     
     # Returns true if the Component is top-level.
     # Top-level components are automatcially required at top-level.
@@ -174,11 +169,13 @@ module Cabar
       o[:top_level]
     end
 
+
     # Returns true if the Component is enabled.
     def enabled?
       o = _options
-      o[:enabled].nil? || o[:enabled]
+      o[:enabled] != false
     end
+
 
     # Returns true if the Component's status is complete.
     # This can be used to stub components for future use.
@@ -191,6 +188,7 @@ module Cabar
     def complete?
       (x = status).nil? || x == 'complete'
     end
+
 
     # Called when configuration is applied to a Component
     # from a Facet.
@@ -212,6 +210,7 @@ module Cabar
       end
     end
     
+
     # Returns a Constraint object that exactly matches
     # this Component.
     def to_constraint
@@ -221,6 +220,7 @@ module Cabar
                                  :component_type => component_type
                                  )
     end
+
 
     # Convert to a String representation that
     # is similar to a Constraint String representation.
@@ -238,6 +238,7 @@ module Cabar
       s
     end
     
+
     def inspect *args
       to_s(*args).inspect
     end
@@ -245,11 +246,15 @@ module Cabar
     
     # friend
 
-    # Called to give some facets an opportunity to add functionality
-    # before other Componets are fully parsed from configuration.
+    # Called by Loader to give some facets an opportunity to add functionality
+    # before other Components are fully parsed from configuration.
     # E.g.: the 'components' Facet changes component_search_path to
     # allow recursive components.
-    def parse_configuration_early! conf = self._config
+    def configure_early! conf = self._config
+      _loader._logger.debug do
+         "  Component#configure_early! #{self._config_file}"
+      end
+
       (conf['facet'] || conf['provides'] || conf['provide'] || EMPTY_HASH).each do | k, opts |
         f = create_facet k, opts, :early => true
       end
@@ -257,11 +262,15 @@ module Cabar
       self
     end
 
-    def parse_configuration! conf = self._config
+
+    # Called by Loader after #configure_early! to instantiate the remaining Facets.
+    def configure! conf = self._config
       return if @configured
       @configured = true
       
-      # $stderr.puts "configuring #{self._config_file}"
+      _loader._logger.debug do
+        "  Component#configure! #{self._config_file}"
+      end
 
       @_config = nil
       
@@ -330,23 +339,27 @@ module Cabar
       end
     end
     
+
     def select_component! resolver
       facets.each do | f |
         f.select_component! resolver
       end
     end
+
     
     def resolve_component! resolver
       facets.each do | f |
         f.resolve_component! resolver
       end
     end
+
     
     def require_component! resolver
       facets.each do | f |
         f.require_component! resolver
       end
     end
+
     
     # Called when a RequiredComponent facet resolves to
     # this Component; dependent is the Component
@@ -361,6 +374,7 @@ module Cabar
 
       self
     end
+
     
     # Returns all the immediate Component dependencies.
     #
@@ -377,14 +391,16 @@ module Cabar
       end
     end
 
+
     # friend
     
-    # Returns true if this Component has a facet by
+    # Returns true if this Component has a Facet by
     # name or prototype.
     def has_facet? f
       f = f.key if Facet === f
       @facet_by_key.key? f
     end
+
 
     # Returns the Facet for this Component by name
     # or prototype.
@@ -393,7 +409,8 @@ module Cabar
       @facet_by_key[f]
     end
 
-    # Called when a new facet is attached to this component.
+
+    # Called when a new Facet is attached to this component.
     def attach_facet! f
       return f unless f
 

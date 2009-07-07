@@ -1,7 +1,11 @@
 cabar:
   version: v1.0
+
   component:
     name: c2
     version: v1.2
+
+  plugin: cabar.rb
+
   provides:
     lib/ruby: true

@@ -67,7 +67,21 @@ module Cabar
         end
         @a
       end
+
       
+      # Returns an array of the most recent versioned objects with unique names.
+      def most_recent
+        result = [ ]
+        names = { }
+        to_a.each do | x |
+          next if names[x.name]
+          names[x.name] = true
+          result << x
+        end
+        result
+      end
+
+
       def to_a
         _sort!
       end

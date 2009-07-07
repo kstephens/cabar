@@ -26,12 +26,15 @@
 cabar:
   version: '1.0'
   enabled: <%= rubygems_info[:installed].inspect %>
+
   component:
     name: rubygems
     version: v<%= rubygems_info[:version] || '0.1' %>
     description: "Rubygems - Cabar support facets"
     standard_gem_path: <%= rubygems_info[:GEM_PATH].inspect %>
+
   plugin: 'cabar.rb'
+
   requires:
     component:
       ruby: true

@@ -1,11 +1,14 @@
 cabar:
   version: v1.0
+
   # Note: component name/version is inferred from directory name.
   component: true
   # Note: bin and lib/ruby facets are inferred from directory names.
   requires:
     component: 
       ruby: true
+
+  plugin: cabar.rb
 
   facet:
     action:

@@ -15,7 +15,9 @@ Cabar::Plugin.new :name => 'cabar/action' do
   #   name_2: cmd_2
   #
   # See "cbr action list".
-  class Cabar::Facet::Action < Cabar::Facet
+  module Cabar
+  class Facet
+  class Action < self
     # The Hash of action names to action commands.
     attr_accessor :action
     
@@ -122,6 +124,8 @@ Cabar::Plugin.new :name => 'cabar/action' do
         ]
     end
   end # class
+  end # class
+  end # module
   
 
   facet :action, 

@@ -4,8 +4,7 @@ Cabar::Plugin.new :name => 'cabar/component', :documentation => 'Component suppo
 
   require 'cabar/renderer/dot'     # Dot graph support.
 
-  facet :required_component, :class => Cabar::Facet::RequiredComponent
-  
+
   cmd_group [ :component, :comp, :c ] do
     doc "[ --verbose ] 
 Lists all available components."
@@ -79,16 +78,6 @@ Lists the current settings for required components."
     
   end # cmd_group
   
-
-  ##################################################################
-  # Recursive subcomponents.
-  #
-
-  facet :components, 
-    :class => Cabar::Facet::Components,
-    :path => [ 'comp' ],
-    :inferrable => true
-
 end # plugin
 
 

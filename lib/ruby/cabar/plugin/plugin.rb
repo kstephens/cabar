@@ -9,7 +9,7 @@ List plugins."
       name = cmd_args.shift
 
       print_header :plugin
-      Cabar::Main.current.plugin_manager.plugins.each do | plugin |
+      main.plugin_manager.plugins.each do | plugin |
         if name && ! (name === plugin.name)
           next
         end
