@@ -2,7 +2,9 @@
 task :default => [ :test ]
 
 task :test do
-  sh "bin/derby -v -D a1.foo a1.foo -Dbin.script.message=YO -C example gen"
+  puts "Running derby basic tests"
+  sh "rm -rf gen"
+  sh "bin/derby -D a1.foo a1.foo -Dbin.script.message=YO -C example gen"
   sh "gen/bin/script"
   sh "cat gen/b/a2.txt"
 end

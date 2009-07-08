@@ -7,8 +7,8 @@ module Cabar
   class Environment
     include Cabar::Env
 
-    def initialize
-      @h = { }
+    def initialize opts = nil
+      @h = opts ? opts.dup : { }
       @read_only = { }
     end
 
@@ -27,18 +27,27 @@ module Cabar
 
     def [](key)
       raise TypeError, "key must be String" unless String === key
+      @h[key]
     end
 
 
     def []=(key, value)
-      raise TypeError, "key must be String" unless String === key
-      raise ArgumentError, "key #{key.inspect} is read-only" if @read_only[key]
-      @h[key] = value
+      @h[check_read_only!(key)] = value
     end
 
 
+    def check_read_only! key
+      raise TypeError, "key must be String" unless String === key
+      raise ArgumentError, "key #{key.inspect} is read-only" if @read_only[key]
+      key
+    end
+
+
+    # Marks a key read-only.
+    # Returns self.
     def read_only! key
       @read_only[key] = true
+      self
     end
 
 
@@ -62,12 +71,34 @@ module Cabar
     end
 
 
-    # Executes block while defining the global ENV with each element of env.
-    # ENV is restored after completion of the block.
-    # nil values are equivalent to deleting the ENV var.
+    def delete *args
+      args.each do | k |
+        @h.delete(check_read_only!(k))
+      end
+    end
+
+
+    def to_hash
+      @h.dup
+    end
+
+
+    def from_hash! h
+      h.each do | k, v |
+        self[k] = v
+      end
+      self
+    end
+
+
+    # Executes block while setting dst with each element of env.
+    # dst is restored after completion of the block.
+    # nil values are equivalent to deleting the dst element
     #
-    # NOT THREAD-SAFE.
-    def with_env dst = nil
+    # dst defaults to the global ENV
+    #
+    # NOT THREAD-SAFE if dst == ENV
+    def with dst = nil
       dst ||= ENV
       with_env(@h, dst) do
         yield

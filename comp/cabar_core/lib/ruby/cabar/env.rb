@@ -3,20 +3,21 @@ module Cabar
   # ENV Environment variable support.
   module Env
 
-    # Executes block while defining the global ENV with each element of env.
-    # ENV is restored after completion of the block.
-    # nil values are equivalent to deleting the ENV var.
+    # Executes block while defining the dst Hash with each element of env.
+    # dst is restored after completion of the block.
+    # nil values are equivalent to deleting the dst key/value.
     #
+    # dst defaults to the global ENV
     # NOT THREAD-SAFE.
     def with_env env, dst = nil
       dst ||= ENV
-      save_env = { }
+      dst_save = { }
 
       env.each do | k, v |
         k = k.to_s
-        save_env[k] = dst[k]
+        dst_save[k] = dst[k]
         if v
-          dst[k] = (v = v.to_s)
+          dst[k] = v
         else
           dst.delete(k)
         end
@@ -26,13 +27,14 @@ module Cabar
       yield
 
     ensure
-      env.keys do | k |
+      env.keys.each do | k |
         k = k.to_s
-        if v = save_env[k]
+        if v = dst_save[k]
           dst[k] = v
         else
           dst.delete(k)
         end
+        # $stderr.puts " RESTORE #{k}=#{v.inspect}"
       end
     end
     

@@ -1,3 +1,5 @@
+require "spec/rake/spectask"
+
 ######################################################################
 
 CURRENT_DIR = File.expand_path(File.dirname(__FILE__))
@@ -48,4 +50,34 @@ task :docs_example => :docs do
 end
 
 task :publish_docs => :docs_example
+
+
+######################################################################
+
+
+desc "run all comp/* tests"
+task :test_comps
+task :test => :test_comps
+
+comp_dirs = [ ]
+Dir["comp/*/Rakefile"].each do | rf |
+  dir = File.dirname(rf)
+  name = File.basename(dir)
+  comp_dirs << [ dir, name ]
+end
+
+Dir["comp/*/*/Rakefile"].each do | rf |
+  dir = File.dirname(rf)
+  name = File.basename(File.dirname(dir))
+  comp_dirs << [ dir, name ]
+end
+
+comp_dirs.each do | (dir, name) |
+  desc "run tests in #{dir}"
+  name = "test_comp_#{name}".to_sym
+  task name do 
+    sh "cd #{dir} && rake test"
+  end
+  task :test_comps => name
+end
 
