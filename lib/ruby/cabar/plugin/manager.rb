@@ -51,6 +51,7 @@ module Cabar
           plugins.each do | plugin |
             notify_observers(:plugin_installed, plugin)
           end
+
           :already
         else
           @plugin_by_file[file] = [ ]

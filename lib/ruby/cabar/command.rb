@@ -187,11 +187,11 @@ module Cabar
     end
 
 
-    # Returns a cached Selection object for the main Resolver with the cmd_opts.
-    # FIXME: THIS SHOULD CLONE THE Main#resolver.
+    # Returns a cached Selection object for a clone of the main Resolver 
+    # with the cmd_opts.
     def selection
       @selection ||=
-        @main.resolver.selection(:cmd_opts => cmd_opts)
+        @main.resolver.dup.selection(:cmd_opts => cmd_opts)
     end
 
 

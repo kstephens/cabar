@@ -106,7 +106,6 @@ module Cabar
     #
 
     # Creates a new Selection associated with this Resolver.
-    # FIXME: This should clone self.
     def selection opts = nil
       opts ||= { }
       opts[:resolver] = self
@@ -123,10 +122,12 @@ module Cabar
         main.configuration
     end
 
+
     # Applies the current configuration to this Resolver.
     def apply_configuration!
-      configuration.apply_configuration! self
+      configuration.apply_configuration_to_resolver! self
     end
+
 
     # Applies the component requires configuration to this Resolver.
     # This will try CABAR_REQUIRE environment variable
@@ -153,6 +154,7 @@ module Cabar
       @loader ||=
         main.loader
     end
+
 
     # Force loading of a component directory.
     # Used to force cabar to load itself.
@@ -206,8 +208,11 @@ module Cabar
       end
     end
 
+
     # Select a component by constraint.
     # This reduces the selected_components set.
+    #
+    # NOTE: THIS SHOULD BE RENAMED select_component! since it is a mutator.
     def select_component opts
       notify_observers :before_select_component, opts
 
@@ -280,7 +285,7 @@ module Cabar
         # $stderr.puts "opts = #{opts.inspect}"
         opts[:dependent] = constraint.to_s
         unresolved_component! opts
-        check_unresolved_components
+        check_unresolved_components!
         if unresolved_components_ok?
           return nil
         else
@@ -353,17 +358,22 @@ module Cabar
     def resolve_components!
       notify_observers :before_resolve_components!
 
+      @phase = :select
       required_components.each do | c |
         c.select_component!(self)
       end
 
+      @phase = :resolve
       required_components.each do | c |
         c.resolve_component!(self)
       end
 
+      @phase = :require
       required_components.each do | c |
         c.require_component!(self)
       end
+
+      @phase = :complete
 
       notify_observers :after_resolve_components!
 
@@ -398,7 +408,7 @@ module Cabar
     # If there are any, raise an error.
     # 
     # TODO: Make this use the yaml error formatter.
-    def check_unresolved_components
+    def check_unresolved_components!
       return self unless unresolved_components? 
       return self if unresolved_components_ok?
 
@@ -455,7 +465,7 @@ END
     def validate_components!
       notify_observers :before_validate_components!
 
-      check_unresolved_components
+      check_unresolved_components!
 
       required_components.each do | c |
         c.validate!(self)
@@ -636,6 +646,7 @@ END
 
       [ coll, comp_facet ]
     end
+
 
     # Renders this Resolver on a Cabar::Renderer,
     # after validating all components.

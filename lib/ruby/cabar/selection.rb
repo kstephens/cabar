@@ -11,11 +11,11 @@ module Cabar
     #quick and dirty macro we use to clear the to_a cache
     def self.attr_accessor_with_clear method_name, var
       attr_reader method_name
-      vars_to_clear=[*var].map{|v|('@'+v.to_s).to_sym}
-      var_to_set=('@'+method_name.to_s).to_sym
-      define_method (method_name.to_s + '=').to_sym do |x|
-        vars_to_clear.each{|var| instance_variable_set var, nil }
-        instance_variable_set (var_to_set).to_sym, x
+      vars_to_clear = [*var].map{ | v | ('@' + v.to_s).to_sym }
+      var_to_set = ('@' + method_name.to_s).to_sym
+      define_method((method_name.to_s + '=').to_sym) do |x|
+        vars_to_clear.each { | var | instance_variable_set var, nil }
+        instance_variable_set((var_to_set).to_sym, x)
       end
     end
         
@@ -47,6 +47,7 @@ module Cabar
     # The required Component from select_constraint.
     attr_accessor_with_clear :selected_component, :to_a
 
+
     def initialize *args
       @selected_component = nil
       @select_constraint =
@@ -63,6 +64,7 @@ module Cabar
         Cabar::Logger.new(:name => :selection,
                           :delegate => @resolver.main._logger)
     end
+
 
     # Parses command line options to determine how to 
     # select Components.
@@ -100,6 +102,7 @@ module Cabar
       self
     end
     
+
     # Returns a Constraint object for the '- component', --name=<<name>> or --version=<<version>> options.
     def component_constraint
       unless @component_constraint
@@ -121,6 +124,7 @@ module Cabar
       end
       @component_constraint.first
     end
+
 
     # Returns an Array representation of the selected Components.
     def to_a

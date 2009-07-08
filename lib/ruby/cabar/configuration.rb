@@ -181,7 +181,7 @@ module Cabar
 
     # Applies the component selection configuration to the Resolver.
     #
-    def apply_configuration! resolver
+    def apply_configuration_to_resolver! resolver
       by = "config@#{config['config_file_path'].inspect}"
       
       # Apply component selection.
@@ -196,12 +196,15 @@ module Cabar
         
         resolver.select_component opts
       end
+    end
 
 
-      # Do plugin configurations.
-      # plugin.each do | plugin |
-      #  plugin.apply_configuration self
-      # end
+
+    # Configure plugins.
+    def apply_configuration_to_plugins! plugin_manager
+      plugin_manager.plugins.each do | plugin |
+        plugin.apply_configuration! self
+      end
     end
 
 
@@ -248,6 +251,7 @@ module Cabar
       opts
     end
 
+
     # Defaults to CABAR_CONFIG environement variable OR current directory.
     def component_search_path
       unless @component_search_path
@@ -282,6 +286,7 @@ module Cabar
 
       x
     end
+
 
     def config_file_path= x 
       case y = x
@@ -354,6 +359,7 @@ module Cabar
           x
         end
     end
+
     
     # Validates a cabar configuration hash.
     def validate_config_hash cfg
