@@ -1,5 +1,5 @@
 
-require 'cabar'
+require 'cabar_core'
 
 module Cabar
 

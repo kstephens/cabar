@@ -4,7 +4,6 @@ task :default => [ :test ]
 
 desc "run all tests"
 Spec::Rake::SpecTask.new(:test) do |t|
-  t.ruby_opts << '-I../../lib/ruby' # needs cabar.rb
   t.ruby_opts << '-Ilib/ruby'
   t.spec_files = FileList["test/ruby/**/*.spec"]
 end

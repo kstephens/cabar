@@ -17,7 +17,7 @@ module Cabar
         k = k.to_s
         dst_save[k] = dst[k]
         if v
-          dst[k] = v
+          dst[k] = (v = v.to_s)
         else
           dst.delete(k)
         end

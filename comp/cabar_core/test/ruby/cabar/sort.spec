@@ -1,7 +1,5 @@
 # -*- ruby -*-
 
-require 'cabar'
-
 # Test target.
 require 'cabar/sort'
 
