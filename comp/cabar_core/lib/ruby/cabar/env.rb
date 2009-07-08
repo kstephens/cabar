@@ -1,7 +1,7 @@
 
 module Cabar
-  # Environment variable support.
-  module Environment
+  # ENV Environment variable support.
+  module Env
 
     # Executes block while defining the global ENV with each element of env.
     # ENV is restored after completion of the block.

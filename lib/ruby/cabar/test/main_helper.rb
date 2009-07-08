@@ -3,7 +3,7 @@ require 'cabar/main'
 require 'cabar/error'
 
 require 'shellwords'
-require 'cabar/environment'
+require 'cabar/env'
 require 'cabar/test/io_helper'
 
 
@@ -14,7 +14,7 @@ module Cabar
   module Test
     module MainHelper
       include IoHelper
-      include Cabar::Environment
+      include Cabar::Env
 
 
       # Runs commands under the cabar/example/ directory using the repo/ and cabar_config.yml
