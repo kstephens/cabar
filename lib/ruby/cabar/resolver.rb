@@ -557,6 +557,8 @@ END
     # Dependency order allows top-level components Facets to
     # occur before depended components in PATH, RUBYLIB, and
     # other search path oriented environment variables.
+    # 
+    # FIXME: Refactor this using collect_facet.
     def collect_facets coll = { }, comp_facet = { }
       component_dependencies(required_components.to_a).each do | c |
         next unless c.complete?
@@ -598,7 +600,6 @@ END
           # $stderr.puts "  creating facet for ENV[#{fp.env_var}] => #{v.inspect}"
           facet = Facet.create(ft, 
                                :path => Cabar.path_split(v),
-                               :resolver => self,
                                :owner => self)
         end
 
@@ -635,7 +636,6 @@ END
 
           facet = Facet.create(ft, 
                                :path => Cabar.path_split(v),
-                               :resolver => self,
                                :owner => self)
           
           facet.compose_facet! f if f
@@ -645,6 +645,49 @@ END
       end
 
       [ coll, comp_facet ]
+    end
+
+
+    # FIXME: Refactor collect_facets to use this method.
+    def collect_facet facet, components = nil
+      facet = Facet.proto_by_key(facet) unless Facet === facet
+
+      f = nil
+
+      components ||= component_dependencies(required_components.to_a)
+
+      components.each do | c |
+        c_facet = c.facet(facet)
+        next unless c_facet && c_facet.enabled?
+         
+        if c_facet.is_composable? 
+          if f
+            f.compose_facet! c_facet
+            f
+          else
+            f = c_facet.dup
+            f.owner = c
+          end
+        else
+          f = c_facet
+        end
+      end
+
+      # Facet was never found in any component.
+      f ||= facet 
+
+      # Append the facet's default_path to the end 
+      # of the collected facets.
+      fp = Facet.proto_by_key(facet.key)
+      if fp.is_composable? && fp.standard_path_proc
+        f_standard = f.dup
+        f_standard.owner = self
+        f_standard.abs_path = f.standard_path
+        # $stderr.puts "  f_default #{facet_key.inspect} = #{f_standard.abs_path.inspect}"
+        f.compose_facet! f_standard
+      end
+
+      f
     end
 
 

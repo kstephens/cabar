@@ -8,6 +8,8 @@ Cabar::Plugin.new :name => 'cabar/action' do
   # action facet
   #
 
+  module Cabar
+  class Facet
   # This represents group of commands that can be run on a component.
   #
   # action:
@@ -15,8 +17,6 @@ Cabar::Plugin.new :name => 'cabar/action' do
   #   name_2: cmd_2
   #
   # See "cbr action list".
-  module Cabar
-  class Facet
   class Action < self
     # The Hash of action names to action commands.
     attr_accessor :action
