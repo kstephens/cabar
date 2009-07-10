@@ -66,6 +66,10 @@ module Cabar
 
       # Define a Facet.
       def facet name, opts = nil, &blk
+      	_logger.debug do
+	  "facet #{name.inspect}, #{opts.inspect}"
+	end
+
         opts = _take_doc(opts)
         opts[:key] = name
         opts[:class] ||= Facet::Path

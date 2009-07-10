@@ -1,10 +1,10 @@
 <%
   # Calls ruby to get information about rubygems.
-  rubygems_info = begin
-    eval `unset GEMPATH; ruby -r rubygems -r rubygems/rubygems_version -e 'x = { :version => Gem::RubyGemsVersion, :GEM_PATH => Gem.path }; puts x.inspect;'`.chomp
-  rescue 
-    nil
-  end
+  rubygems_info = {
+    :version => `gem environment version 2>/dev/null`.chomp,
+    :GEM_PATH => `unset GEM_PATH; unset GEM_HOME; gem environment path 2>/dev/null`.chomp.split(Cabar.path_sep),
+  }
+  rubygems_info = nil if rubygems_info[:version].empty?
 
   case rubygems_info
   when Hash

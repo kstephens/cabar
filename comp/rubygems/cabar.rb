@@ -4,16 +4,12 @@ Cabar::Plugin.new :documentation => 'Support for rubygems repository components.
   facet :rubygems, 
         :path_proc => 
           lambda { | f | 
-            'gems-' + 
-            Cabar::Main.current.resolver.
-            selected_components.to_a.
-            select { | c | c.name =~ /^rubygems/ }.
-            first.version.to_s
+            'gems-' + `gem environment version`.chomp
           }, 
         :env_var => :GEM_PATH,
         :standard_path_proc => lambda { | f |
-          x = `ruby -r rubygems -e 'puts Gem.path.inspect' 2>/dev/null`.chomp
-          x = $?.success? ? eval(x) : [ ]
+          x = `unset GEM_PATH; unset GEM_HOME; gem environment path`.chomp.split(Cabar.path_sep)
+          x = $?.success? ? x : [ ]
         }
 
   cmd_group [ :rubygems, :gems ] do
