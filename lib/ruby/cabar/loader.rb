@@ -512,7 +512,7 @@ private
       unless comps['name'] && comps['version']
         case directory
           # name/version OR name-version
-        when /\/([a-z_][^\/]*)[\/-]([0-9]+(\.[0-9])*)$/i
+        when /\/([a-z_][^\/]*)[\/-]([0-9]+(\.[0-9]+)*)$/i
           comps['name'] ||= $1
           comps['version'] ||= $2
           # name
