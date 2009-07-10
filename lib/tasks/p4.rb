@@ -104,12 +104,16 @@ EOF
 
   desc "Display files that should be deleted from p4 based on Manifest"
   task :p4_files_to_delete do
-    pp p4_files_to_delete(VC_OPTS.dup)
+    puts p4_files_to_delete(VC_OPTS.dup) * "\n"
   end
 
   def p4_files_to_delete opts
     manifest = File.read(opts[:manifest]).split("\n").sort.uniq
-    opts[:p4_files_to_delete] ||= p4_files(opts).reject { | f | manifest.include?(f) }.reject { | f | f[0 .. 0] == '.' }
+    opts[:p4_files_to_delete] ||= 
+      p4_files(opts).
+      reject { | f | manifest.include?(f) }.
+      reject { | f | VC_OPTS[:precious] && VC_OPTS[:precious] === f }.
+      reject { | f | f[0 .. 0] == '.' }
   end
 
 

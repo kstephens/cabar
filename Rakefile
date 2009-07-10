@@ -113,4 +113,7 @@ end
 
 require 'lib/tasks/p4_git'
 VC_OPTS[:manifest] = 'Manifest'
+VC_OPTS[:precious] = /^contrib\//
+
+
 
