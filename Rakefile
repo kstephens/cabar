@@ -1,44 +1,38 @@
-require "spec/rake/spectask"
+require 'rubygems'
+require 'rake'
 
-######################################################################
+VC_NAME = 'cabar'
 
-CURRENT_DIR = File.expand_path(File.dirname(__FILE__))
+begin
+  require 'echoe'
+ 
+  $e = Echoe.new(VC_NAME, '1.0') do |p|
+    p.rubyforge_name = 'cabar'
+    p.summary = "Cabar - Component Backplane Manager."
+    p.description = "For more info:
 
-######################################################################
-
-PKG_Name = 'Cabar'
-PKG_Author = 'Kurt Stephens'
-PKG_Email = 'ruby-cabar@umleta.com'
-PKG_DESCRIPTION = %{Cabar - Component Backplane Manager
-
-For more details, see:
-
+http://kurtstephens.com/cabar
+http://github.com/kstephens/cabar/tree/master
 http://rubyforge.org/projects/cabar
 http://cabar.rubyforge.org/
-http://cabar.rubyforge.org/files/README_txt.html
-
-}
-PKG_lib_ruby_dir = 'lib/ruby'
-PKG_manifest_reject = %r{example/.*/gems/.*/gems|example/doc|gen/rdoc}
-
-######################################################################
-
-
-$:.unshift "#{CURRENT_DIR}/lib/ruby"
-
-task :default => [ :test ]
-
-desc "Run tests in example/"
-task :test_example do
-  sh "cd example && rake"
+"
+    p.url = "http://git/"
+    p.author = ['Kurt Stephens']
+    p.email = "ruby-cabar@umleta.com"
+    # p.dependencies = ["launchy"]
+  end
+ 
+rescue LoadError => boom
+  puts "You are missing a dependency required for meta-operations on this gem."
+  puts "#{boom.to_s.capitalize}."
 end
-# task :test => :test_example
+
+require "spec/rake/spectask"
+
 
 task :tgz do
   sh "cd .. && tar -czvf cabar.tar.gz cabar"
 end
-
-require "#{CURRENT_DIR}/rake_helper.rb"
 
 desc "Generates example docs"
 task :docs_example => :docs do
@@ -49,11 +43,44 @@ task :docs_example => :docs do
   sh "find doc -type d -name .svn | xargs rm -rf" 
 end
 
-task :publish_docs => :docs_example
-
 
 ######################################################################
 
+# task :publish_docs => :docs_example
+
+$: << 'lib/ruby'
+
+desc "Run tests in example/"
+task :test_example do
+  sh "cd example && rake"
+end
+# task :test => :test_example
+
+# add spec tasks, if you have rspec installed
+begin
+  require 'spec/rake/spectask'
+ 
+  SPEC_RUBY_OPTS = [ '-I', 'lib/ruby' ]
+  SPEC_FILES = FileList['test/**/*.spec']
+  SPEC_OPTS = ['--color', '--backtrace']
+
+  Spec::Rake::SpecTask.new("spec") do |t|
+    t.ruby_opts = SPEC_RUBY_OPTS
+    t.spec_files = SPEC_FILES
+    t.spec_opts = SPEC_OPTS
+  end
+ 
+  task :test do
+    Rake::Task['spec'].invoke
+  end
+ 
+  Spec::Rake::SpecTask.new("rcov_spec") do |t|
+    t.spec_files = SPEC_FILES
+    t.spec_opts = SPEC_OPTS
+    t.rcov = true
+    t.rcov_opts = ['--exclude', '^spec,/gems/']
+  end
+end
 
 desc "run all comp/* tests"
 task :test_comps
@@ -80,4 +107,10 @@ comp_dirs.each do | (dir, name) |
   end
   task :test_comps => name
 end
+
+
+######################################################################
+
+require 'lib/tasks/p4_git'
+VC_OPTS[:manifest] = 'Manifest'
 
