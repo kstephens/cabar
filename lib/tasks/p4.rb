@@ -13,6 +13,7 @@ begin
     h
   end
 
+
   def p4_pending_cl(opts = nil)
     opts[:p4_set] ||= p4_set
     user = opts[:user] ||= opts[:p4_set][:p4user] || USER
@@ -21,7 +22,7 @@ begin
     vc = opts[:vc] or raise 'vc not specified'
     opts[:p4client] ||= opts[:p4_set][:p4client]
 
-    cmd = "p4 changelists -u '#{user}' -s pending -c '#{opts[:p4client]}' ..."
+    cmd = "p4 changelists -u '#{user}' -s pending -c '#{opts[:p4client]}'"
     # pp opts, cmd
 
     `#{cmd}`.
@@ -35,11 +36,41 @@ begin
   end
 
 
+  def p4_create_cl(opts = nil)
+    name = opts[:name] ||= VC_NAME
+    vc = opts[:vc] or raise 'vc not specified'
+
+    File.open(tmp_file = "/tmp/#{$$}", "w+") do | fh |
+      fh.puts <<"EOF"
+Change:	new
+
+Status:	pending
+
+Description:
+	#{name}: from #{vc}
+
+Files:
+
+EOF
+    end
+    out = `p4 change -i < #{tmp_file.inspect}`.chomp
+    out =~ /Change (\d+) created./ ? $1 : raise("p4 change failed")
+  ensure
+    File.unlink(tmp_file)
+  end
+
+
   desc "Displays the current P4 pending CL"
   task :p4_pending_cl do
     puts p4_pending_cl(VC_OPTS.dup)
   end
-  
+
+  desc "Creates or displays the P4 pending CL"
+  task :p4_create_cl do
+    cl = p4_pending_cl(VC_OPTS.dup) || (p4_create_cl(VC_OPTS.dup) && p4_pending_cl(VC_OPTS.dup))
+    puts cl
+  end
+   
   desc "Displays the current VC root"
   task :vc_root do 
     puts vc_root(VC_OPTS.dup)
@@ -86,7 +117,7 @@ begin
     opts[:user] ||= USER
     opts[:hostname] ||= HOSTNAME
     opts[:vc_m] ||= ENV['m'] || "From #{opts[:user]}@#{opts[:hostname]}"
-    opts[:p4_cl] ||= ENV['c'] || p4_pending_cl(opts)
+    opts[:p4_cl] ||= ENV['c'] || p4_pending_cl(opts) || (p4_create_cl(opts) && p4_pending_cl(opts))
     opts[:vc_root] ||= opts[:get_vc_root].call(opts)
     opts[:manifest] ||= 'Manifest'
 
