@@ -117,6 +117,12 @@ EOF
   end
 
 
+  desc "submit changes to and from p4 and VC"
+  task :p4_submit do
+    p4_submit(VC_OPTS.dup)
+  end
+
+
   def p4_submit(opts = { })
     opts[:user] ||= USER
     opts[:hostname] ||= HOSTNAME
