@@ -16,7 +16,8 @@ begin
                git_revision
              },
              :submit => lambda { | opts | 
-               sh "git commit -a -m #{opts[:vc_m].inspect} || true" 
+               # || true because git commit will fail if there is nothing to commit.
+               sh "git commit -a -m #{opts[:vc_m].inspect} || true"
              }
            })
   
