@@ -32,7 +32,7 @@ module Cabar
       def attach_component! c
         super
         # $stderr.puts "adding component search path #{abs_path.inspect}"
-        _loader.add_component_search_path! abs_path
+        _loader.add_component_search_path! abs_path, :priority => :before
       end
     end # class
 
