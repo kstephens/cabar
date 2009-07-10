@@ -38,10 +38,6 @@ comp/derby/1.0/example/a/a1.txt.erb
 comp/derby/1.0/example/a/a2.txt
 comp/derby/1.0/example/b/a2.txt
 comp/derby/1.0/example/bin/script.erb
-comp/derby/1.0/gen/a/a1.txt
-comp/derby/1.0/gen/a/a2.txt
-comp/derby/1.0/gen/b/a2.txt
-comp/derby/1.0/gen/bin/script
 comp/derby/1.0/lib/ruby/derby.rb
 comp/derby/1.0/lib/ruby/derby/main.rb
 comp/derby/1.0/lib/ruby/derby/processor.rb
