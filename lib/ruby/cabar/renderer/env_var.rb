@@ -34,6 +34,9 @@ module Cabar
         setenv "TOP_LEVEL_COMPONENTS", resolver.top_level_components.map{ | c | c.name }.join(" ")
         
         setenv "REQUIRED_COMPONENTS", comps.map{ | c | c.name }.join(" ")
+
+        render_facets_map resolver.facets
+
         render comps
 
         render resolver.facets.values
@@ -42,11 +45,24 @@ module Cabar
       end
       
 
+      def render_facets_map facets
+        facets = facets.values if Hash === facets
+
+        comment nil
+        comment "Cabar Facets"
+        setenv "PATH_SEP", Cabar.path_sep
+        setenv "FACETS", facets.map{ | f | f.key }.sort.join(",")
+        setenv "FACET_ENV_VAR_MAP", facets.select{ | f | f.env_var }.map{ | f | "#{f.key}=#{f.env_var}" }.sort.join(',')
+      end
+
+
       def render_Selection selection
         if _options[:selected]
           comment "Cabar Selection Environment"
           setenv "SELECTED_COMPONENTS", selection.map{ | c | c.name }.join(" ")
           render selection.to_a
+
+          render_facets_map selection.resolver.facets
 
           render_configuration_env_var selection.resolver.configuration
         else
