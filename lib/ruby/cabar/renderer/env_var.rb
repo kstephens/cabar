@@ -48,6 +48,7 @@ module Cabar
       def render_facets_map facets
         facets = facets.values if Hash === facets
 
+        self.env_var_prefix = "CABAR_"
         comment nil
         comment "Cabar Facets"
         setenv "PATH_SEP", Cabar.path_sep
@@ -60,9 +61,10 @@ module Cabar
         if _options[:selected]
           comment "Cabar Selection Environment"
           setenv "SELECTED_COMPONENTS", selection.map{ | c | c.name }.join(" ")
-          render selection.to_a
 
           render_facets_map selection.resolver.facets
+
+          render selection.to_a
 
           render_configuration_env_var selection.resolver.configuration
         else
