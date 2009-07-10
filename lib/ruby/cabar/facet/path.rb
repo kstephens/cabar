@@ -53,6 +53,14 @@ module Cabar
       attr_accessor :standard_path_proc
 
 
+      def _reformat_options! opts
+        opts = super
+        opts = opts.split(Cabar.path_sep) if String === opts
+        opts = { :path => opts } if Array === opts
+        opts
+      end
+
+
       COMPONENT_ASSOCIATIONS = [ 'provides' ].freeze
       COMPONENT_ASSOCIATIONS_ENV_VAR = [ 'provides', 'environment' ].freeze
       def component_associations
