@@ -114,7 +114,7 @@ module Cabar
         (_env['CABAR_FACETS'] || '').
           split(',').map do | key |
           env_var = facet_key_env_var[key]
-          Facet.new(:key => key, 
+          Facet.new(:key => key.to_sym, 
                     :env_var => env_var,
                     :value => _env[env_var]
                     )
@@ -200,12 +200,12 @@ module Cabar
 
       def facet_by_key
         @facet_by_key ||=
-          facets.inject({ }) { | h, f | h[f.key] = f; h }
+          facets.inject({ }) { | h, f | h[f.key.to_sym] = f; h }
       end
 
       def facet key
         key = key.key if Facet === key 
-        facet_by_key[key.to_s]
+        facet_by_key[key.to_sym]
       end
 
     end # class
