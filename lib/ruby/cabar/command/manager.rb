@@ -147,7 +147,7 @@ module Cabar
         cmd = create_command! name, opts, nil
         cmd.instance_eval &blk if block_given?
         cmd.documentation = <<"DOC"
-[ #{cmd.subcommands.commands.map{|x| x.name}.sort.join(' | ')} ] ...
+[ <<SUBCOMMAND-SYNOPSIS>> ] ...
 * '#{cmd.name_full}' command group.
 
 #{cmd.documentation}

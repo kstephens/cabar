@@ -170,7 +170,17 @@ module Cabar
     # Returns the synopsis of this command from
     # the first line of documentation.
     def synopsis
-      "#{name_full} " + documentation_lines[0]
+      str = "#{name_full} "
+      str << documentation_lines[0]
+      if is_command_group?
+        str.gsub!('<<SUBCOMMAND-SYNOPSIS>>', subcommands.commands.map { | c | c.name }.sort.join(' | '))
+      end
+      str
+    end
+
+
+    def is_command_group?
+      ! subcommands.commands.empty?
     end
 
 

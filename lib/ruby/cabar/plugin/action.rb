@@ -146,6 +146,9 @@ Defined by:
       name_2: cmd_2
 
 If an action command begins with '-' it's error code is ignored.
+If an action command begins with "!exec", the command is executed immediately as
+a process overlay (via exec()); control does not return to cabar after
+the command completes.
 
 DOC
   # 'emacs
