@@ -6,7 +6,8 @@ require 'cabar/renderer'
 
 # Define helpers for built-in commands.
 
-class Cabar::Command
+module Cabar
+class Command
   def print_header str = nil
     puts Cabar.yaml_header(str)
   end
@@ -98,5 +99,7 @@ class Cabar::Command
   end
   
 end # class
+end # module
+
 
 

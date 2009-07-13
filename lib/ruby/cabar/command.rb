@@ -31,22 +31,22 @@ module Cabar
     # The remaining lines are the description.
     attr_accessor :documentation
 
-    # The Proc to be executed for the command.
+    # The Proc to be executed for the Command.
     attr_accessor :proc
 
     # The Command that holds this as a subcommand.
     attr_accessor :supercommand
 
-    # The CommandManager that manages this command.
+    # The Command::Manager that manages this Command.
     attr_accessor :manager
 
-    # A CommandManager for subcommands.
+    # A Command::Manager for subcommands.
     attr_accessor :subcommands
 
     # The object that undefined methods will delegate to.
     attr_accessor :main
 
-    # The plugin this command was defined in.
+    # The Plugin this Command was defined in.
     attr_accessor :_defined_in
 
 

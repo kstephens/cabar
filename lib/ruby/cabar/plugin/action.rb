@@ -196,7 +196,7 @@ Executes an action on all required components.'
     end # cmd
 
 
-    class Cabar::Command
+    helpers do
       def get_actions action = nil
         actions = [ ]
         
@@ -214,7 +214,7 @@ Executes an action on all required components.'
         actions
       end
 
-    end # cmd
+    end # helpers
 
   end # cmd_group
 

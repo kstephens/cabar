@@ -25,8 +25,13 @@ module Cabar
       attr_accessor :default_documentation
 
 
+      # The helper Modules defined for all command under this group.
+      attr_reader :helpers
+
+
       def initialize *args
         @commands = [ ]
+        @helpers = [ ]
         @command_by_name = { }
         @default_documentation = nil
         super
@@ -34,7 +39,7 @@ module Cabar
 
       
       def _logger
-        owner ? owner.logger : Cabar::Main.current._logger
+        owner ? owner._logger : Cabar::Main.current._logger
       end
 
 
@@ -179,6 +184,14 @@ DOC
         end
       end
       
+
+      def create_helpers! blk, caller = caller[1]
+        helpers = Module.new &blk
+        _logger.debug {  "create_helpers! #{caller.inspect} => #{helpers.inspect}" }
+        @helpers << [ helpers, caller ]
+        self
+      end
+
 
       def inspect
         "#<#{self.class} #{object_id} #{owner} #{commands.map{|x| x.name}.inspect}>"

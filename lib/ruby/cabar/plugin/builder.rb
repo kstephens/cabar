@@ -133,6 +133,11 @@ module Cabar
       alias :cmd_group :define_command_group
 
 
+      def helpers &blk
+        _command_manager.create_helpers! blk, caller[0]
+      end
+
+
       private
 
       def _take_doc opts = nil

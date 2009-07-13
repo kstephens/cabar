@@ -30,11 +30,13 @@ module Cabar
         @main._logger
       end
 
+
       # Returns the Cabar::Command::Manager
       def manager
         @manager ||= 
           main.commands
       end
+
       
       # Parses arguments from command line.
       # Returns self.
@@ -158,6 +160,13 @@ module Cabar
           define_method :execute_command!, cmd.proc
         end
         
+        # Attach any helpers from all Managers.
+        m = cmd.manager
+        m.helpers.each do | (helper_module, caller) |
+          # $stderr.puts "adding helper_module from #{caller.inspect}"
+          cmd.extend(helper_module)
+        end
+
         # $stderr.puts "state = #{cmd.state.inspect}"
         # $stderr.puts "cmd = #{cmd.inspect}"
         # $stderr.puts "cmd.methods = #{cmd.methods.sort.inspect}"

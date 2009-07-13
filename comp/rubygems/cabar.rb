@@ -83,7 +83,7 @@ Example:
     end
 
 
-    class Cabar::Command
+    helpers do
       def setup_gem_environment! opts = { }
         selection.to_a
 
@@ -147,7 +147,7 @@ Example:
         
         result
       end
-    end
+    end # helpers
 
   end # cmd_group
 
