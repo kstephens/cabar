@@ -109,6 +109,10 @@ module Cabar
       Builder.factory.new(:plugin => self, :default_doc => documentation, &@block)
 
       @installed = true
+
+    rescue Exception => err
+      raise Error.new(:message => "In plugin #{name.inspect} (in #{file}): #{err.message}", :error => err)
+      
     ensure
       @installing = false
     end
