@@ -30,6 +30,8 @@ comp/cabar_core/lib/ruby/cabar/unshellwords.rb
 comp/cabar_core/lib/ruby/cabar_core.rb
 comp/cabar_core/test/ruby/cabar/environment.spec
 comp/cabar_core/test/ruby/cabar/sort.spec
+comp/cabar_rubygems/cabar.rb
+comp/cabar_rubygems/cabar.yml
 comp/derby/1.0/.gitignore
 comp/derby/1.0/Rakefile
 comp/derby/1.0/bin/derby
@@ -46,8 +48,7 @@ comp/perl/std/cabar.yml
 comp/rake/cabar.rb
 comp/rake/cabar.yml
 comp/ruby/std/cabar.yml
-comp/rubygems/cabar.rb
-comp/rubygems/cabar.yml
+comp/rubygems/std/cabar.yml
 doc/ClassDiagram1.png
 doc/ClassDiagram2.png
 doc/cabar_design_uml.zargo

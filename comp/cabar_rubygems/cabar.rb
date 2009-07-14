@@ -1,18 +1,33 @@
 
 Cabar::Plugin.new :documentation => 'Support for rubygems repository components.' do
 
+  rubygems_component = lambda {
+    @@rubygems_component ||=
+    Cabar::Main.current.resolver.
+    selected_components['rubygems'].first
+  }
+
   facet :rubygems, 
         :path_proc => 
           lambda { | f | 
-            'gems-' + `gem environment version`.chomp
+            'gems-' + rubygems_component.call.version.to_s
           }, 
         :env_var => :GEM_PATH,
         :standard_path_proc => lambda { | f |
-          x = `unset GEM_PATH; unset GEM_HOME; gem environment path`.chomp.split(Cabar.path_sep)
-          x = $?.success? ? x : [ ]
+          rg = rubygems_component.call
+          rg_prog = "#{rg.facet(:bin).path.first}/gem"
+          x = "unset GEM_PATH; unset GEM_HOME; #{rg_prog} environment path 2>/dev/null"
+          # $stderr.puts "   cmd = #{x.inspect}"
+          x = `#{x}`.chomp.split(Cabar.path_sep) rescue nil
+          # $stderr.puts "   rubygems.standard_path_proc = #{x.inspect}"
+          x || [ ]
         }
 
   cmd_group [ :rubygems, :gems ] do
+
+    cmd [ :component ] do
+      puts "#{rubygems_component.call.standard_gem_pathinspect}"
+    end
 
     doc "[ - <component> ]
 List gems repositories."

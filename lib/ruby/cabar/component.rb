@@ -406,7 +406,7 @@ module Cabar
     # or prototype.
     def facet f
       f = f.key if Facet === f
-      @facet_by_key[f]
+      @facet_by_key[f.to_s]
     end
 
 

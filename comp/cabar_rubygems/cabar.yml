@@ -1,0 +1,15 @@
+cabar:
+  version: v1.0
+
+  component:
+    name: cabar_rubygems
+    version: v1.0
+    description: "Cabar rubygems support facets"
+
+  plugin: 'cabar.rb'
+
+  requires:
+    component:
+      ruby: true
+      cabar: true
+

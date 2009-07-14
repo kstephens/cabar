@@ -1,0 +1,29 @@
+<%
+  # Locates and calls the "gem" program to get information about rubygems.
+  rubygems_info = { }
+  rubygems_info[:prog] = File.expand_path(`which gem`.chomp)
+  if rubygems_info[:installed] = ! rubygems_info[:prog].empty?
+    rubygems_info[:version] = `#{rubygems_info[:prog]} environment version 2>/dev/null`.chomp
+    rubygems_info[:bin] = File.dirname(rubygems_info[:prog])
+    rubygems_info[:GEM_PATH] = `unset GEM_PATH; unset GEM_HOME; #{rubygems_info[:prog]} environment path 2>/dev/null`.chomp.split(Cabar.path_sep)
+  end
+ %>
+cabar:
+  version: v1.0
+  enabled: <%= rubygems_info[:installed].inspect %>
+
+  component:
+    name: rubygems
+    version: v<%= rubygems_info[:version] || '0.1' %>
+    description: "Rubygems - found in <%= rubygems_info[:prog] || "UNKNOWN" %>"
+    standard_gem_path: <%= (rubygems_info[:GEM_PATH] || [ ]).inspect %>
+
+  provides:
+    bin: <%= rubygems_info[:bin].inspect %>
+
+  requires:
+    component:
+      ruby: true
+      cabar: true
+      cabar_rubygems: true
+
