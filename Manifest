@@ -131,6 +131,7 @@ lib/ruby/cabar/plugin/path.rb
 lib/ruby/cabar/plugin/perl.rb
 lib/ruby/cabar/plugin/plugin.rb
 lib/ruby/cabar/plugin/ruby.rb
+lib/ruby/cabar/plugin/test.rb
 lib/ruby/cabar/relationship.rb
 lib/ruby/cabar/renderer.rb
 lib/ruby/cabar/renderer/dot.rb

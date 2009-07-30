@@ -37,7 +37,7 @@ DOC
 Show dependency edges between components.
 DOC
 
-      command_option :link_component_versions, false, <<'DOC'
+      command_option :show_link_component_versions, false, <<'DOC'
 Create links between a node for a component name and each component version.
 Also creates links between component versions and a component node.
 DOC
@@ -94,15 +94,24 @@ Show unrequired components (components available but not required)
 as dotted nodes.
 DOC
 
+
       command_option :show_all, false, <<'DOC'
-Enables *everything*
+Enables every show_* option.
+DOC
+
+      command_option :url_transform, false, <<'DOC'
+Transforms the file:///... URL links in the dot output using a Ruby expression bound on _
+
+E.g.:
+  --url-transform='_.sub(%r{^file:///(.*)}){ "http://somedocsite/$1" }'
+
 DOC
 
       attr_reader :resolver
 
       def initialize *args
         @@option_defaults.each do | k, v |
-          instance_variable_set("@#{k}", @show_all || v)
+          instance_variable_set("@#{k}", (k.to_s =~ /^show/ ? @show_all : nil)|| v)
         end
 
         super
@@ -232,7 +241,7 @@ DOC
             puts "    label=#{''.inspect};"
             puts "    style=#{any_required ? :solid : :dotted};"
 
-            if link_component_versions
+            if show_link_component_versions
               render_node a_name, 
               :shape => :component,
               :style => [ :rounded, any_required ? :solid : :dotted ], 
@@ -244,7 +253,7 @@ DOC
           versions.each do | c_v |
             render c_v
 
-            if link_component_versions
+            if show_link_component_versions
               render_edge a_name, c_v, 
               :style => :dotted, 
               :arrowhead => :none,
@@ -322,6 +331,7 @@ DOC
           :color     => complete?(c) ? '#000000' : '#888888',
         }
 
+        
         if group_component_versions
           opts[:in_subgraph] = true
         end
@@ -356,7 +366,7 @@ DOC
           @components.include?(c1) &&
           @components.include?(c2)
 
-        if link_component_versions
+        if show_link_component_versions
           render_edge c1, dot_name(c2, :version => false),
             :tooltip => "depended by: #{c1.name}/#{c1.version}",
             :style => :dotted, 
@@ -436,6 +446,17 @@ DOC
         if opts[:comment]
           edge_puts "    // #{opts[:comment]}"
           opts.delete(:comment)
+        end
+
+        if _ = opts[:URL] and url_transform
+          # $stderr.puts "_ = #{_.inspect}"
+          # $stderr.puts "url_transform = #{url_transform.inspect}"
+          begin
+            _ = opts[:URL] = eval(url_transform)
+            # $stderr.puts "result = #{_.inspect}"
+          rescue Exception => err
+            $stderr.puts "#{err.inspect}: url_transform #{url_transform.inspect} failed"
+          end
         end
 
         puts "    #{prefix} #{dot_opts opts} #{suffix};"
