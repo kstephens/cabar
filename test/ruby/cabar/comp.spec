@@ -53,7 +53,7 @@ cabar:
   - name:          "c2"
     version:       "1.2"
     enabled:       true
-    directory:     "/home/kurt/local/src/cabar/example/repo/dev/c2/1.2"
+    directory:     "<<CABAR_BASE_DIR>>/example/repo/dev/c2/1.2"
     facet:         [ :"lib/ruby", :action, :bin, :env_var_C2_2_ENV, :env_var_C2_ENV ]
     requires:      [ "ruby/" ]
     plugins:       ["c2"]
@@ -61,14 +61,14 @@ cabar:
   - name:          "c2"
     version:       "1.1"
     enabled:       true
-    directory:     "/home/kurt/local/src/cabar/example/repo/dev/c2/1.1"
+    directory:     "<<CABAR_BASE_DIR>>/example/repo/dev/c2/1.1"
     facet:         [ :"lib/ruby", :bin ]
     requires:      [  ]
 
   - name:          "c2"
     version:       "1.0"
     enabled:       true
-    directory:     "/home/kurt/local/src/cabar/example/repo/prod/c2/1.0"
+    directory:     "<<CABAR_BASE_DIR>>/example/repo/prod/c2/1.0"
     facet:         [ :"lib/ruby" ]
     requires:      [  ]
 
