@@ -24,7 +24,7 @@ module Cabar
         @configuration ||= { }
       end
       
-      COMPONENT_ASSOCIATIONS = [ 'requires'.freeze ].freeze
+      COMPONENT_ASSOCIATIONS = [ :requires ].freeze
       def component_associations
         COMPONENT_ASSOCIATIONS
       end
@@ -144,9 +144,9 @@ module Cabar
       end
       
       # Will fail of dependency cannot be resolved.
-      def validate! resolver
+      def validate_with_resolver! resolver
         if resolved_component(resolver).nil?
-          raise("Cannot resolve component for #{self.inspect}") 
+          raise Error, "Cannot resolve component for #{self.inspect}"
         end
       end
       

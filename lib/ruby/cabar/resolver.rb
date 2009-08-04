@@ -468,7 +468,7 @@ END
       check_unresolved_components!
 
       required_components.each do | c |
-        c.validate!(self)
+        c.validate_with_resolver!(self)
       end
 
       notify_observers :after_validate_components!
@@ -559,6 +559,10 @@ END
     # other search path oriented environment variables.
     # 
     # FIXME: Refactor this using collect_facet.
+    #
+    # coll       => { Facet#composition_key => Facet, ... }
+    # comp_facet => { Component => [ Facet, ... ], ... }
+    #
     def collect_facets coll = { }, comp_facet = { }
       component_dependencies(required_components.to_a).each do | c |
         next unless c.complete?
@@ -568,14 +572,16 @@ END
           f = nil
 
           if facet.is_composable? 
-            if f = coll[facet.key]
+            # $stderr.puts "  c = #{c} #{facet.class} facet.key = #{facet.key.inspect} facet.composition_key = #{facet.composition_key.inspect}"
+            if f = coll[facet.composition_key]
               f.compose_facet! facet
               f
             else
-              f = coll[facet.key] = facet.dup
+              f = coll[facet.composition_key] = facet.dup
               f.owner = c
             end
           else
+            # This is a non-composible Facet only visible to a Component.
             (comp_facet[c] ||= [ ]) << facet
             f = facet
           end
@@ -584,6 +590,7 @@ END
 
       # Select all Path facets.
       # Append the current environment paths to the end.
+      # THIS IS BROKEN IS SO MANY WAYS.
       env_var_facets =
         Facet.
         prototypes.
@@ -616,6 +623,7 @@ END
       # of the collected facets.
       coll.each do | facet_key, f |
         fp = Facet.proto_by_key(facet_key)
+        next unless fp # YUCK!!!
         if fp.is_composable? && fp.standard_path_proc
           f_standard = f.dup
           f_standard.owner = self
@@ -631,6 +639,7 @@ END
       map { | f | f.key }.
       each do | ft |
         fp = Facet.proto_by_key(ft)
+        next unless fp # YUCK!!!
         if (v = ENV["CABAR_PRE_#{fp.env_var}"])
           f = coll[ft]
 

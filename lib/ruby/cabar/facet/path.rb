@@ -1,3 +1,12 @@
+
+
+
+
+
+
+
+
+
 require 'cabar/facet'
 
 
@@ -61,8 +70,8 @@ module Cabar
       end
 
 
-      COMPONENT_ASSOCIATIONS = [ 'provides' ].freeze
-      COMPONENT_ASSOCIATIONS_ENV_VAR = [ 'provides', 'environment' ].freeze
+      COMPONENT_ASSOCIATIONS = [ :provides ].freeze
+      COMPONENT_ASSOCIATIONS_ENV_VAR = [ :provides, :env_var ].freeze
       def component_associations
         if is_env_var?
           COMPONENT_ASSOCIATIONS_ENV_VAR

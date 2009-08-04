@@ -22,7 +22,8 @@ Cabar::Plugin.new :name => 'cabar/action' do
     attr_accessor :action
     
     def component_associations
-      [ 'provides' ]
+      @@component_associations ||=
+        [ :provides ].freeze
     end
     
     def is_composable?
@@ -207,7 +208,7 @@ Executes an action on all required components.'
         selection.to_a.each do | c |
           # puts "c.facets = #{c.facets.inspect}"
           c.facets.each do | f |
-            if f.key == 'action' &&
+            if f.key == :action &&
               (! action || f.can_do_action?(action))
               actions << [ c, f ]
             end

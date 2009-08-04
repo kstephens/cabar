@@ -52,7 +52,7 @@ module Cabar
         comment nil
         comment "Cabar Facets"
         setenv "PATH_SEP", Cabar.path_sep
-        setenv "FACETS", facets.map{ | f | f.key }.sort.join(",")
+        setenv "FACETS", facets.map{ | f | f.key.to_s }.sort.join(",")
         setenv "FACET_ENV_VAR_MAP", facets.select{ | f | f.env_var }.map{ | f | "#{f.key}=#{f.env_var}" }.sort.join(',')
       end
 

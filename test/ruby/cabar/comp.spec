@@ -6,6 +6,8 @@ describe 'cbr comp' do
 
   it 'cbr comp list' do
     example_main(:args => 'comp list', 
+                 # Ignore everything in cabar/contrib/
+                 :filter_stdout => lambda { | x | x.gsub(%r{^.*/cabar/contrib/[^\n]+\n}, '') },
                  :match_stdout => 
 <<"EOF"
 ---
@@ -25,6 +27,7 @@ cabar:
   - ["c3", "2.1", "<<CABAR_BASE_DIR>>/example/repo/prod/c3"]
   - ["cabar", "1.0", "<<CABAR_BASE_DIR>>"]
   - ["cabar_core", "1.0", "<<CABAR_BASE_DIR>>/comp/cabar_core"]
+  - ["cabar_rubygems", "1.0", "<<CABAR_BASE_DIR>>/comp/cabar_rubygems"]
   - ["derby", "1.0", "<<CABAR_BASE_DIR>>/comp/derby/1.0"]
   - ["gems", "1.0", "<<CABAR_BASE_DIR>>/example/repo/plat/gems/1.0"]
   - ["perl", "<<ANY>>", "<<CABAR_BASE_DIR>>/comp/perl/std"]
@@ -32,7 +35,7 @@ cabar:
   - ["ruby", "1.9", "<<CABAR_BASE_DIR>>/example/repo/plat/ruby/1.9"]
   - ["ruby", "<<ANY>>", "<<CABAR_BASE_DIR>>/comp/ruby/std"]
   - ["ruby", "1.8.4", "<<CABAR_BASE_DIR>>/example/repo/plat/ruby/1.8.4"]
-  - ["rubygems", "<<ANY>>", "<<CABAR_BASE_DIR>>/comp/rubygems"]
+  - ["rubygems", "<<ANY>>", "<<CABAR_BASE_DIR>>/comp/rubygems/std"]
   - ["todo", "1.1", "<<CABAR_BASE_DIR>>/example/repo/dev/todo"]
 EOF
 )
@@ -51,7 +54,7 @@ cabar:
     version:       "1.2"
     enabled:       true
     directory:     "<<CABAR_BASE_DIR>>/example/repo/dev/c2/1.2"
-    facet:         [ "action", "bin", "lib/ruby" ]
+    facet:         [ "action", "bin", "env_var", "lib/ruby" ]
     requires:      [ "ruby/" ]
     plugins:       ["c2"]
 

@@ -11,7 +11,8 @@ module Cabar
     # See cabar/comp in the source distribution.
     class Components < Path
       def component_associations
-        [ 'provides' ]
+        @@component_associations ||=
+          [ :provides ].freeze
       end
 
       # This Facet must be configured early, because

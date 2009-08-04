@@ -9,3 +9,7 @@ cabar:
 
   provides:
     lib/ruby: true
+    env_var:
+      C2_ENV: "1.2 in prod"
+      C2_2_ENV: "1.2 in prod"
+

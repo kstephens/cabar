@@ -85,7 +85,7 @@ module Cabar
     attr_reader :dependents
     
     # General enviroment variables for this Component.
-    attr_reader :environment
+    attr_reader :env_var
     
     # General configuration settings for this Component.
     attr_accessor :configuration
@@ -130,7 +130,7 @@ module Cabar
 
       @provides = [ ]
       @requires = [ ]
-      @environment = [ ]
+      @env_var = [ ]
       
       # Computed
       @dependents = [ ]
@@ -204,10 +204,15 @@ module Cabar
 
     # Validates the Component.
     # See Resolver#validate_components!
-    def validate! resolver
-      requires.each do | r |
-        r.validate! resolver
+    def validate_with_resolver! resolver
+      facets.each do | f |
+        f.validate_facet!
       end
+      requires.each do | r |
+        r.validate_with_resolver! resolver
+      end
+    rescue Exception => err
+      raise Error.new("in #{self}", :error => err)
     end
     
 
@@ -319,17 +324,17 @@ module Cabar
         end
         
         # Handle explicit environment variables.
-        (conf['environment'] || EMPTY_HASH).each do | k, v |
+        (conf['env_var'] || EMPTY_HASH).each do | k, v |
           opts = { :env_var => k, :value => v }
-          # $stderr.puts "environment #{opts.inspect}"
-          f = create_facet :env_var, opts
+          # $stderr.puts "env_var #{opts.inspect}"
+          f = create_facet :env_var_instance, opts
         end
 
         # Infer other facets.
         Facet.prototypes.each do | f |
-          next if self.has_facet? f
-          next if non_inferrable[f.key]
           next unless f.inferrable?
+          next if non_inferrable[f.key]
+          next if self.has_facet? f
           # $stderr.puts "- #{self.inspect}: inferring facet #{f.key.inspect}"
           f = create_facet f, EMPTY_HASH, :infer => true
         end
@@ -397,7 +402,7 @@ module Cabar
     # Returns true if this Component has a Facet by
     # name or prototype.
     def has_facet? f
-      f = f.key if Facet === f
+      f = f.composition_key if Facet === f
       @facet_by_key.key? f
     end
 
@@ -405,12 +410,23 @@ module Cabar
     # Returns the Facet for this Component by name
     # or prototype.
     def facet f
-      f = f.key if Facet === f
-      @facet_by_key[f.to_s]
+      f = f.composition_key if Facet === f
+      @facet_by_key[f]
     end
 
 
     # Called when a new Facet is attached to this component.
+    #
+    # :before_attach_facet! and :after_attach_facet! observers are notified.
+    #
+    # Facets are added to @facets.
+    #
+    # Some Facets have unique composition_keys,
+    # some do not (e.g.: RequiredComponent).
+    #
+    # For Facets that do not have unique composition_keys,
+    # we dont care what is in @facet_by_key.
+    #
     def attach_facet! f
       return f unless f
 
@@ -419,19 +435,22 @@ module Cabar
       # Do not bother with disabled Facets.
       return unless f.enabled?
 
-      # Keep all facets
+      # Validate it.
+      f.validate_facet!
+
+      # Keep all facets.
       unless @facets.include? f
         @facets << f
-        @facet_by_key[f.key] = f
+        @facet_by_key[f.composition_key] = f
       end
-      
+
       # Attach to all component attachment points.
       f.component_associations.each do | a |
         a = send(a)
         unless a.include? f
           a << f
         end
-      end
+      end      
 
       notify_observers :after_attach_facet!, f
       

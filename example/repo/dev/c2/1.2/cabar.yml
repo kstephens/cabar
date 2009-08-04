@@ -15,4 +15,6 @@ cabar:
       dir: "pwd"
       foo: "echo foo"
       bar: "!exec /bin/bash -c 'exit 123'"
-
+    env_var:
+      C2_ENV: "1.2 in dev"
+      C2_2_ENV: "1.2 in dev"

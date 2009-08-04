@@ -7,7 +7,7 @@ module Cabar
     # This represents a set of environment variables.
     #
     #   facet:
-    #     env:
+    #     env_var:
     #       NAME1: v1
     #       NAME2: v2
     #
@@ -22,7 +22,12 @@ module Cabar
       attr_accessor :vars
 
       def _reformat_options! opts
-        opts = { :vars => opts }
+        case opts
+        when Hash
+          opts = { :vars => opts }
+        else
+          raise Error, "Expected Hash, given #{opts}"
+        end
         opts
       end
 
@@ -35,7 +40,7 @@ module Cabar
       def attach_component! c
         vars.each do | n, v |
           # $stderr.puts "   env: #{n} #{v}" # FIXME LOGGING
-          c.create_facet(:env_var, { :env_var => n, :value => v })
+          c.create_facet(:env_var_instance, { :env_var => n, :value => v })
         end
       end
     end # class

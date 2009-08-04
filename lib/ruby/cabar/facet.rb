@@ -22,7 +22,7 @@ module Cabar
   #   version control
   # 
   class Facet < Base
-    # The key for matching a component's configuration against.
+    # The registration key for this Facet (and its _proto).
     attr_accessor :key
 
     # The prototype used to create this object.
@@ -52,7 +52,24 @@ module Cabar
     end
 
 
-    @@key_to_proto = { }
+    # Validate a Facet for correct initialization.
+    def validate_facet!
+      raise Error, "Facet #{self} key is not a Symbol" unless Symbol === @key
+      raise Error, "Facet #{self} does not have an owner" unless @owner
+      raise Error, "Facet #{self} does not have a _proto" unless @_proto
+      self
+    end
+
+
+=begin
+    $stderr.puts "  LOADING #{__FILE__}"
+    @@loaded_once ||= nil
+    if @@loaded_once
+      raise "DOUBLE LOAD"
+    end
+    @@loaded_once = 1
+=end
+    @@key_to_proto ||= { }
 
 
     # Returns all the current Facet prototype object.
@@ -63,7 +80,6 @@ module Cabar
 
     # Returns the Facet prototype by its key.
     def self.proto_by_key key
-      key = key.to_s
       @@key_to_proto[key]
     end
 
@@ -74,11 +90,27 @@ module Cabar
       when Array
         key.map { | t | register_prototype facet_proto, t }
       else
-        key ||= facet_proto.key.to_s
+        key ||= facet_proto.key
+
+=begin
+        unless @@once ||=nil
+          @@once = 1
+          $stderr.puts "  ### cmd #{$0} #{ARGV.inspect} "
+          $stderr.puts "  ### cwd #{Dir.pwd.inspect} "
+          $stderr.puts "  ### caller:\n  #{caller * "\n  "}\n\n"
+        end
+        $stderr.puts "  register_prototype(#{facet_proto.class}) as #{key.inspect}"
+=end
+
         _logger.debug2 do
           "register_prototype(#{facet_proto.inspect}) as #{key.inspect}"
         end
-        @@key_to_proto[key] ||= facet_proto
+        key = key.to_sym
+        if (f = @@key_to_proto[key.to_sym]) and (f != facet_proto)
+          _logger.warn "Facet #{f.class} #{f.key.inspect} already registered for #{key.inspect}, ignoring registration of Facet #{facet_proto.class}"
+        else
+          @@key_to_proto[key.to_sym] = facet_proto
+        end
       end
     end
 
@@ -155,7 +187,8 @@ module Cabar
       when Facet 
         proto = proto_name
       else
-        proto = @@key_to_proto[proto_name.to_s]
+        proto_name = proto_name.to_sym
+        proto = @@key_to_proto[proto_name]
       end
       
       # Process early?
@@ -164,7 +197,7 @@ module Cabar
         return nil unless proto.configure_early?
       else
         unless proto
-          raise Error, "unknown Facet #{proto_name.inspect}"
+          raise Error, "unknown Facet #{proto_name.inspect}, known Facets: #{@@key_to_proto.keys.inspect}"
         end
         return nil if proto.configure_early?
       end
@@ -209,9 +242,9 @@ module Cabar
     end
 
 
-    # Ensures key is a String.
+    # Ensures key is a Symbol.
     def key= x
-      @key = x.to_s
+      @key = x.to_sym
       x
     end
 
@@ -221,14 +254,25 @@ module Cabar
     end
 
 
-#    def <=> f
-#      @key <=> f.key
-#    end
+    def <=> other
+      case other
+      when Facet
+        to_s <=> other.to_s
+      else
+        raise TypeError, "expected #{self.class}, given #{other.class}"
+      end
+    end
 
 
     # Returns true if the Facet is composable across Components.
     def is_composable?
       true
+    end
+
+
+    # Used by Resolver to compose Facets.
+    def composition_key
+      @key
     end
 
 

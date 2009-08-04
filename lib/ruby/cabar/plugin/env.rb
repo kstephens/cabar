@@ -2,8 +2,8 @@
 
 Cabar::Plugin.new :name => 'cabar/env', :documentation => 'Environment variable support.' do
 
-  facet :env,     :class => Cabar::Facet::EnvVarGroup
-  facet :env_var, :class => Cabar::Facet::EnvVar
+  facet :env_var, :class => Cabar::Facet::EnvVarGroup
+  facet :env_var_instance, :class => Cabar::Facet::EnvVar
 
   doc "[ --verbose, --selected, --ruby, --shell ]
 Lists the environment variables for required components
