@@ -48,7 +48,7 @@ Status:	pending
 
 Description:
 	#{name}: from #{vc}
-
+        #{opts[:vc_m]}
 Files:
 
 EOF
@@ -127,6 +127,7 @@ EOF
     opts[:user] ||= USER
     opts[:hostname] ||= HOSTNAME
     opts[:vc_m] ||= ENV['m'] || "From #{opts[:user]}@#{opts[:hostname]}"
+    opts[:p4_m] ||= "#{opts[:name]}: from #{opts[:vc]} #{opts[:vc_id]} of #{opts[:vc_root]}"
     opts[:p4_cl] ||= ENV['c'] || p4_pending_cl(opts) || (p4_create_cl(opts) && p4_pending_cl(opts))
     opts[:vc_root] ||= opts[:get_vc_root].call(opts)
     opts[:manifest] ||= 'Manifest'
@@ -149,20 +150,25 @@ EOF
     sh "p4 -x #{opts[:manifest]} add"
 
     # Submit any pending changes.
-    # e.g: sh "svn ci -m #{m.inspect}"
+    # e.g: sh "svn ci -m #{vc_m.inspect}"
     opts[:submit].call(opts)
 
     # Get the current dst rev.
     # e.g.: `svn update`.chomp
     vc_id(opts)
-    opts[:p4_m] ||= "#{opts[:name]}: from #{opts[:vc]} #{opts[:vc_id]} of #{opts[:vc_root]}"
 
     # Revert any unchanged files.
     sh "p4 revert -a ..."
 
-    # Move everything to default changelist.
-    sh "p4 reopen -c default ..."
+    # Move everything to the changelist.
+    sh "p4 reopen -c #{opts[:p4_cl]} ..."
     
+    # Show change list.
+    sh "p4 change -o #{opts[:p4_cl]}"
+
+    puts "If ok run: p4 submit -c #{opts[:p4_cl]}"
+    return 
+
     # Submit everything under here.
     sh "p4 submit -r -d #{opts[:p4_m].inspect} ..."
 
