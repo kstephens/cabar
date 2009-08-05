@@ -54,6 +54,14 @@ module Cabar
       end
 
 
+      # Defines plugin_installed! callback.
+      def when_installed &blk
+        raise ArgumentError, "no block given" unless block_given?
+        (class << @plugin; self; end).send(:define_method, :plugin_installed!, &blk)
+        self
+      end
+
+
       # Define :documentation for the next item.
       def doc text
         text << "\n" unless /\n\Z/ =~ text

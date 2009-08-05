@@ -97,12 +97,27 @@ module Cabar
     end
 
 
-    # Installs the plugin's parts.
+    # Installs the Plugin's parts.
+    #
+    # If the Plugin has not already been installed,
+    # it's block is invoked by Plugin::Builder.
+    #
+    # This invokes Plugin#plugin_installed and Manager's :plugin_installed observers,
+    # even if the the Plugin has already been installed.
+    #
+    # This allows multiple Main objects to exists while sharing the same Plugin::Manager.
+    #
+    # Called by Manager#register_plugin! the first time the Plugin is loaded and
+    # and in load_plugin! every subsequent call to Manager#load_plugin!.
+    #
     def install!
+      error = nil
       return if @installed
 
       return if @installing
       @installing = true
+
+      # $stderr.puts "  #{self} install! #{@file.inspect}"
 
       # Create a new builder, use the plugin's
       # block to execute the DSL.
@@ -111,10 +126,28 @@ module Cabar
       @installed = true
 
     rescue Exception => err
+      error = err
       raise Error.new(:message => "In plugin #{name.inspect} (in #{file}): #{err.message}", :error => err)
       
     ensure
       @installing = false
+      if @installed && ! error
+        # $stderr.puts "  #{self} plugin_installed!"
+
+        # Notify callback.
+        self.plugin_installed!
+
+        # Notify any active observers (i.e. Loader) so
+        # it can associate existing plugins with the proper Components.
+        # See comp.spec.
+        @manager.notify_observers(:plugin_installed, self)
+      end
+    end
+
+
+    # Callback from install!
+    def plugin_installed!
+      # $stderr.puts "#{self} plugin_installed! NOP"
     end
 
 

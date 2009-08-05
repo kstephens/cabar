@@ -80,7 +80,10 @@ module Cabar
 
     # Returns the Facet prototype by its key.
     def self.proto_by_key key
-      raise TypeError, "expected Symbol, given #{key.class}" unless Symbol === key
+      if String === key
+        $stderr.puts "#{$0}: DEPRECATED: expected Symbol, given #{key.class}" 
+        key = key.to_sym
+      end
       @@key_to_proto[key]
     end
 
@@ -106,9 +109,9 @@ module Cabar
         _logger.debug2 do
           "register_prototype(#{facet_proto.inspect}) as #{key.inspect}"
         end
-        $stderr.puts "#{$0}: WARNING: DEPRECATED: Facet key is not a Symbol" unless Symbol === key
-
+        $stderr.puts "#{$0}: DEPRECATED: Facet key is not a Symbol" unless Symbol === key
         key = key.to_sym
+
         if (f = @@key_to_proto[key.to_sym]) and (f != facet_proto)
           _logger.warn "Facet #{f.class} #{f.key.inspect} already registered for #{key.inspect}, ignoring registration of Facet #{facet_proto.class}"
         else
@@ -294,6 +297,7 @@ module Cabar
 
     # Called when a Facet is going to be attached
     # to a Component.
+    #
     # Subclasses may override this.
     def attach_component! c
       c.attach_facet!(self)

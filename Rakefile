@@ -48,7 +48,7 @@ end
 
 # task :publish_docs => :docs_example
 
-$: << 'lib/ruby'
+$: << File.expand_path('lib/ruby')
 
 desc "Run tests in example/"
 task :test_example do
@@ -60,7 +60,7 @@ end
 begin
   require 'spec/rake/spectask'
  
-  SPEC_RUBY_OPTS = [ '-I', 'lib/ruby' ]
+  SPEC_RUBY_OPTS = [ '-I', File.expand_path('lib/ruby') ]
   SPEC_FILES = FileList['test/**/*.spec']
   SPEC_OPTS = ['--color', '--backtrace']
 

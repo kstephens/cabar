@@ -45,15 +45,16 @@ module Cabar
         file = File.expand_path(file)
 
         if plugins = @plugin_by_file[file]
-          # Notify any active observers (i.e. Loader) so
-          # it can associate existing plugins with the proper Components.
-          # See comp.spec.
+          
+          # Notify callbacks.
           plugins.each do | plugin |
-            notify_observers(:plugin_installed, plugin)
+            plugin.install!
           end
 
           :already
         else
+          # $stderr.puts "  #{self.class} load_plugin! #{file.inspect}"
+          
           @plugin_by_file[file] = [ ]
           _logger.info { "plugin: loading plugin #{file.inspect}" }
           require file
@@ -97,16 +98,16 @@ module Cabar
           return
         end
 
-        # This realizes the plugin.
-        plugin.install!
-
+        # Associate the Plugin with this Manager.
         plugin.manager = self
         @plugins << plugin
         @plugin_by_name[name] = plugin
         @plugin_by_file[plugin.file] << plugin
 
-        notify_observers(:plugin_installed, plugin)
-        
+        # This realizes the Plugin.
+        # If this fails here, there might be am invalid Plugin installed in this Manager.
+        plugin.install!
+
         _logger.info { "plugin: #{plugin} installed #{opts.inspect}" }
 
         self

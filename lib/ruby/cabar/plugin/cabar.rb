@@ -3,23 +3,31 @@
 Cabar::Plugin.new :name => 'cabar', :documentation => <<"DOC" do
 Cabar standard plugin.
 
-Includes all plugins named 'cabar/plugin/*.rb' found in $:.
+Autoloads all plugins named 'cabar/plugin/auto/*.rb' found along $:.
 DOC
 
   require 'shellwords'
 
-  # Pull any files named cabar/plugin/*.rb
-  # in the current $: ruby lib search path.
-  $:.map { | dir | Dir["#{dir}/cabar/plugin/*.rb"] }.
+  when_installed do
+    # $stderr.puts "*** #{self} plugin_installed! MORE!"
+
+    # Autoload any plugins named cabar/plugin/auto/*.rb
+    # in the current $: ruby lib search path.
+    $:.map do | dir | 
+      x = Dir["#{dir}/cabar/plugin/auto/*.rb"]
+      # $stderr.puts "  dir #{dir.inspect} plugins #{x.inspect}"
+      x
+    end.
     flatten.
     reject { | fn | fn == __FILE__ }.
     compact.
     sort.
     uniq.
-    each do | n |
+    each do | n | 
       # $stderr.puts "loading #{n}"
       manager.load_plugin! n
     end
+  end
 
   doc "Internals and introspection."
   cmd_group [ :cabar, :cbr ] do
