@@ -1,3 +1,4 @@
+require 'cabar_core'
 
 module Cabar
   # ENV Environment variable support.

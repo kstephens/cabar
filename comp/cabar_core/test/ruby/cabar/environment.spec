@@ -1,8 +1,11 @@
 # -*- ruby -*-
 
 
-# Test target.
+# Test target:
 require 'cabar/environment'
+
+# Test Dependencies:
+require 'yaml'
 
 
 describe Cabar::Environment do
@@ -57,6 +60,39 @@ describe Cabar::Environment do
     # ensure dst is restored.
     # $stderr.puts "dst = #{dst.inspect}"
     dst.should == dst_save
+  end
+
+
+  it "should handle a configuration-style Hash" do
+    ENV['CABAR_BAR'] = 'BAR_INHERITED'
+    config = YAML::load <<'END'
+CABAR_FOO:
+  value: FOO
+CABAR_BAR:
+  inherit: true
+CABAR_BAZ:
+  value: BAZ_LOCKED
+  locked: true
+CABAR_L:
+  locked: true
+END
+    # require 'pp'; pp config
+    e = Cabar::Environment.new(config)
+    e.keys.sort.should == [ 'CABAR_BAR', 'CABAR_BAZ', 'CABAR_FOO' ]
+
+    e['CABAR_FOO'].should == 'FOO'
+
+    e['CABAR_BAR'].should == 'BAR_INHERITED'
+    e['CABAR_BAR'] = 'BAR_FORCED'
+    e['CABAR_BAR'].should == 'BAR_INHERITED'    
+
+    e['CABAR_BAZ'].should == 'BAZ_LOCKED'
+    e['CABAR_BAZ'] = 'BAZ_FORCED'
+    e['CABAR_BAZ'].should == 'BAZ_LOCKED'
+
+    e['CABAR_L'].should == nil
+    e['CABAR_L'] = 'L'
+    e['CABAR_L'].should == nil
   end
 
 end # describe

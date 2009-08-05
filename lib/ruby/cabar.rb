@@ -429,83 +429,17 @@ require 'socket' # Socket.gethostname
 #
 # TODO
 module Cabar
-  EMPTY_HASH = { }.freeze
-  EMPTY_ARRAY = [ ].freeze
-  EMPTY_STRING = ''.freeze
-
   # The Cabar version.
   def self.version
     Version.create '1.0'
   end
 
-  # Returns first dotted part of CABAR_HOSTNAME or system hostname.
-  def self.hostname
-    @@hostname ||= 
-      (
-       ENV['CABAR_HOSTNAME'] || 
-       Socket.gethostname
-       ).sub(/\..*/, '')
-  end
-
-  SEMICOLON = ';'.freeze
-  COLON = ':'.freeze
-
-  # Returns the path separator for this platform.
-  # UNIX: ':'
-  # Windows: ';'
-  def self.path_sep
-    @@path_sep ||= (ENV['PATH'] =~ /;/ ? SEMICOLON : COLON)
-  end
-
-  # Split all the elements in a path.
-  # Remove any empty elements.
-  def self.path_split path, sep = nil
-    sep ||= path_sep
-    path = path.split(sep)
-    path.reject{|x| x.nil? || x.empty?}
-    path
-  end
-  
-  # Joins directory elements into a path.
-  # Removes any nil or empty elements.
-  def self.path_join *args
-    sep = path_sep
-    path = args.flatten.reject{|x| x.nil? || x.empty?}
-    path = path.uniq.join(sep)
-    path = path_split(path, sep)
-    path = path.uniq.join(sep)
-    path
-  end
-
-  # Expand all the elements in a path,
-  # while leaving '@' prefixes.
-  def self.path_expand p, dir = nil
-    case p
-    when Array
-      p.map { | p | path_expand(p, dir) }.cabar_uniq_return!
-    else
-      p = p.to_s.dup
-      if p.sub!(/^@/, EMPTY_STRING)
-        '@' + File.expand_path(p, dir)
-      else
-        File.expand_path(p, dir)
-      end
-    end
-  end
-
   # The directory containing Cabar itself.
   def self.cabar_base_directory
     @@cabar_base_directory ||=
-      path_expand(File.join(File.dirname(__FILE__), '..', '..'))
+      File.expand_path(File.join(File.dirname(__FILE__), '..', '..')).freeze
   end
 
-  # Construct a cabar YAML header.
-  def self.yaml_header str = nil
-"---
-cabar:
-  version: #{Cabar.version.to_s.inspect}
-" + (str ? "  #{str}:" : EMPTY_STRING)
-  end
 end
 
 

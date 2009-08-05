@@ -5,6 +5,7 @@ require 'cabar/file' # File.cabar_expand_softlink
 require 'cabar/version/requirement'
 require 'cabar/command/runner'
 require 'cabar/yaml' # Cabar::Yaml::Loader
+require 'cabar/environment'
 
 
 module Cabar
@@ -116,6 +117,12 @@ module Cabar
     attr_accessor :env_var
     def env_var
       @env_var ||= { }
+    end
+
+
+    # Returns the cached Cabar::Environment object.
+    def environment
+      @environment ||= Cabar::Environment.new(@env_var)
     end
 
 
@@ -423,6 +430,7 @@ module Cabar
       # Handle environment variables.
       env_var.merge!(y['cabar']['configuration']['env_var'] || EMPTY_HASH)
       env_var.each do | k, v |
+        @environment = nil # flush cache.
         if v == nil
           ENV.delete(k)
         else
