@@ -62,6 +62,7 @@ module Cabar
           puts "    requires:      [ #{c.requires.map{|x| "#{x.name}/#{x.version}".inspect}.sort.join(', ')} ]"
           puts "    configuration: #{c.configuration.inspect}" if ! c.configuration.empty?
           puts "    plugins:       #{c.plugins.map{|p| p.name}.inspect}" if ! c.plugins.empty?
+          # puts "    _options:      #{c._options.inspect}"
           render_Array_of_Facet c.facets, :indent => '  ' if _options[:show_facet]
           puts ""
         else

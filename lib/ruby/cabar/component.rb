@@ -402,8 +402,7 @@ module Cabar
     # Returns true if this Component has a Facet by
     # name or prototype.
     def has_facet? f
-      f = f.composition_key if Facet === f
-      @facet_by_key.key? f
+      ! ! facet(f)
     end
 
 
@@ -411,6 +410,10 @@ module Cabar
     # or prototype.
     def facet f
       f = f.composition_key if Facet === f
+      if String === f
+        $stderr.puts "#{$0}: DEPRECATED: Component#facet given #{f.class}, expected Symbol or Array"
+        f = f.to_s
+      end
       @facet_by_key[f]
     end
 

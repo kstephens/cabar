@@ -1,5 +1,10 @@
 
 Cabar::Plugin.new :documentation => 'Support for rubygems repository components.' do
+  ruby_component = lambda {
+    @@ruby_component ||=
+    Cabar::Main.current.resolver.
+    selected_components['ruby'].first
+  }
 
   rubygems_component = lambda {
     @@rubygems_component ||=
@@ -7,11 +12,14 @@ Cabar::Plugin.new :documentation => 'Support for rubygems repository components.
     selected_components['rubygems'].first
   }
 
+  path_proc = lambda { | f | 
+    g = rubygems_component.call
+    r = ruby_component.call
+    "gems-#{g.version}-ruby-#{r.version}-#{r.ruby[:os]}-#{r.ruby[:platform]}-#{r.ruby[:system]}"
+  }
+
   facet :rubygems, 
-        :path_proc => 
-          lambda { | f | 
-            'gems-' + rubygems_component.call.version.to_s
-          }, 
+        :path_proc => path_proc,
         :env_var => :GEM_PATH,
         :standard_path_proc => lambda { | f |
           rg = rubygems_component.call
@@ -27,6 +35,13 @@ Cabar::Plugin.new :documentation => 'Support for rubygems repository components.
 
     cmd [ :component ] do
       puts "#{rubygems_component.call.standard_gem_pathinspect}"
+    end
+
+    doc "
+show the name of the expected gem 'arch' subdirectory.
+"
+    cmd [ :arch_dir ] do
+      puts path_proc.call(nil)
     end
 
     doc "[ - <component> ]
