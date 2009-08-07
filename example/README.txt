@@ -4,15 +4,15 @@ This directory contains examples for Cabar.
 
 There are three cabar component repositories:
 
-* repo/dev - development: a development workspace.
+* repo/dev  - development: a development workspace.
 * repo/plat - platform: a collection of components making a software platform.
 * repo/prod - production: a production workspace.
 
-This overlay of componnt repositories demonstrates how a developer can 
+This overlay of component repositories demonstrates how a developer can 
 edit local versions of a component while still using other
  components from other repositories.
 
-For example, "repo/eev/" and "repo/erod/" both contain versions of the "c2" component and
+For example, "repo/dev/" and "repo/prod/" both contain versions of the "c2" component and
 "repo/dev/c2" directories overlay on "repo/prod/c2" versions 1.1 and 1.2.
 
 = Environment variables
