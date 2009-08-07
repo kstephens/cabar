@@ -98,8 +98,14 @@ EOF
 
   def p4_files(opts)
     p4_root = `p4 files Rakefile`.chomp.sub(%r{/Rakefile#.*$}, '')
-    pp p4_root
-    opts[:p4_files] ||= `p4 files ...`.gsub(/#.*$/, '').gsub(%r{^#{p4_root}/}, '').split("\n").sort
+    # pp p4_root
+    opts[:p4_files] ||=
+      `p4 files ...`.
+      gsub(%r{^.*#\d+ - delete .*$}, '').    # ignore deleted files
+      gsub(/#.*$/, '').                      # remove trailing version
+      gsub(%r{^#{p4_root}/}, '').            # remove p4_root prefix
+      split(/\n+/).                          # split and remove blank lines
+      sort
   end
 
   desc "Display files that should be deleted from p4 based on Manifest"
