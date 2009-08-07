@@ -19,7 +19,9 @@ cabar:
     standard_gem_path: <%= (rubygems_info[:GEM_PATH] || [ ]).inspect %>
 
   provides:
-    bin: <%= rubygems_info[:bin].inspect %>
+    bin: 
+      abs_path: <%= rubygems_info[:bin].inspect %>
+      list_only: [ :gem ]
 
   requires:
     component:

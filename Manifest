@@ -150,7 +150,6 @@ lib/ruby/cabar/yaml.rb
 lib/tasks/p4.rb
 lib/tasks/p4_git.rb
 lib/tasks/p4_svn.rb
-rake_helper.rb
 src/doc/component_arch_v2.dia
 test/ruby/cabar/action.spec
 test/ruby/cabar/comp.spec

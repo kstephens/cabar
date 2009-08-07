@@ -30,7 +30,7 @@ Lists all bin programs.
 
       print_header :bin
       selection.to_a.each do | c |
-        if f = c.facet('bin')
+        if f = c.facet(:bin)
           list_only = f.list_only
           list_only &&= list_only.map{|x| x.to_s}
           cmds = f.abs_path.

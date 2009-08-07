@@ -165,11 +165,11 @@ List actions available on all components.
       action = cmd_args.shift
 
       print_header :action
-      sorted_actions={}
+      sorted_actions = { }
       get_actions(action).each do | c, facet |
         facet.action.each do | k, v |
           next if action && ! (action === k)
-          sorted_actions[k]=(sorted_actions[k] || []) << c
+          (sorted_actions[k] ||= [ ]) << c
         end
       end
       sorted_actions.keys.sort.each { |action_name|
