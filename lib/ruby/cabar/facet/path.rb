@@ -1,12 +1,3 @@
-
-
-
-
-
-
-
-
-
 require 'cabar/facet'
 
 
@@ -56,6 +47,10 @@ module Cabar
       # If set, the default is used to initialize
       # the default value from a path.
       attr_accessor :standard_path
+
+      # If true, non-existant paths are
+      # deleted from #path.
+      attr_accessor :remove_non_existant_paths
 
       # If set, the Proc is called to default the
       # default value during composition.
@@ -153,14 +148,19 @@ module Cabar
           if arch_dir
             # arch_dir = [ arch_dir ] unless Array === arch_dir
             x.map! do | dir |
-              if File.directory?(dir_arch = File.join(dir, arch_dir))
-                dir = [ dir, dir_arch ]
+              if File.exist?(dir_arch = File.join(dir, arch_dir))
+                dir = [ dir_arch, dir ]
                 # $stderr.puts "  arch_dir: dir = #{dir.inspect}"
               end
               dir
             end
             x.flatten!
+
             # $stderr.puts "  arch_dir: x = #{x.inspect}"
+          end
+
+          if remove_non_existant_paths
+            x.reject! { | p | ! File.exist?(p) }
           end
 
           @abs_path = x
