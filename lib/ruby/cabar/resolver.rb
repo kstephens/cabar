@@ -71,10 +71,11 @@ module Cabar
                  '@required_components',
                  '@top_level_components',
                  '@unresolved_components',
-                ]
+                ].freeze
     def dup_deepen!
       super
       @loader = nil # loader references this.
+      @data = { } # 
       DUP_IVARS.each do | n |
         v = instance_variable_get(n)
         v = v.dup rescue v
@@ -405,7 +406,7 @@ module Cabar
     end
 
 
-    # Called during resolve_compoent!
+    # Called during resolve_component!
     def unresolved_component! opts
       opts = opts.to_hash unless Hash === opts
       notify_observers :unresolved_component!, opts
@@ -514,7 +515,7 @@ END
       validate_components!
 
       # If Array is given, dup it because we
-      # are mutate it as a stack, otherwise create
+      # will mutate it as a stack, otherwise create
       # new Array stack with c.
       stack = Array === c ? c.dup : [ c ]
       
@@ -637,7 +638,7 @@ END
         end
       end
 
-      # Append the facet's default_path to the end 
+      # Append the facet's standard_path to the end 
       # of the collected facets.
       coll.each do | facet_key, f |
         fp = Facet.proto_by_key(facet_key)
