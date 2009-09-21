@@ -585,11 +585,13 @@ END
     def collect_facets coll = { }, comp_facet = { }
       component_dependencies(required_components.to_a).each do | c |
         next unless c.complete?
+        _in_component c do
         # $stderr.puts "  collect_facets c = #{c}"
         c.provides.each do | facet |
           next unless facet.enabled?
           f = nil
 
+          _in_facet facet do
           if facet.is_composable? 
             # $stderr.puts "  c = #{c} #{facet.class} facet.key = #{facet.key.inspect} facet.composition_key = #{facet.composition_key.inspect}"
             if f = coll[facet.composition_key]
@@ -604,6 +606,8 @@ END
             (comp_facet[c] ||= [ ]) << facet
             f = facet
           end
+          end
+        end
         end
       end
 
@@ -673,6 +677,20 @@ END
       end
 
       [ coll, comp_facet ]
+    end
+
+
+    def _in_component c
+      yield
+    rescue Exception => err
+      raise Error.new("in component #{c.to_s.inspect}", :error => err)
+    end
+
+
+    def _in_facet f
+      yield
+    rescue Exception => err
+      raise Error.new("in facet #{f.key.inspect}", :error => err)
     end
 
 

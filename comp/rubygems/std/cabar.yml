@@ -20,7 +20,7 @@ cabar:
 
   provides:
     bin: 
-      abs_path: <%= rubygems_info[:bin].inspect %>
+      abs_path: [ <%= rubygems_info[:bin].inspect %> ]
       list_only: [ :gem ]
 
   requires:
