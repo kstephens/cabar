@@ -1,18 +1,20 @@
 
 Cabar::Plugin.new :documentation => 'Support for rubygems repository components.' do
   ruby_component = lambda {
-    @@ruby_component ||=
-    Cabar::Main.current.resolver.
-    selected_components['ruby'].first
+    r = Cabar::Main.current.resolver
+    r[:ruby_component] ||=
+    r.selected_components['ruby'].first
   }
 
   rubygems_component = lambda {
-    @@rubygems_component ||=
-    Cabar::Main.current.resolver.
-    selected_components['rubygems'].first
+    r = Cabar::Main.current.resolver
+    r[:rubygems_component] ||=
+    r.selected_components['rubygems'].first
   }
 
   path_elements_proc = lambda { | f | 
+    Cabar::Main.current.resolver[:rubygems_path_elements] ||=
+    begin
     g = rubygems_component.call
     r = ruby_component.call
     [
@@ -21,10 +23,13 @@ Cabar::Plugin.new :documentation => 'Support for rubygems repository components.
      "#{r.ruby[:os]}",
      "#{r.ruby[:platform]}",
      "#{r.ruby[:system]}",
-    ]
+    ].freeze
+    end
   }
 
   path_proc = lambda { | f | 
+    Cabar::Main.current.resolver[:rubygems_path] ||=
+    begin
     pe = path_elements_proc.call(f)
     paths = [ ]
     (0 ... pe.size).each do | s |
@@ -32,6 +37,7 @@ Cabar::Plugin.new :documentation => 'Support for rubygems repository components.
     end
     paths.reverse!
     paths
+    end
   }
 
   facet :rubygems, 

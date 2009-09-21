@@ -52,11 +52,15 @@ module Cabar
     # Set of components that are unresolved due to constraints.
     attr_reader :unresolved_components
 
+    # Arbitary data Hash that can be used by commands or facets.
+    # See #[] and #[]= methods.
+    attr_reader :data
 
     def initialize opts = EMPTY_HASH
       @required_components = Cabar::Version::Set.new
       @top_level_components = [ ] # ordered Cabar::Version::Set.new
       @unresolved_components = { } # name
+      @data = { }
       super
     end
 
@@ -76,6 +80,18 @@ module Cabar
         v = v.dup rescue v
         instance_variable_set(n, v)
       end
+    end
+
+
+    # Get arbitrary data.
+    def [] slot
+      @data[slot]
+    end
+
+
+    # Set arbitrary data.
+    def []= slot, value
+      @data[slot] = value
     end
 
 
@@ -117,6 +133,7 @@ module Cabar
     # Configuration
     #
 
+    # Returns the Configuration object.
     def configuration
       @configuration ||=
         main.configuration
@@ -133,7 +150,7 @@ module Cabar
     # This will try CABAR_REQUIRE environment variable
     # first.
     # If not defined, apply the configuration file's
-    # component require contraint options.
+    # component require constraint options.
     def apply_configuration_requires!
       if (x = ENV['CABAR_REQUIRE']) && ! x.empty?
         x = x.split(/\s+/)
@@ -150,6 +167,7 @@ module Cabar
     # Loading Components.
     #
 
+    # The Cabar::Loader object.
     def loader
       @loader ||=
         main.loader
