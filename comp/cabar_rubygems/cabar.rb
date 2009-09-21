@@ -1,18 +1,49 @@
 
 Cabar::Plugin.new :documentation => 'Support for rubygems repository components.' do
+  ruby_component = lambda {
+    r = Cabar::Main.current.resolver
+    r[:ruby_component] ||=
+    r.selected_components['ruby'].first
+  }
 
   rubygems_component = lambda {
-    @@rubygems_component ||=
-    Cabar::Main.current.resolver.
-    selected_components['rubygems'].first
+    r = Cabar::Main.current.resolver
+    r[:rubygems_component] ||=
+    r.selected_components['rubygems'].first
+  }
+
+  path_elements_proc = lambda { | f | 
+    Cabar::Main.current.resolver[:rubygems_path_elements] ||=
+    begin
+    g = rubygems_component.call
+    r = ruby_component.call
+    [
+     "gems-#{g.version}", 
+     "ruby-#{r.version}",
+     "#{r.ruby[:os]}",
+     "#{r.ruby[:platform]}",
+     "#{r.ruby[:system]}",
+    ].freeze
+    end
+  }
+
+  path_proc = lambda { | f | 
+    Cabar::Main.current.resolver[:rubygems_path] ||=
+    begin
+    pe = path_elements_proc.call(f)
+    paths = [ ]
+    (0 ... pe.size).each do | s |
+      paths << pe[0 .. s] * '_'
+    end
+    paths.reverse!
+    paths
+    end
   }
 
   facet :rubygems, 
-        :path_proc => 
-          lambda { | f | 
-            'gems-' + rubygems_component.call.version.to_s
-          }, 
+        :path_proc => path_proc,
         :env_var => :GEM_PATH,
+        :remove_non_existant_paths => true,
         :standard_path_proc => lambda { | f |
           rg = rubygems_component.call
           rg_prog = "#{rg.facet(:bin).path.first}/gem"
@@ -26,7 +57,14 @@ Cabar::Plugin.new :documentation => 'Support for rubygems repository components.
   cmd_group [ :rubygems, :gems ] do
 
     cmd [ :component ] do
-      puts "#{rubygems_component.call.standard_gem_pathinspect}"
+      puts "#{rubygems_component.call.standard_gem_path.inspect}"
+    end
+
+    doc "
+show the name of the expected gem 'arch' subdirectory.
+"
+    cmd [ :arch_dir ] do
+      puts path_proc.call(nil) * "\n"
     end
 
     doc "[ - <component> ]

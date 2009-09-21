@@ -52,11 +52,15 @@ module Cabar
     # Set of components that are unresolved due to constraints.
     attr_reader :unresolved_components
 
+    # Arbitary data Hash that can be used by commands or facets.
+    # See #[] and #[]= methods.
+    attr_reader :data
 
     def initialize opts = EMPTY_HASH
       @required_components = Cabar::Version::Set.new
       @top_level_components = [ ] # ordered Cabar::Version::Set.new
       @unresolved_components = { } # name
+      @data = { }
       super
     end
 
@@ -67,15 +71,28 @@ module Cabar
                  '@required_components',
                  '@top_level_components',
                  '@unresolved_components',
-                ]
+                ].freeze
     def dup_deepen!
       super
       @loader = nil # loader references this.
+      @data = { } # 
       DUP_IVARS.each do | n |
         v = instance_variable_get(n)
         v = v.dup rescue v
         instance_variable_set(n, v)
       end
+    end
+
+
+    # Get arbitrary data.
+    def [] slot
+      @data[slot]
+    end
+
+
+    # Set arbitrary data.
+    def []= slot, value
+      @data[slot] = value
     end
 
 
@@ -117,6 +134,7 @@ module Cabar
     # Configuration
     #
 
+    # Returns the Configuration object.
     def configuration
       @configuration ||=
         main.configuration
@@ -133,7 +151,7 @@ module Cabar
     # This will try CABAR_REQUIRE environment variable
     # first.
     # If not defined, apply the configuration file's
-    # component require contraint options.
+    # component require constraint options.
     def apply_configuration_requires!
       if (x = ENV['CABAR_REQUIRE']) && ! x.empty?
         x = x.split(/\s+/)
@@ -150,6 +168,7 @@ module Cabar
     # Loading Components.
     #
 
+    # The Cabar::Loader object.
     def loader
       @loader ||=
         main.loader
@@ -387,7 +406,7 @@ module Cabar
     end
 
 
-    # Called during resolve_compoent!
+    # Called during resolve_component!
     def unresolved_component! opts
       opts = opts.to_hash unless Hash === opts
       notify_observers :unresolved_component!, opts
@@ -496,7 +515,7 @@ END
       validate_components!
 
       # If Array is given, dup it because we
-      # are mutate it as a stack, otherwise create
+      # will mutate it as a stack, otherwise create
       # new Array stack with c.
       stack = Array === c ? c.dup : [ c ]
       
@@ -619,7 +638,7 @@ END
         end
       end
 
-      # Append the facet's default_path to the end 
+      # Append the facet's standard_path to the end 
       # of the collected facets.
       coll.each do | facet_key, f |
         fp = Facet.proto_by_key(facet_key)
