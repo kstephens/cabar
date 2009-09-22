@@ -309,17 +309,15 @@ module Cabar
         (conf['depend'] || conf['requires'] || conf['require'] || EMPTY_HASH).each do | k, v |
           case k
           when 'component'
+            next unless v
             k = :required_component
-            unless v
-              puts "k = #{k.inspect} v = #{v.inspect}"
-            end
             v.each do | name, opts |
               f = create_facet k, opts do | opts, facet |
                 opts[:name] ||= name
               end
             end
           else
-            raise("unknown requires type #{k.inspect}")
+            raise Error, "unknown requires type #{k.inspect}"
           end
         end
         
@@ -402,7 +400,8 @@ module Cabar
     # Returns true if this Component has a Facet by
     # name or prototype.
     def has_facet? f
-      ! ! facet(f)
+      f = f.composition_key if Facet === f
+      @facet_by_key.key? f
     end
 
 
@@ -410,10 +409,6 @@ module Cabar
     # or prototype.
     def facet f
       f = f.composition_key if Facet === f
-      if String === f
-        $stderr.puts "#{$0}: DEPRECATED: Component#facet given #{f.class}, expected Symbol or Array"
-        f = f.to_s
-      end
       @facet_by_key[f]
     end
 

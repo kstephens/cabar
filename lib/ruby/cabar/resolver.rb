@@ -59,6 +59,7 @@ module Cabar
     def initialize opts = EMPTY_HASH
       @required_components = Cabar::Version::Set.new
       @top_level_components = [ ] # ordered Cabar::Version::Set.new
+      @top_level_component = { }
       @unresolved_components = { } # name
       @data = { }
       super
@@ -69,6 +70,7 @@ module Cabar
                  '@available_components',
                  '@selected_components',
                  '@required_components',
+                 '@top_level_component',
                  '@top_level_components',
                  '@unresolved_components',
                 ].freeze
@@ -346,11 +348,17 @@ module Cabar
 
     # Called when a top-level component is required.
     def add_top_level_component! c
-      unless @top_level_components.include?(c)
+      unless @top_level_component[c]
+        @top_level_component[c] = true
         @top_level_components << c
         notify_observers :add_top_level_component!, c
       end
       c
+    end
+
+    # Returns true if component is a top-level component.
+    def top_level_component? c
+      ! ! @top_level_component[c]
     end
 
 
@@ -509,6 +517,7 @@ END
 
     # Returns an Array of all a Component's dependencies.
     # Forces resolution and validation of components.
+    # Components at the same dependency level will be sorted by name.
     def component_dependencies c
       resolve_components!
 
@@ -537,7 +546,17 @@ END
       end
 
       # puts "set = #{set.inspect}"
-      set = topographic_sort(set, :dependents => lambda { |c| deps[c] || EMPTY_ARRAY })
+      set = topographic_sort(set,
+                             :dependents => lambda { |c| deps[c] || EMPTY_ARRAY },
+                             :order      => lambda { | a, b | 
+                               case
+                               when (result = (top_level_component?(a) ? 0 : 1) <=> (top_level_component?(b) ? 0 : 1)) != 0
+                               when (result = a.name.to_s <=> b.name.to_s) != 0
+                               when (result = 0)
+                               end
+                               result
+                                   }
+                             )
       # puts "set sort_topo = #{set.inspect}"
 
       set

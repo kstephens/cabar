@@ -13,3 +13,7 @@ cabar:
     action:
       test: 'rake test'
 
+  requires:
+    component:
+      ruby: true
+

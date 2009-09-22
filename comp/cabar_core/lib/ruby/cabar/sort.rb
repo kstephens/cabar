@@ -6,14 +6,18 @@ module Cabar
   # Sorting functions.
   module Sort
 
-    # Takes a list of elements and :dependents => Proc { | element |  } option.
+    # Takes a list of elements and :dependents => Proc { | element | ... } option.
     #
-    # Will sort elements such that and element e1 will be
+    # Will sort elements such that any element e1 will be
     # after e2 if e1 is in dependents.call(e2) decendents.
     #
-    # dependents Proc is is expected to return an Array.
+    # dependents Proc is is expected to return an Enumerable
     #
-    # Should complete if graph is cyclical.
+    # Should complete even if dependency graph is cyclical.
+    #
+    # Elements at the same dependency level will be sorted by an :order => Proc { | a, b | ... } option.
+    # The :order Proc defaults to produce a stable sort based on the input.
+    #
     def topographic_sort elements, opts = EMPTY_HASH
       # Get a Proc that returns the dependents of an element.
       # The proc must return an enumeration that can be perform :reverse.

@@ -193,7 +193,7 @@ DOC
         }.flatten.
         map { | f |
           f._proto
-        }.uniq.sort_by{|x| x.key}
+        }.uniq.sort_by{|x| x.key.to_s}
         @facets = facets
 
         # Delay output of edges.
@@ -593,7 +593,7 @@ DOC
               str << "\n"
               # <- <<exported facet name>>
               x.provides.
-                map{|f| f.key}.
+                map{|f| f.key.to_s}.
                 sort.
                 each{|f| str << "<- #{f}\\l"}
 
